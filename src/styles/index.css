@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+}
+
+:root {
+  /* Day theme (default) */
+  --bg: #E4D3A8;
+  --card: #EFE4C4;
+  --ink: #1C1C1C;
+  --muted: #66592F;
+  --faint: #8A7D52;
+  --rail: #1C1C1C;
+  --red: #C43B2E;
+  --red-text: #F3E7C9;
+  --code-bg: #1C1C1C;
+  --code-ink: #E4D3A8;
+  --border: #C9B888;
+}
+
+[data-theme="night"] {
+  --bg: #211D12;
+  --card: #2C2717;
+  --ink: #E4D3A8;
+  --muted: #A6996E;
+  --faint: #7A6F4C;
+  --rail: #E4D3A8;
+  --red: #E2574A;
+  --red-text: #2A1512;
+  --code-bg: #15120A;
+  --code-ink: #E4D3A8;
+  --border: #3E3720;
+}
+
+* {
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+code, pre {
+  font-family: var(--font-mono);
+}
+
+/* Markdown content styles */
+.markdown-content {
+  line-height: 1.8;
+}
+
+.markdown-content h2 {
+  border-bottom: 3px solid var(--red);
+  width: fit-content;
+  padding-bottom: 4px;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-content p {
+  margin-bottom: 1rem;
+}
+
+.markdown-content ul, .markdown-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid var(--red);
+  background-color: var(--card);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.markdown-content blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content pre {
+  background-color: var(--code-bg);
+  color: var(--code-ink);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.markdown-content code {
+  font-size: 0.9rem;
+}
+
+.markdown-content p code {
+  background-color: var(--code-bg);
+  color: var(--code-ink);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.markdown-content a {
+  color: var(--red);
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--card);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--faint);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}

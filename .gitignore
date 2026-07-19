@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# IDE
+/.idea
+.vscode/
+
+# Local env files
+.env
+.env.local
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Plan (local only)
+PLAN.md
