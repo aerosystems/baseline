@@ -92,7 +92,7 @@ function parseLesson(filePath: string, rawContent: string): Lesson | null {
   if (!pathInfo) return null;
 
   const { data, content } = parseFrontmatter(rawContent);
-  const frontmatter = data as LessonFrontmatter;
+  const frontmatter = data as unknown as LessonFrontmatter;
 
   if (!frontmatter.title || !frontmatter.type || frontmatter.order === undefined) {
     console.warn(`Invalid frontmatter in ${filePath}`);
