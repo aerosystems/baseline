@@ -1,36 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280">
   <defs>
     <style>
-      .layer { stroke: #1C1C1C; stroke-width: 2; }
-      .text { font-family: 'Inter', system-ui, sans-serif; font-size: 14px; fill: #1C1C1C; text-anchor: middle; }
-      .text-light { fill: #F3E7C9; }
+      .layer { stroke-width: 2; }
+      .text { font-family: 'Inter', system-ui, sans-serif; font-size: 14px; text-anchor: middle; dominant-baseline: middle; }
     </style>
-  </defs>
-
-  <!-- Hardware layer -->
-  <rect x="50" y="220" width="300" height="50" rx="4" class="layer" fill="#8A7D52"/>
-  <text x="200" y="250" class="text">Апаратне забезпечення</text>
-
-  <!-- OS layer (red) -->
-  <rect x="50" y="140" width="300" height="60" rx="4" class="layer" fill="#C43B2E"/>
-  <text x="200" y="175" class="text text-light">Операційна система</text>
-
-  <!-- Applications layer -->
-  <rect x="50" y="60" width="300" height="60" rx="4" class="layer" fill="#EFE4C4"/>
-  <text x="200" y="95" class="text">Прикладні програми</text>
-
-  <!-- User layer -->
-  <rect x="125" y="10" width="150" height="35" rx="4" class="layer" fill="#E4D3A8"/>
-  <text x="200" y="33" class="text">Користувач</text>
-
-  <!-- Arrows -->
-  <path d="M200 45 L200 60" stroke="#1C1C1C" stroke-width="2" marker-end="url(#arrow)"/>
-  <path d="M200 120 L200 140" stroke="#1C1C1C" stroke-width="2" marker-end="url(#arrow)"/>
-  <path d="M200 200 L200 220" stroke="#1C1C1C" stroke-width="2" marker-end="url(#arrow)"/>
-
-  <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L9,3 z" fill="#1C1C1C"/>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 L2,4 Z" fill="#1C1C1C"/>
+    </marker>
+    <marker id="arrow-light" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 L2,4 Z" fill="#E4D3A8"/>
     </marker>
   </defs>
+
+  <!-- User layer -->
+  <rect x="100" y="15" width="200" height="40" rx="6" class="layer" fill="#E4D3A8" stroke="#1C1C1C"/>
+  <text x="200" y="35" class="text" fill="#1C1C1C">Користувач</text>
+
+  <!-- Arrow: User -> Apps -->
+  <line x1="200" y1="55" x2="200" y2="75" stroke="#1C1C1C" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Applications layer -->
+  <rect x="50" y="80" width="300" height="50" rx="6" class="layer" fill="#EFE4C4" stroke="#1C1C1C"/>
+  <text x="200" y="105" class="text" fill="#1C1C1C">Прикладні програми</text>
+
+  <!-- Arrow: Apps -> OS -->
+  <line x1="200" y1="130" x2="200" y2="150" stroke="#1C1C1C" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- OS layer (red - highlight) -->
+  <rect x="50" y="155" width="300" height="50" rx="6" class="layer" fill="#C43B2E" stroke="#1C1C1C"/>
+  <text x="200" y="180" class="text" fill="#F3E7C9" font-weight="600">Операційна система</text>
+
+  <!-- Arrow: OS -> Hardware -->
+  <line x1="200" y1="205" x2="200" y2="225" stroke="#1C1C1C" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Hardware layer -->
+  <rect x="50" y="230" width="300" height="50" rx="6" class="layer" fill="#8A7D52" stroke="#1C1C1C"/>
+  <text x="200" y="255" class="text" fill="#1C1C1C">Апаратне забезпечення</text>
 </svg>
