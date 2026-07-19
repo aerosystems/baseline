@@ -10,7 +10,7 @@ const resources = {
       'header.signInTooltip': 'Буде доступно у v2',
 
       // Roadmap
-      'roadmap.backToRoadmap': '← До роадмапи',
+      'roadmap.backToRoadmap': '← Повернутись',
       'roadmap.readingTime': '{{minutes}} хв читання',
       'roadmap.soon': 'скоро',
 

@@ -13,25 +13,15 @@ interface RoadmapProps {
 export function Roadmap({ course, onLessonClick }: RoadmapProps) {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      {/* Course header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold mb-2" style={{ color: 'var(--ink)' }}>
-          {course.title}
-        </h1>
-        {course.subtitle && (
-          <p className="text-sm" style={{ color: 'var(--muted)' }}>
-            {course.subtitle}
-          </p>
-        )}
-      </div>
-
       {/* Roadmap with rail */}
       <div className="relative" style={{ paddingLeft: '40px' }}>
-        {/* Vertical rail - centered at 12px from left edge */}
+        {/* Vertical rail - starts and ends at module badge dots */}
         <div
-          className="absolute top-0 bottom-0"
+          className="absolute"
           style={{
             left: '10px',
+            top: '0',
+            bottom: '0',
             width: '3px',
             backgroundColor: 'var(--rail)'
           }}

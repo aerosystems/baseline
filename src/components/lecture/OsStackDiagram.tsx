@@ -28,7 +28,7 @@ export function OsStackDiagram() {
 
       {/* Arrow: User -> Apps */}
       <line
-        x1="200" y1="55" x2="200" y2="75"
+        x1="200" y1="58" x2="200" y2="72"
         style={{ stroke: 'var(--ink)', strokeWidth: 2 }}
         markerEnd="url(#arrow-diagram)"
       />
@@ -49,7 +49,7 @@ export function OsStackDiagram() {
 
       {/* Arrow: Apps -> OS */}
       <line
-        x1="200" y1="130" x2="200" y2="150"
+        x1="200" y1="133" x2="200" y2="147"
         style={{ stroke: 'var(--ink)', strokeWidth: 2 }}
         markerEnd="url(#arrow-diagram)"
       />
@@ -70,7 +70,7 @@ export function OsStackDiagram() {
 
       {/* Arrow: OS -> Hardware */}
       <line
-        x1="200" y1="205" x2="200" y2="225"
+        x1="200" y1="208" x2="200" y2="222"
         style={{ stroke: 'var(--ink)', strokeWidth: 2 }}
         markerEnd="url(#arrow-diagram)"
       />
