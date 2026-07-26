@@ -1,8 +1,11 @@
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/contexts/ThemeContext';
 
-export function Header() {
-  const { t } = useTranslation();
+interface HeaderProps {
+  showBack?: boolean;
+  onBackClick?: () => void;
+}
+
+export function Header({ showBack, onBackClick }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -15,12 +18,22 @@ export function Header() {
     >
       <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo / Title - aligned with roadmap rail */}
-        <h1
-          className="text-xl font-semibold"
-          style={{ color: 'var(--ink)', paddingLeft: '40px' }}
-        >
-          {t('header.title')}
-        </h1>
+        {showBack ? (
+          <button
+            onClick={onBackClick}
+            className="text-xl font-semibold transition-colors hover:opacity-80"
+            style={{ color: 'var(--ink)', paddingLeft: '40px' }}
+          >
+            ← Baseline
+          </button>
+        ) : (
+          <h1
+            className="text-xl font-semibold"
+            style={{ color: 'var(--ink)', paddingLeft: '40px' }}
+          >
+            Baseline
+          </h1>
+        )}
 
         {/* Controls */}
         <div className="flex items-center gap-3">
@@ -28,7 +41,7 @@ export function Header() {
           <button
             onClick={toggleTheme}
             className="p-2 rounded transition-colors hover:opacity-80"
-            title={theme === 'day' ? t('theme.night') : t('theme.day')}
+            title={theme === 'day' ? 'Нічна тема' : 'Денна тема'}
             style={{ color: 'var(--ink)' }}
           >
             {theme === 'day' ? '☾' : '☀'}

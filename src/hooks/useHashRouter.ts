@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Language } from '@/types/content';
 
 export interface Route {
-  type: 'roadmap' | 'lesson';
-  lang: Language;
+  type: 'landing' | 'course' | 'lesson';
   course?: string;
   module?: string;
   slug?: string;
@@ -13,32 +11,32 @@ function parseHash(hash: string): Route {
   const path = hash.replace(/^#\/?/, '');
 
   if (!path) {
-    return { type: 'roadmap', lang: 'uk' };
+    return { type: 'landing' };
   }
 
   const parts = path.split('/').filter(Boolean);
 
   if (parts.length === 0) {
-    return { type: 'roadmap', lang: 'uk' };
+    return { type: 'landing' };
   }
 
-  const lang = (parts[0] === 'en' ? 'en' : 'uk') as Language;
-
+  // #/course-slug
   if (parts.length === 1) {
-    return { type: 'roadmap', lang };
+    return { type: 'course', course: parts[0] };
   }
 
-  if (parts.length >= 4) {
+  // #/course-slug/module-slug/lesson-slug
+  if (parts.length >= 3) {
     return {
       type: 'lesson',
-      lang,
-      course: parts[1],
-      module: parts[2],
-      slug: parts[3],
+      course: parts[0],
+      module: parts[1],
+      slug: parts[2],
     };
   }
 
-  return { type: 'roadmap', lang };
+  // #/course-slug/something - treat as course
+  return { type: 'course', course: parts[0] };
 }
 
 export function useHashRouter() {
@@ -53,43 +51,22 @@ export function useHashRouter() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const navigate = useCallback((newRoute: Route) => {
-    let hash = `#/${newRoute.lang}`;
-
-    if (newRoute.type === 'lesson' && newRoute.course && newRoute.module && newRoute.slug) {
-      hash = `#/${newRoute.lang}/${newRoute.course}/${newRoute.module}/${newRoute.slug}`;
-    }
-
-    window.location.hash = hash;
+  const goToLanding = useCallback(() => {
+    window.location.hash = '#/';
   }, []);
 
-  const goToRoadmap = useCallback((lang?: Language) => {
-    navigate({ type: 'roadmap', lang: lang || route.lang });
-  }, [navigate, route.lang]);
+  const goToCourse = useCallback((courseSlug: string) => {
+    window.location.hash = `#/${courseSlug}`;
+  }, []);
 
-  const goToLesson = useCallback((course: string, module: string, slug: string, lang?: Language) => {
-    navigate({
-      type: 'lesson',
-      lang: lang || route.lang,
-      course,
-      module,
-      slug,
-    });
-  }, [navigate, route.lang]);
-
-  const updateLanguage = useCallback((newLang: Language) => {
-    if (route.type === 'lesson') {
-      navigate({ ...route, lang: newLang });
-    } else {
-      navigate({ type: 'roadmap', lang: newLang });
-    }
-  }, [navigate, route]);
+  const goToLesson = useCallback((course: string, module: string, slug: string) => {
+    window.location.hash = `#/${course}/${module}/${slug}`;
+  }, []);
 
   return {
     route,
-    navigate,
-    goToRoadmap,
+    goToLanding,
+    goToCourse,
     goToLesson,
-    updateLanguage,
   };
 }

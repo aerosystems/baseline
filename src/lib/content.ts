@@ -143,12 +143,12 @@ export function buildContentTree(): ContentTree {
       const course: Course = {
         slug: courseSlug,
         title: courseJson?.title || courseSlug,
-        subtitle: courseJson?.subtitle || '',
+        description: courseJson?.description,
         modules: [],
       };
 
       for (const [moduleSlug, lessons] of Object.entries(modules)) {
-        const moduleJson = getJsonContent<ModuleJson>(`content/${lang}/${courseSlug}/${moduleSlug}/module.json`);
+        const moduleJson = getJsonContent<ModuleJson>(`/content/${lang}/${courseSlug}/${moduleSlug}/module.json`);
 
         const module: Module = {
           slug: moduleSlug,
