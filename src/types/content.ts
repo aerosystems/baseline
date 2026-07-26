@@ -30,13 +30,13 @@ export interface Module {
 
 export interface CourseJson {
   title: string;
-  subtitle: string;
+  description?: string;
 }
 
 export interface Course {
   slug: string;
   title: string;
-  subtitle: string;
+  description?: string;
   modules: Module[];
 }
 

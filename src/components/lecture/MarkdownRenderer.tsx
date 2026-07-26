@@ -26,7 +26,7 @@ function CodeBlock({ children, className }: { children: string; className?: stri
           color: 'var(--code-ink)',
         }}
       >
-        {copied ? '✓' : 'Copy'}
+        {copied ? '✓' : 'Копіювати'}
       </button>
       <pre className={className}>
         <code>{children}</code>
