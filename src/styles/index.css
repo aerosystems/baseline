@@ -87,6 +87,18 @@ code, pre {
   margin-bottom: 0.5rem;
 }
 
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ul ul {
+  list-style-type: circle;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
 .markdown-content blockquote {
   border-left: 4px solid var(--red);
   background-color: var(--card);
@@ -133,6 +145,30 @@ code, pre {
 
 .markdown-content a:hover {
   text-decoration: underline;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--faint);
+}
+
+.markdown-content th {
+  background: var(--card);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.markdown-content tr:hover {
+  background: var(--card);
 }
 
 /* Scrollbar styling */
