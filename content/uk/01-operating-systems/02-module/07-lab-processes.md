@@ -1,7 +1,7 @@
 ---
 title: "Управління процесами"
 type: lab
-order: 3
+order: 7
 preview: "ps, top, kill, пріоритети процесів."
 ---
 

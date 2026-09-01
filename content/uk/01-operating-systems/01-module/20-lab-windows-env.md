@@ -1,7 +1,7 @@
 ---
 title: "Робота в середовищі ОС Windows"
 type: lab
-order: 3
+order: 20
 preview: "Знайомство з інтерфейсом Windows, базові операції."
 ---
 

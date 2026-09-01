@@ -1,7 +1,7 @@
 ---
 title: "Дисципліни диспетчеризації. Динамічні пріоритети"
 type: lecture
-order: 1
+order: 4
 preview: "FIFO, Round Robin, SJF, багаторівневі черги."
 ---
 

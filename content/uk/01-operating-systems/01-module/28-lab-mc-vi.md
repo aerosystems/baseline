@@ -1,7 +1,7 @@
 ---
 title: "Оболонка mc та редактор vi"
 type: lab
-order: 11
+order: 28
 preview: "Midnight Commander, режими vi, базове редагування."
 ---
 
