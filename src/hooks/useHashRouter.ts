@@ -5,6 +5,7 @@ export interface Route {
   course?: string;
   module?: string;
   slug?: string;
+  anchor?: string;
 }
 
 function parseHash(hash: string): Route {
@@ -14,7 +15,11 @@ function parseHash(hash: string): Route {
     return { type: 'landing' };
   }
 
-  const parts = path.split('/').filter(Boolean);
+  // Parse anchor from path (format: path::anchor)
+  const [pathPart, rawAnchor] = path.split('::');
+  // Decode URL-encoded anchor (e.g., %D1%88%D1%96%D1%81%D1%82%D1%8C -> шість)
+  const anchor = rawAnchor ? decodeURIComponent(rawAnchor) : undefined;
+  const parts = pathPart.split('/').filter(Boolean);
 
   if (parts.length === 0) {
     return { type: 'landing' };
@@ -25,13 +30,14 @@ function parseHash(hash: string): Route {
     return { type: 'course', course: parts[0] };
   }
 
-  // #/course-slug/module-slug/lesson-slug
+  // #/course-slug/module-slug/lesson-slug or #/course-slug/module-slug/lesson-slug::anchor
   if (parts.length >= 3) {
     return {
       type: 'lesson',
       course: parts[0],
       module: parts[1],
       slug: parts[2],
+      anchor,
     };
   }
 
@@ -59,8 +65,16 @@ export function useHashRouter() {
     window.location.hash = `#/${courseSlug}`;
   }, []);
 
-  const goToLesson = useCallback((course: string, module: string, slug: string) => {
-    window.location.hash = `#/${course}/${module}/${slug}`;
+  const goToLesson = useCallback((course: string, module: string, slug: string, anchor?: string) => {
+    const base = `#/${course}/${module}/${slug}`;
+    window.location.hash = anchor ? `${base}::${anchor}` : base;
+  }, []);
+
+  const scrollToAnchor = useCallback((anchor: string) => {
+    const element = document.getElementById(anchor);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   }, []);
 
   return {
@@ -68,5 +82,6 @@ export function useHashRouter() {
     goToLanding,
     goToCourse,
     goToLesson,
+    scrollToAnchor,
   };
 }

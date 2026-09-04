@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReadingProgressBar } from '@/components/layout/ReadingProgressBar';
 import { LectureHeader } from './LectureHeader';
@@ -8,11 +9,26 @@ interface LecturePageProps {
   lesson: Lesson;
   module: Module;
   isFallback: boolean;
+  anchor?: string;
   onBack: () => void;
 }
 
-export function LecturePage({ lesson, module, isFallback, onBack }: LecturePageProps) {
+export function LecturePage({ lesson, module, isFallback, anchor, onBack }: LecturePageProps) {
   const { t } = useTranslation();
+
+  // Scroll to anchor when page loads or anchor changes
+  useEffect(() => {
+    if (anchor) {
+      // Delay to ensure content is fully rendered (especially on initial page load)
+      const timer = setTimeout(() => {
+        const element = document.getElementById(anchor);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [anchor, lesson.slug]);
 
   return (
     <>
