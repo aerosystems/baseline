@@ -1,7 +1,7 @@
 ---
 title: "Файли та каталоги в командному рядку Windows"
 type: lab
-order: 4
+order: 21
 preview: "Команди dir, cd, copy, move, del."
 ---
 

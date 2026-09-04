@@ -1,7 +1,7 @@
 ---
 title: "Командні файли в середовищі Linux"
 type: lab
-order: 12
+order: 29
 preview: "Bash-скрипти, змінні, цикли, умови."
 ---
 

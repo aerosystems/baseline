@@ -1,7 +1,7 @@
 ---
 title: "Командні файли в ОС Windows"
 type: lab
-order: 5
+order: 22
 preview: "Створення .bat файлів, змінні, умови."
 ---
 

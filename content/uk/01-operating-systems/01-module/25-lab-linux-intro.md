@@ -1,7 +1,7 @@
 ---
 title: "Принципи функціонування ОС Linux"
 type: lab
-order: 8
+order: 25
 preview: "Ядро Linux, дистрибутиви, базові команди."
 ---
 

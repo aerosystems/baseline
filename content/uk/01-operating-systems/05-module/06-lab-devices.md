@@ -1,7 +1,7 @@
 ---
 title: "Управління пристроями"
 type: lab
-order: 2
+order: 6
 preview: "Робота з пристроями в Linux, udev, /dev."
 ---
 

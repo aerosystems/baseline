@@ -1,7 +1,7 @@
 ---
 title: "Облікові записи та права доступу до файлів"
 type: lab
-order: 10
+order: 27
 preview: "Користувачі, групи, chmod, chown."
 ---
 
