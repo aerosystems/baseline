@@ -33,6 +33,7 @@ export function App() {
             lesson={lessonData.lesson}
             module={lessonData.module}
             isFallback={lessonData.isFallback}
+            anchor={route.anchor}
             onBack={() => goToCourse(route.course!)}
           />
         </div>
