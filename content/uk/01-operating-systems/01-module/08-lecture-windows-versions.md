@@ -386,81 +386,76 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataC
 ## 🏢 Real World: Як це використовують у великих компаніях
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    ВИБІР ВЕРСІЙ WINDOWS У ENTERPRISE                         │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   КОРПОРАЦІЇ (Enterprise Agreement)                                          │
-│   ├── Microsoft, Google, Amazon офіси:                                      │
-│   │   └── Windows 11 Enterprise + Microsoft 365 E5                          │
-│   ├── Фінансові установи (Goldman Sachs, JP Morgan):                        │
-│   │   └── Windows 10/11 Enterprise LTSC для торгових терміналів             │
-│   └── Переваги: Volume Licensing, централізоване керування, support         │
-│                                                                              │
-│   СТАРТАПИ ТА МАЛИЙ БІЗНЕС                                                  │
-│   ├── SaaS-компанії:                                                         │
-│   │   └── Windows 11 Pro + Microsoft 365 Business                           │
-│   ├── Переваги Pro над Home:                                                │
-│   │   ├── BitLocker для захисту ноутбуків                                   │
-│   │   ├── Remote Desktop для віддаленої роботи                              │
-│   │   └── Hyper-V для розробки та тестування                                │
-│   └── Вартість: ~$200 за ліцензію (одноразово)                              │
-│                                                                              │
-│   ДАТАЦЕНТРИ ТА ХМАРИ                                                       │
-│   ├── Azure:                                                                 │
-│   │   └── Windows Server Datacenter Azure Edition                           │
-│   ├── On-premise датацентри:                                                │
-│   │   └── Windows Server Datacenter (unlimited VMs)                         │
-│   └── Ліцензування: Per-core (мінімум 16 cores)                             │
-│                                                                              │
-│   КРИТИЧНА ІНФРАСТРУКТУРА                                                   │
-│   ├── Банкомати, медичне обладнання:                                        │
-│   │   └── Windows 10 IoT Enterprise LTSC (10 років підтримки)               │
-│   ├── Промислові системи:                                                    │
-│   │   └── Windows Server IoT                                                 │
-│   └── Чому LTSC: стабільність, без feature updates, тільки security         │
-│                                                                              │
-│   ОСВІТА                                                                     │
-│   ├── Університети та школи:                                                │
-│   │   └── Windows 11 Education (= Enterprise, дешевше)                      │
-│   └── Azure Lab Services для віртуальних лабораторій                        │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│               ВИБІР ВЕРСІЙ WINDOWS У ENTERPRISE                       │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  КОРПОРАЦІЇ (Enterprise Agreement)                                    │
+│  ├── Microsoft, Google, Amazon офіси:                                 │
+│  │   └── Windows 11 Enterprise + Microsoft 365 E5                     │
+│  ├── Фінансові установи (Goldman Sachs, JP Morgan):                   │
+│  │   └── Windows 10/11 Enterprise LTSC для торгових терміналів        │
+│  └── Переваги: Volume Licensing, централізоване керування             │
+│                                                                       │
+│  СТАРТАПИ ТА МАЛИЙ БІЗНЕС                                             │
+│  ├── SaaS-компанії:                                                   │
+│  │   └── Windows 11 Pro + Microsoft 365 Business                      │
+│  ├── Переваги Pro над Home:                                           │
+│  │   ├── BitLocker для захисту ноутбуків                              │
+│  │   ├── Remote Desktop для віддаленої роботи                         │
+│  │   └── Hyper-V для розробки та тестування                           │
+│  └── Вартість: ~$200 за ліцензію (одноразово)                         │
+│                                                                       │
+│  ДАТАЦЕНТРИ ТА ХМАРИ                                                  │
+│  ├── Azure: Windows Server Datacenter Azure Edition                   │
+│  ├── On-premise: Windows Server Datacenter (unlimited VMs)            │
+│  └── Ліцензування: Per-core (мінімум 16 cores)                        │
+│                                                                       │
+│  КРИТИЧНА ІНФРАСТРУКТУРА                                              │
+│  ├── Банкомати: Windows 10 IoT Enterprise LTSC                        │
+│  ├── Промислові системи: Windows Server IoT                           │
+│  └── Чому LTSC: стабільність, без feature updates                     │
+│                                                                       │
+│  ОСВІТА                                                               │
+│  ├── Університети: Windows 11 Education (= Enterprise)                │
+│  └── Azure Lab Services для віртуальних лабораторій                   │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 💼 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    КАР'ЄРНІ МОЖЛИВОСТІ                                       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   MICROSOFT 365 ADMINISTRATOR                                                │
-│   ├── Зарплата: $60,000 - $100,000 USD / €55,000 - €90,000 EUR              │
-│   ├── Навички: Windows 10/11 deployment, Intune, Autopilot                 │
-│   └── Сертифікації: MS-102, MD-102                                          │
-│                                                                              │
-│   WINDOWS DEPLOYMENT SPECIALIST                                              │
-│   ├── Зарплата: $55,000 - $85,000 USD / €50,000 - €75,000 EUR               │
-│   ├── Навички: MDT, SCCM/MECM, WDS, Windows Imaging                        │
-│   └── Сертифікації: MD-102, AZ-140 (для AVD)                                │
-│                                                                              │
-│   ENDPOINT MANAGER / INTUNE SPECIALIST                                       │
-│   ├── Зарплата: $70,000 - $120,000 USD / €65,000 - €100,000 EUR             │
-│   ├── Навички: Intune, Autopilot, Windows Update for Business              │
-│   └── Сертифікації: MD-102, SC-300                                          │
-│                                                                              │
-│   WINDOWS SERVER ADMINISTRATOR                                               │
-│   ├── Зарплата: $60,000 - $110,000 USD / €55,000 - €95,000 EUR              │
-│   ├── Навички: Server Core, Hyper-V, Failover Clustering                   │
-│   └── Сертифікації: AZ-800, AZ-801                                          │
-│                                                                              │
-│   LICENSING SPECIALIST                                                       │
-│   ├── Зарплата: $50,000 - $90,000 USD / €45,000 - €80,000 EUR               │
-│   ├── Навички: Microsoft licensing, SAM, compliance                        │
-│   └── Сертифікації: Microsoft Licensing Professional                       │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                       КАР'ЄРНІ МОЖЛИВОСТІ                             │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  MICROSOFT 365 ADMINISTRATOR                                          │
+│  ├── Зарплата: $60K-$100K USD / €55K-€90K EUR                         │
+│  ├── Навички: Windows deployment, Intune, Autopilot                   │
+│  └── Сертифікації: MS-102, MD-102                                     │
+│                                                                       │
+│  WINDOWS DEPLOYMENT SPECIALIST                                        │
+│  ├── Зарплата: $55K-$85K USD / €50K-€75K EUR                          │
+│  ├── Навички: MDT, SCCM/MECM, WDS, Windows Imaging                    │
+│  └── Сертифікації: MD-102, AZ-140                                     │
+│                                                                       │
+│  ENDPOINT MANAGER / INTUNE SPECIALIST                                 │
+│  ├── Зарплата: $70K-$120K USD / €65K-€100K EUR                        │
+│  ├── Навички: Intune, Autopilot, Windows Update for Business          │
+│  └── Сертифікації: MD-102, SC-300                                     │
+│                                                                       │
+│  WINDOWS SERVER ADMINISTRATOR                                         │
+│  ├── Зарплата: $60K-$110K USD / €55K-€95K EUR                         │
+│  ├── Навички: Server Core, Hyper-V, Failover Clustering               │
+│  └── Сертифікації: AZ-800, AZ-801                                     │
+│                                                                       │
+│  LICENSING SPECIALIST                                                 │
+│  ├── Зарплата: $50K-$90K USD / €45K-€80K EUR                          │
+│  ├── Навички: Microsoft licensing, SAM, compliance                    │
+│  └── Сертифікації: Microsoft Licensing Professional                   │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
@@ -475,67 +470,47 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataC
 | Windows Insider Program | Тестування нових версій | insider.windows.com |
 | Hands-on Labs (Microsoft) | Віртуальні лабораторії | microsoft.com/handsonlabs |
 
-### Книги
-
-| Назва | Автор | Рівень |
-|-------|-------|--------|
-| Mastering Windows 11 | William Panek | Початковий-Середній |
-| Windows Server 2022 Administration Fundamentals | Bekim Dauti | Початковий |
-| Mastering Windows Server 2022 | Jordan Krause | Середній |
-| Microsoft 365 Modern Desktop Administrator | Orin Thomas | Середній |
-| Windows Server Automation with PowerShell Cookbook | Thomas Lee | Просунутий |
-
-### YouTube канали
-
-| Канал | Тематика |
-|-------|----------|
-| Windows | Офіційний канал Microsoft Windows |
-| Microsoft Ignite | Конференції та анонси нових версій |
-| Andy Malone | Windows 11 tips та deployment |
-| NIC IT Academy | Windows Server українською |
-| oWintero | Windows 10/11 глибоко |
-
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    WINDOWS VERSIONS - QUICK REFERENCE                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   DESKTOP EDITIONS (Win 10/11)                                               │
-│   ┌─────────────────┬───────────────────────────────────────────────────┐   │
-│   │ Home            │ Базові функції, 128 GB RAM, без BitLocker        │   │
-│   │ Pro             │ + BitLocker, Hyper-V, RDP host, Domain Join      │   │
-│   │ Pro Workstation │ + ReFS, Persistent Memory                        │   │
-│   │ Enterprise      │ + LTSC, DirectAccess, AppLocker                  │   │
-│   │ Education       │ = Enterprise, академічна ліцензія                │   │
-│   └─────────────────┴───────────────────────────────────────────────────┘   │
-│                                                                              │
-│   SERVER EDITIONS                                                            │
-│   ┌─────────────────┬───────────────────────────────────────────────────┐   │
-│   │ Essentials      │ До 25 users, 50 devices, спрощена ліцензія       │   │
-│   │ Standard        │ 2 VMs per license, Hyper-V, Clustering           │   │
-│   │ Datacenter      │ Unlimited VMs, Shielded VMs, SDN                 │   │
-│   │ Azure Edition   │ Оптимізовано для Azure, Hot Patching             │   │
-│   └─────────────────┴───────────────────────────────────────────────────┘   │
-│                                                                              │
-│   WINDOWS 11 ВИМОГИ                                                         │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ • CPU: 64-bit, 2+ cores, 1 GHz  • TPM: версія 2.0 ОБОВ'ЯЗКОВО     │   │
-│   │ • RAM: 4 GB мінімум             • UEFI + Secure Boot               │   │
-│   │ • Диск: 64 GB мінімум           • DirectX 12 + WDDM 2.0            │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│   ПЕРЕВІРКА ВЕРСІЇ (PowerShell)                                             │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ (Get-WmiObject Win32_OperatingSystem).Caption   # Назва            │   │
-│   │ [Environment]::OSVersion.Version                # Версія           │   │
-│   │ Get-ComputerInfo | Select Windows*              # Детально         │   │
-│   │ Get-Tpm                                         # Статус TPM       │   │
-│   │ Confirm-SecureBootUEFI                          # Secure Boot      │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                WINDOWS VERSIONS - QUICK REFERENCE                     │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  DESKTOP EDITIONS (Win 10/11)                                         │
+│  ┌─────────────────┬─────────────────────────────────────────────┐    │
+│  │ Home            │ Базові функції, 128 GB RAM, без BitLocker   │    │
+│  │ Pro             │ + BitLocker, Hyper-V, RDP, Domain Join      │    │
+│  │ Pro Workstation │ + ReFS, Persistent Memory                   │    │
+│  │ Enterprise      │ + LTSC, DirectAccess, AppLocker             │    │
+│  │ Education       │ = Enterprise, академічна ліцензія           │    │
+│  └─────────────────┴─────────────────────────────────────────────┘    │
+│                                                                       │
+│  SERVER EDITIONS                                                      │
+│  ┌─────────────────┬─────────────────────────────────────────────┐    │
+│  │ Essentials      │ До 25 users, 50 devices, спрощена ліцензія  │    │
+│  │ Standard        │ 2 VMs per license, Hyper-V, Clustering      │    │
+│  │ Datacenter      │ Unlimited VMs, Shielded VMs, SDN            │    │
+│  │ Azure Edition   │ Оптимізовано для Azure, Hot Patching        │    │
+│  └─────────────────┴─────────────────────────────────────────────┘    │
+│                                                                       │
+│  WINDOWS 11 ВИМОГИ                                                    │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ • CPU: 64-bit, 2+ cores, 1 GHz   • TPM: 2.0 ОБОВ'ЯЗКОВО        │  │
+│  │ • RAM: 4 GB мінімум              • UEFI + Secure Boot          │  │
+│  │ • Диск: 64 GB мінімум            • DirectX 12 + WDDM 2.0       │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  ПЕРЕВІРКА ВЕРСІЇ (PowerShell)                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ (Get-WmiObject Win32_OperatingSystem).Caption  # Назва         │  │
+│  │ [Environment]::OSVersion.Version               # Версія        │  │
+│  │ Get-ComputerInfo | Select Windows*             # Детально      │  │
+│  │ Get-Tpm                                        # Статус TPM    │  │
+│  │ Confirm-SecureBootUEFI                         # Secure Boot   │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки

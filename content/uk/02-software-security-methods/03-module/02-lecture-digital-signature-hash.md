@@ -629,35 +629,6 @@ def verify_hmac(key: bytes, message: bytes, mac: str) -> bool:
 | **Root-Me** | Криптографічні челенджі | CTF-стиль |
 | **PortSwigger** | Web security з хешами | Web application |
 
-### Книги
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    РЕКОМЕНДОВАНІ КНИГИ                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  📖 "Serious Cryptography" — Jean-Philippe Aumasson (2017)         │
-│     Глава 6: Hash Functions                                        │
-│     Глава 7: Keyed Hashing (HMAC, KMAC)                            │
-│                                                                     │
-│  📖 "Real-World Cryptography" — David Wong (2021)                  │
-│     Сучасний погляд на хеші та підписи                             │
-│                                                                     │
-│  📖 "Handbook of Applied Cryptography" — Menezes et al. (Free PDF) │
-│     Глава 9: Hash Functions and Data Integrity                     │
-│                                                                     │
-│  📖 "Understanding Cryptography" — Paar & Pelzl                    │
-│     Чудові пояснення з прикладами                                   │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### YouTube
-
-- **Computerphile**: "Hashing Algorithms and Security" (Prof. Mike Pound)
-- **3Blue1Brown**: "But how does Bitcoin actually work?" (візуалізація SHA-256)
-- **LiveOverflow**: "Hash Length Extension Attack"
-
 ### Стандарти та специфікації
 
 - **FIPS 180-4** — SHA-1, SHA-256, SHA-512

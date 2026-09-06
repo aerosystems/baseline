@@ -519,24 +519,6 @@ gsettings list-keys org.gnome.desktop.a11y.keyboard
 | **Arch Wiki - GNOME** | Детальні налаштування | wiki.archlinux.org/title/GNOME |
 | **Linux Accessibility HOWTO** | Доступність в Linux | tldp.org/HOWTO/Accessibility-HOWTO |
 
-### Книги
-
-| Назва | Автор | Рівень |
-|-------|-------|--------|
-| "The Linux Desktop User's Guide" | Mark Sobell | Початковий |
-| "Fedora Linux User Guide" | Fedora Docs Team | Початковий |
-| "GNOME 3 Application Development" | Various | Просунутий |
-| "Practical Linux Infrastructure" | Sujay Nadkarni | Середній |
-
-### YouTube канали
-
-| Канал | Фокус |
-|-------|-------|
-| **The Linux Experiment** | Desktop Linux огляди |
-| **DistroTube** | WM та DE порівняння |
-| **Chris Titus Tech** | Linux customization |
-| **EF - Linux Made Simple** | GNOME та KDE туторіали |
-
 ## 📋 Cheat Sheet
 
 ```

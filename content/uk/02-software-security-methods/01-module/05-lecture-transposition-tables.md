@@ -656,18 +656,6 @@ AES-GCM внутрішньо використовує перестановки �
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Книги
-
-- **"The Codebreakers"** - David Kahn (історія криптографії)
-- **"Cryptanalysis"** - Helen Gaines (класичні методи)
-- **"Secret History"** - Craig Bauer (історія з математикою)
-
-### YouTube
-
-- **Computerphile** — "Enigma Machine", "Lorenz Cipher"
-- **Numberphile** — Математика шифрів
-- **Tanja Lange** — Лекції з криптографії
-
 ---
 
 ## 📋 Cheat Sheet

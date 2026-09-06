@@ -594,35 +594,6 @@ DocuSign обробляє 1+ мільйон договорів на день:
 | **HackTheBox** | CTF платформа з крипто-челенджами | Середній |
 | **PicoCTF** | Освітні CTF від Carnegie Mellon | Початковий |
 
-### Книги
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    РЕКОМЕНДОВАНІ КНИГИ                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  📖 "Serious Cryptography" — Jean-Philippe Aumasson                │
-│     Найкраща сучасна книга з прикладної криптографії               │
-│                                                                     │
-│  📖 "Applied Cryptography" — Bruce Schneier                        │
-│     Класика, охоплює RSA, DH, DSA детально                         │
-│                                                                     │
-│  📖 "Cryptography Engineering" — Ferguson, Schneier, Kohno         │
-│     Практичний підхід до реалізації криптосистем                   │
-│                                                                     │
-│  📖 "An Introduction to Mathematical Cryptography"                 │
-│     — Hoffstein, Pipher, Silverman                                 │
-│     Математичні основи RSA та еліптичних кривих                    │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### YouTube канали
-
-- **Computerphile** — RSA Encryption (з Prof. Mike Pound)
-- **3Blue1Brown** — візуалізація математики криптографії
-- **LiveOverflow** — CTF writeups з криптографії
-
 ### Офіційні ресурси
 
 - **RFC 8017** — PKCS#1 RSA Cryptography Specifications

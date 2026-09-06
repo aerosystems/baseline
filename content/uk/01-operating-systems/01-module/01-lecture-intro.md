@@ -25,22 +25,22 @@ preview: "Історія ОС, визначення, місце в програ�
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    ОС НАВКОЛО НАС                               │
+│                         ОС НАВКОЛО НАС                          │
 │                                                                 │
-│   Смартфони:          Android (Linux), iOS (UNIX)              │
-│   Комп'ютери:         Windows, macOS, Linux                    │
-│   Сервери:            Linux (90%+), Windows Server             │
-│   Суперкомп'ютери:    Linux (100%)                             │
-│   Ігрові консолі:     FreeBSD (PS5), Windows (Xbox)            │
-│   IoT:                Linux, FreeRTOS, Zephyr                  │
-│   Автомобілі:         Linux, QNX, Android Automotive           │
-│   Космос:             Linux (SpaceX, Mars Helicopter)          │
+│   Смартфони:          Android (Linux), iOS (UNIX)               │
+│   Комп'ютери:         Windows, macOS, Linux                     │
+│   Сервери:            Linux (90%+), Windows Server              │
+│   Суперкомп'ютери:    Linux (100%)                              │
+│   Ігрові консолі:     FreeBSD (PS5), Windows (Xbox)             │
+│   IoT:                Linux, FreeRTOS, Zephyr                   │
+│   Автомобілі:         Linux, QNX, Android Automotive            │
+│   Космос:             Linux (SpaceX, Mars Helicopter)           │
 │                                                                 │
-│   Один тільки Linux працює на:                                 │
-│   • 3+ млрд Android-пристроїв                                  │
-│   • 90%+ web-серверів                                          │
-│   • 100% суперкомп'ютерів TOP500                               │
-│   • Марсіанський вертоліт Ingenuity                           │
+│   Один тільки Linux працює на:                                  │
+│   • 3+ млрд Android-пристроїв                                   │
+│   • 90%+ web-серверів                                           │
+│   • 100% суперкомп'ютерів TOP500                                │
+│   • Марсіанський вертоліт Ingenuity                             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -571,12 +571,6 @@ cat /etc/os-release  # Інформація про дистрибутив
 | "The Linux Command Line" | William Shotts | CLI mastery |
 | "Operating Systems: Three Easy Pieces" | OSTEP | Теорія ОС (безкоштовна) |
 | "Linux Kernel Development" | Robert Love | Kernel internals |
-
-### YouTube-канали
-
-- **The Linux Experiment** — новини Linux
-- **LearnLinuxTV** — практичні туторіали
-- **Computerphile** — CS концепції
 
 ## 📋 Cheat Sheet
 

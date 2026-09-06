@@ -575,39 +575,6 @@ print("ECDSA підпис дійсний!")
 | **HackTheBox** | Криптографічні машини | Середній |
 | **RootMe** | Challenges з ЕЦП | Початковий-Середній |
 
-### Книги
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    РЕКОМЕНДОВАНІ КНИГИ                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  📖 "Guide to Elliptic Curve Cryptography"                         │
-│     — Hankerson, Menezes, Vanstone                                 │
-│     Найповніший довідник з ECC та ECDSA                            │
-│                                                                     │
-│  📖 "Serious Cryptography" — J-P Aumasson                          │
-│     Глава 11: Digital Signatures                                    │
-│     Практичний підхід до DSA/ECDSA/EdDSA                           │
-│                                                                     │
-│  📖 "Real-World Cryptography" — David Wong                         │
-│     Сучасні алгоритми підпису включно з Ed25519                    │
-│                                                                     │
-│  📖 "ДСТУ 4145-2002" — Офіційний текст стандарту                   │
-│     Обов'язково для роботи з українським КЕП                       │
-│                                                                     │
-│  📖 "Mastering Bitcoin" — Andreas Antonopoulos                     │
-│     Детально про ECDSA в контексті Bitcoin                         │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### YouTube та курси
-
-- **Christof Paar** — "Introduction to Cryptography" (лекції ECDSA)
-- **Computerphile** — "Elliptic Curves" (Prof. Mike Pound)
-- **Coursera** — "Cryptography I" by Dan Boneh (Stanford)
-
 ### Специфікації
 
 - **FIPS 186-5** — Digital Signature Standard (DSS)

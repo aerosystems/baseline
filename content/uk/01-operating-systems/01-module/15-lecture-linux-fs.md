@@ -614,24 +614,6 @@ tail -f logfile.log  # Follow (live)
 | **Filesystem Hierarchy Standard** | Офіційна специфікація | refspecs.linuxfoundation.org/FHS_3.0 |
 | **Katacoda/Killercoda** | Інтерактивні сценарії | killercoda.com |
 
-### Книги
-
-| Назва | Автор | Рівень |
-|-------|-------|--------|
-| "How Linux Works" | Brian Ward | Початковий-Середній |
-| "The Linux Command Line" | William Shotts | Початковий |
-| "UNIX and Linux System Administration" | Nemeth et al. | Просунутий |
-| "Linux Bible" | Christopher Negus | Початковий-Середній |
-
-### YouTube канали
-
-| Канал | Фокус |
-|-------|-------|
-| **Learn Linux TV** | Системне адміністрування |
-| **NetworkChuck** | Linux для початківців |
-| **The Linux Experiment** | Linux новини та огляди |
-| **tutoriaLinux** | DevOps та Linux |
-
 ## 📋 Cheat Sheet
 
 ```

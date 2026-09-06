@@ -482,81 +482,81 @@ ps aux | grep "^\[" | head -10
 ## 🏢 Real World: Як це використовують у великих компаніях
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    РЕЖИМИ CPU ТА КОМПОНЕНТИ ЯДРА В PRODUCTION               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  GOOGLE CHROME (Protection Rings)                                           │
-│  ├── Кожна вкладка = окремий процес у Ring 3 (User Mode)                   │
-│  ├── Renderer процеси ізольовані через sandbox                             │
-│  ├── Site Isolation: кожен домен у своєму процесі                          │
-│  └── GPU процес окремий для захисту від експлойтів WebGL                   │
-│                                                                             │
-│  CLOUDFLARE (Kernel Bypass для швидкості)                                   │
-│  ├── XDP (eXpress Data Path): обробка пакетів до kernel stack              │
-│  ├── eBPF для DDoS фільтрації на швидкості 100+ Gbps                       │
-│  ├── DPDK для найшвидших мережевих операцій                                │
-│  └── Мінімізація переходів User↔Kernel для latency < 1ms                   │
-│                                                                             │
-│  NETFLIX (Scheduler Tuning)                                                 │
-│  ├── Tuned Linux CFS для streaming workloads                               │
-│  ├── CPU affinity: закріплення процесів за конкретними ядрами             │
-│  ├── NUMA-aware scheduling для багатосокетних серверів                     │
-│  └── Cgroups v2 для ізоляції ресурсів між мікросервісами                   │
-│                                                                             │
-│  AWS (Memory Management)                                                    │
-│  ├── KVM + QEMU: віртуалізація через апаратні розширення                   │
-│  ├── Memory ballooning для динамічного розподілу RAM                       │
-│  ├── Huge pages (2MB, 1GB) для зменшення TLB misses                        │
-│  └── Nitro: спеціальний hypervisor з мінімальним overhead                  │
-│                                                                             │
-│  APPLE SECURITY (Sandboxing)                                                │
-│  ├── iOS: кожен додаток у своєму sandbox з обмеженими syscalls             │
-│  ├── macOS SIP: System Integrity Protection для системних файлів           │
-│  ├── T2/M-серія: Secure Enclave працює в окремому Ring (-1)               │
-│  └── Kernel extensions замінюються на System Extensions (User Space)       │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│              РЕЖИМИ CPU ТА КОМПОНЕНТИ ЯДРА В PRODUCTION               │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  GOOGLE CHROME (Protection Rings)                                     │
+│  ├── Кожна вкладка = окремий процес у Ring 3                          │
+│  ├── Renderer процеси ізольовані через sandbox                        │
+│  ├── Site Isolation: кожен домен у своєму процесі                     │
+│  └── GPU процес окремий для захисту від експлойтів                    │
+│                                                                       │
+│  CLOUDFLARE (Kernel Bypass)                                           │
+│  ├── XDP: обробка пакетів до kernel stack                             │
+│  ├── eBPF для DDoS фільтрації на 100+ Gbps                            │
+│  ├── DPDK для найшвидших мережевих операцій                           │
+│  └── Мінімізація переходів User↔Kernel                                │
+│                                                                       │
+│  NETFLIX (Scheduler Tuning)                                           │
+│  ├── Tuned Linux CFS для streaming                                    │
+│  ├── CPU affinity: закріплення за ядрами                              │
+│  ├── NUMA-aware scheduling                                            │
+│  └── Cgroups v2 для ізоляції ресурсів                                 │
+│                                                                       │
+│  AWS (Memory Management)                                              │
+│  ├── KVM + QEMU: віртуалізація                                        │
+│  ├── Memory ballooning для динамічного розподілу                      │
+│  ├── Huge pages (2MB, 1GB)                                            │
+│  └── Nitro hypervisor з мінімальним overhead                          │
+│                                                                       │
+│  APPLE SECURITY (Sandboxing)                                          │
+│  ├── iOS: додатки у sandbox з обмеженими syscalls                     │
+│  ├── macOS SIP для системних файлів                                   │
+│  ├── Secure Enclave працює в Ring (-1)                                │
+│  └── System Extensions замість Kernel extensions                      │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 💼 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    КАР'ЄРНІ ШЛЯХИ: РЕЖИМИ CPU ТА КОМПОНЕНТИ ЯДРА           │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  🔧 KERNEL DEVELOPER                                                        │
-│     Розробка компонентів ядра, драйверів, scheduler                        │
-│     Зарплата: $150,000 - $300,000 (USA) | €80,000 - €160,000 (EU)          │
-│     Компанії: Red Hat, SUSE, Google, Intel, AMD                            │
-│     Навички: C, assembly, kernel debugging, git, lkml                      │
-│                                                                             │
-│  🛡️  SECURITY RESEARCHER / EXPLOIT DEVELOPER                                │
-│     Пошук вразливостей, privilege escalation, sandboxing                   │
-│     Зарплата: $120,000 - $250,000 (USA) | €70,000 - €140,000 (EU)          │
-│     Компанії: Google Project Zero, Trail of Bits, CrowdStrike              │
-│     Навички: Reverse engineering, C/C++, kernel internals, fuzzing         │
-│                                                                             │
-│  🌐 NETWORK SYSTEMS ENGINEER                                                │
-│     High-performance networking, kernel bypass, eBPF                       │
-│     Зарплата: $130,000 - $220,000 (USA) | €65,000 - €130,000 (EU)          │
-│     Компанії: Cloudflare, Fastly, Akamai, trading firms                    │
-│     Навички: TCP/IP, XDP, DPDK, Linux networking stack                     │
-│                                                                             │
-│  ⚙️  VIRTUALIZATION ENGINEER                                                │
-│     KVM, QEMU, hypervisors, memory management                              │
-│     Зарплата: $140,000 - $240,000 (USA) | €70,000 - €140,000 (EU)          │
-│     Компанії: AWS, VMware, Red Hat, Nutanix                                │
-│     Навички: KVM, QEMU, Xen, hardware virtualization extensions            │
-│                                                                             │
-│  📊 PERFORMANCE ENGINEER                                                    │
-│     Syscall optimization, scheduler tuning, profiling                      │
-│     Зарплата: $130,000 - $230,000 (USA) | €70,000 - €130,000 (EU)          │
-│     Компанії: Netflix, Meta, trading companies, gaming                     │
-│     Навички: perf, ftrace, bpftrace, flamegraphs, C                        │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│              КАР'ЄРНІ ШЛЯХИ: РЕЖИМИ CPU ТА ЯДРО                       │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  KERNEL DEVELOPER                                                     │
+│  Розробка компонентів ядра, драйверів, scheduler                      │
+│  Зарплата: $150K-$300K (USA) | €80K-€160K (EU)                        │
+│  Компанії: Red Hat, SUSE, Google, Intel, AMD                          │
+│  Навички: C, assembly, kernel debugging, git                          │
+│                                                                       │
+│  SECURITY RESEARCHER                                                  │
+│  Пошук вразливостей, privilege escalation, sandboxing                 │
+│  Зарплата: $120K-$250K (USA) | €70K-€140K (EU)                        │
+│  Компанії: Google Project Zero, Trail of Bits, CrowdStrike            │
+│  Навички: Reverse engineering, C/C++, kernel internals                │
+│                                                                       │
+│  NETWORK SYSTEMS ENGINEER                                             │
+│  High-performance networking, kernel bypass, eBPF                     │
+│  Зарплата: $130K-$220K (USA) | €65K-€130K (EU)                        │
+│  Компанії: Cloudflare, Fastly, Akamai, trading firms                  │
+│  Навички: TCP/IP, XDP, DPDK, Linux networking                         │
+│                                                                       │
+│  VIRTUALIZATION ENGINEER                                              │
+│  KVM, QEMU, hypervisors, memory management                            │
+│  Зарплата: $140K-$240K (USA) | €70K-€140K (EU)                        │
+│  Компанії: AWS, VMware, Red Hat, Nutanix                              │
+│  Навички: KVM, QEMU, Xen, hardware virtualization                     │
+│                                                                       │
+│  PERFORMANCE ENGINEER                                                 │
+│  Syscall optimization, scheduler tuning, profiling                    │
+│  Зарплата: $130K-$230K (USA) | €70K-€130K (EU)                        │
+│  Компанії: Netflix, Meta, trading, gaming                             │
+│  Навички: perf, ftrace, bpftrace, flamegraphs                         │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
@@ -571,80 +571,58 @@ ps aux | grep "^\[" | head -10
 | **Exploit Education** | Вправи з експлуатації (Phoenix, Protostar) | exploit.education |
 | **syscall.sh** | Інтерактивна таблиця системних викликів | syscall.sh |
 
-### Книги
-
-| Назва | Автор | Фокус |
-|-------|-------|-------|
-| "Linux Kernel Development" | Robert Love | Внутрішня структура ядра |
-| "Understanding the Linux Kernel" | Bovet & Cesati | Глибоке занурення в kernel |
-| "The Linux Programming Interface" | Michael Kerrisk | Системні виклики та API |
-| "BPF Performance Tools" | Brendan Gregg | eBPF та трасування |
-| "A Guide to Kernel Exploitation" | Perla & Oldani | Безпека ядра |
-
-### YouTube-канали
-
-| Канал | Тематика |
-|-------|----------|
-| **LiveOverflow** | Exploit development, kernel security |
-| **Low Level Learning** | Системне програмування, як працює CPU |
-| **Brendan Gregg** | Linux performance, eBPF, tracing |
-| **Julia Evans** | Зрозумілі пояснення Linux internals |
-| **gamozolabs** | Low-level security research |
-
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    РЕЖИМИ CPU ТА КОМПОНЕНТИ ЯДРА                            │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  КІЛЬЦЯ ЗАХИСТУ (x86/x64):                                                  │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │ Ring 3 │ User Mode   │ Звичайні програми, обмежені права            │  │
-│  │ Ring 2 │ (не використ.)│ Зарезервовано                              │  │
-│  │ Ring 1 │ (не використ.)│ Зарезервовано                              │  │
-│  │ Ring 0 │ Kernel Mode │ Ядро ОС, повний доступ до hardware           │  │
-│  │ Ring -1│ Hypervisor  │ VMM (KVM, Hyper-V) — віртуалізація           │  │
-│  │ Ring -2│ SMM         │ System Management Mode — firmware            │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                             │
-│  ПЕРЕХІД МІЖ РЕЖИМАМИ:                                                      │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │ User → Kernel │ SYSCALL (x64), INT 0x80 (x86), SVC (ARM)            │  │
-│  │ Kernel → User │ SYSRET (x64), IRET (x86), ERET (ARM)                │  │
-│  │ Час переходу  │ 100-1000 наносекунд                                  │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                             │
-│  КОМПОНЕНТИ ЯДРА LINUX:                                                     │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │ Scheduler        │ CFS, RT, Deadline — розподіл CPU часу            │  │
-│  │ Memory Manager   │ Paging, swap, OOM killer, huge pages             │  │
-│  │ VFS              │ Єдиний інтерфейс: ext4, xfs, nfs, proc           │  │
-│  │ Network Stack    │ TCP/IP, sockets, netfilter, XDP                  │  │
-│  │ LSM              │ SELinux, AppArmor — обов'язковий контроль        │  │
-│  │ Device Drivers   │ Block, char, network — керування hardware        │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                             │
-│  КЛЮЧОВІ КОМАНДИ:                                                           │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │ strace -c cmd           → Статистика syscalls команди               │  │
-│  │ cat /proc/self/maps     → Карта пам'яті поточного процесу           │  │
-│  │ cat /proc/self/status   → Capabilities та режим процесу             │  │
-│  │ lsmod                   → Завантажені модулі ядра                   │  │
-│  │ dmesg                   → Повідомлення ядра                         │  │
-│  │ cat /proc/kallsyms      → Символи ядра (syscalls, функції)          │  │
-│  │ perf top                → Профілювання в реальному часі             │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                             │
-│  НАСЛІДКИ ПОРУШЕННЯ ПРИВІЛЕЇВ:                                              │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │ Читання kernel memory   → General Protection Fault → SIGSEGV        │  │
-│  │ Привілейована інструкція→ #GP → Процес завершується                 │  │
-│  │ Помилка в user space    → Crash процесу (інші працюють)             │  │
-│  │ Помилка в kernel space  → Kernel panic (система зупиняється)        │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                  РЕЖИМИ CPU ТА КОМПОНЕНТИ ЯДРА                        │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  КІЛЬЦЯ ЗАХИСТУ (x86/x64):                                            │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Ring 3  │ User Mode   │ Програми, обмежені права               │  │
+│  │ Ring 2,1│ (не використ.)│ Зарезервовано                        │  │
+│  │ Ring 0  │ Kernel Mode │ Ядро ОС, повний доступ до hardware     │  │
+│  │ Ring -1 │ Hypervisor  │ VMM (KVM, Hyper-V)                     │  │
+│  │ Ring -2 │ SMM         │ System Management Mode                 │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  ПЕРЕХІД МІЖ РЕЖИМАМИ:                                                │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ User → Kernel │ SYSCALL (x64), INT 0x80 (x86), SVC (ARM)       │  │
+│  │ Kernel → User │ SYSRET (x64), IRET (x86), ERET (ARM)           │  │
+│  │ Час переходу  │ 100-1000 наносекунд                            │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  КОМПОНЕНТИ ЯДРА LINUX:                                               │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Scheduler      │ CFS, RT, Deadline — розподіл CPU              │  │
+│  │ Memory Manager │ Paging, swap, OOM killer                      │  │
+│  │ VFS            │ Єдиний інтерфейс: ext4, xfs, nfs              │  │
+│  │ Network Stack  │ TCP/IP, sockets, netfilter, XDP               │  │
+│  │ LSM            │ SELinux, AppArmor                             │  │
+│  │ Device Drivers │ Block, char, network                          │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  КЛЮЧОВІ КОМАНДИ:                                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ strace -c cmd         → Статистика syscalls                    │  │
+│  │ cat /proc/self/maps   → Карта пам'яті процесу                  │  │
+│  │ cat /proc/self/status → Capabilities процесу                   │  │
+│  │ lsmod                 → Завантажені модулі ядра                │  │
+│  │ dmesg                 → Повідомлення ядра                      │  │
+│  │ perf top              → Профілювання в реальному часі          │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  НАСЛІДКИ ПОРУШЕННЯ ПРИВІЛЕЇВ:                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Читання kernel memory    → GPF → SIGSEGV                       │  │
+│  │ Привілейована інструкція → #GP → Процес завершується           │  │
+│  │ Помилка в user space     → Crash процесу                       │  │
+│  │ Помилка в kernel space   → Kernel panic                        │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки

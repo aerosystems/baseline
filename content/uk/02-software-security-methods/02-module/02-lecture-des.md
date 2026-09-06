@@ -523,16 +523,6 @@ Matsui (1993) — апроксимація S-блоків лінійними ф�
 - [Cryptopals Set 1](https://cryptopals.com/sets/1) — класичні криптографічні challenges
 - [CyberChef](https://gchq.github.io/CyberChef/) — DES/3DES encryption online
 
-### Книги
-- **"Applied Cryptography"** by Bruce Schneier — класика, детальний опис DES
-- **"Serious Cryptography"** by Jean-Philippe Aumasson — сучасний підхід
-- **"The Design of Rijndael"** — порівняння AES з DES
-
-### YouTube
-- **Computerphile** — "DES Explained" серія
-- **Christof Paar** — "Introduction to Cryptography" (RWTH Aachen)
-- **LiveOverflow** — криптографічні атаки
-
 ### Інструменти
 - **OpenSSL**: `openssl des3 -e -in file -out file.enc`
 - **Python**: `from Crypto.Cipher import DES3`

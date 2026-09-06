@@ -631,18 +631,6 @@ xdg-open http://localhost:631
 - [Nerd Fonts](https://www.nerdfonts.com/) — патчені шрифти для dev
 - [Google Fonts](https://fonts.google.com/) — безкоштовні шрифти
 
-### Книги та документація
-- **"The GTK+ Programming Tutorial"** — основи GTK theming
-- **"Fonts & Encodings"** by Yannis Haralambous — все про шрифти
-- **ArchWiki: Fonts** — детальна конфігурація fontconfig
-- **CUPS Documentation** — cups.org/documentation
-
-### YouTube
-- **The Linux Experiment** — desktop customization
-- **Chris Titus Tech** — theming tutorials
-- **DistroTube** — rice guides
-- **EF - Linux Made Simple** — GTK/Qt theming
-
 ### Tools для практики
 - **Oomox/Themix** — GTK theme generator
 - **Kvantum Manager** — Qt theme engine

@@ -712,28 +712,6 @@ ND  1.35%  ███████
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Книги
-
-```
-📖 "Decrypted Secrets" - Friedrich Bauer
-   Методи криптоаналізу від античності до сучасності
-
-📖 "Codebreakers" - David Kahn
-   Вичерпна історія криптографії (1000+ сторінок)
-
-📖 "Elementary Cryptanalysis" - Abraham Sinkov
-   Математичний підхід до класичних шифрів
-
-📖 "Manual for the Solution of Military Ciphers" - Parker Hitt
-   Історичний посібник армії США (1916)
-```
-
-### Документальні фільми
-
-- **"The Imitation Game"** — історія Алана Тюрінга
-- **"Codebreaker"** — документальний про Тюрінга
-- **"Enigma"** — про Bletchley Park
-
 ---
 
 ## 📋 Cheat Sheet

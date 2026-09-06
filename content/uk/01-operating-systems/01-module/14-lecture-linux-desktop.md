@@ -11,27 +11,27 @@ preview: "Налаштування робочого столу, панелі, м
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    АНАТОМІЯ РОБОЧОГО СТОЛУ                      │
+│                    АНАТОМІЯ РОБОЧОГО СТОЛУ                     │
 │                                                                 │
 │   ┌─────────────────────────────────────────────────────────┐  │
-│   │ ≡ Activities │ Firefox ▼ │                 🔊 🔋 📶 10:30│  │  ← Top Panel
+│   │ ≡ Activities │ Firefox ▼ │              🔊 🔋 📶 10:30  │  │  ← Top Panel
 │   ├─────────────────────────────────────────────────────────┤  │     (GNOME)
-│   │                                                          │  │
-│   │   ┌──────────────────┐     ┌──────────────────┐         │  │
-│   │   │                  │     │                  │         │  │
-│   │   │  Desktop Icons   │     │   Floating       │         │  │
-│   │   │  📁 Home         │     │   Window         │         │  │
-│   │   │  📁 Documents    │     │   (Application)  │         │  │
-│   │   │  🗑️ Trash        │     │                  │         │  │
-│   │   └──────────────────┘     └──────────────────┘         │  │
-│   │                                                          │  │  ← Desktop
-│   │                              Background Wallpaper        │  │     Area
-│   │                                                          │  │
-│   │                                                          │  │
+│   │                                                         │  │
+│   │   ┌──────────────────┐     ┌──────────────────┐        │  │
+│   │   │                  │     │                  │        │  │
+│   │   │  Desktop Icons   │     │   Floating       │        │  │
+│   │   │  📁 Home         │     │   Window         │        │  │
+│   │   │  📁 Documents    │     │   (Application)  │        │  │
+│   │   │  🗑️ Trash        │     │                  │        │  │
+│   │   └──────────────────┘     └──────────────────┘        │  │
+│   │                                                         │  │  ← Desktop
+│   │                              Background Wallpaper       │  │     Area
+│   │                                                         │  │
+│   │                                                         │  │
 │   ├─────────────────────────────────────────────────────────┤  │
-│   │ ┌───┐ ┌───┐ ┌───┐ ┌───┐           ┌───────────────────┐│  │  ← Dock/
-│   │ │📁 │ │🌐 │ │💻 │ │⚙️ │           │  Show Applications││  │     Panel
-│   │ └───┘ └───┘ └───┘ └───┘           └───────────────────┘│  │
+│   │ ┌───┐ ┌───┐ ┌───┐ ┌───┐          ┌───────────────────┐ │  │  ← Dock/
+│   │ │📁 │ │🌐 │ │💻 │ │⚙️ │          │ Show Applications │ │  │     Panel
+│   │ └───┘ └───┘ └───┘ └───┘          └───────────────────┘ │  │
 │   └─────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -642,17 +642,6 @@ nautilus . 2>/dev/null || dolphin . 2>/dev/null || thunar .
 - [KDE UserBase](https://userbase.kde.org/) — туторіали для KDE
 - [ArchWiki - GNOME](https://wiki.archlinux.org/title/GNOME) — детальні налаштування
 - [Linux Journey](https://linuxjourney.com/) — інтерактивний курс
-
-### Книги
-- **"The Linux Command Line"** by William Shotts — основи CLI
-- **"How Linux Works"** by Brian Ward — як працює система
-- **"Linux Administration Handbook"** — enterprise налаштування
-
-### YouTube
-- **Chris Titus Tech** — Linux desktop customization
-- **The Linux Experiment** — огляди DE та дистрибутивів
-- **DistroTube** — тюнінг Linux desktop
-- **Learn Linux TV** — системне адміністрування
 
 ## 📋 Cheat Sheet
 

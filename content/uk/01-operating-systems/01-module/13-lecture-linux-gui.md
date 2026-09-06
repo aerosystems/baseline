@@ -555,26 +555,6 @@ ls /usr/share/icons/
 | **X.Org Wiki** | Документація X11 | x.org/wiki |
 | **Regolith Linux** | Тайлінговий i3 + GNOME | regolith-desktop.com |
 
-### Книги
-
-| Назва | Автор | Рівень |
-|-------|-------|--------|
-| **The Wayland Protocol** | Drew DeVault | Середній-Просунутий |
-| **Qt 6 for Beginners** | Various | Початковий |
-| **GTK 4 Programming Guide** | GNOME Project | Середній |
-| **X Window System Protocol** | X.Org Foundation | Просунутий |
-| **Programming with Qt** | Matthias Kalle | Середній |
-
-### YouTube канали
-
-| Канал | Тематика |
-|-------|----------|
-| **Brodie Robertson** | Wayland, tiling WMs, Linux GUI |
-| **Nick @ The Linux Experiment** | DE огляди, GNOME vs KDE |
-| **Chris @ DistroTube** | Tiling WMs, dwm, i3, bspwm |
-| **TechHut** | KDE Plasma tutorials |
-| **Linux Scoop** | DE огляди та порівняння |
-
 ## 📋 Cheat Sheet
 
 ```

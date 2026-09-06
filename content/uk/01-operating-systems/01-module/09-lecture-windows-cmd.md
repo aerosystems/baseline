@@ -643,84 +643,70 @@ $PSVersionTable
 ## 🏢 Real World: Як це використовують у великих компаніях
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    CMD/POWERSHELL У ENTERPRISE                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   АВТОМАТИЗАЦІЯ IT OPERATIONS                                                │
-│   ├── Microsoft (Azure):                                                     │
-│   │   └── PowerShell DSC для конфігурації тисяч серверів                    │
-│   ├── Великі банки:                                                          │
-│   │   └── Scheduled tasks + batch для щоденних бекапів                      │
-│   └── Телеком-оператори:                                                     │
-│       └── PowerShell для моніторингу та алертів 24/7                        │
-│                                                                              │
-│   DEVOPS & CI/CD                                                             │
-│   ├── Azure DevOps Pipelines:                                                │
-│   │   └── PowerShell tasks для deployment Windows apps                      │
-│   ├── GitHub Actions:                                                        │
-│   │   └── pwsh scripts для тестування на Windows runners                    │
-│   └── Jenkins:                                                               │
-│       └── Batch/PowerShell для Windows build agents                         │
-│                                                                              │
-│   SECURITY & COMPLIANCE                                                      │
-│   ├── SOC Teams (Security Operations):                                       │
-│   │   └── PowerShell для forensics та incident response                     │
-│   ├── Compliance Audits:                                                     │
-│   │   └── Scripts для збору конфігурацій та звітності                       │
-│   └── Антивірусні компанії:                                                  │
-│       └── CMD/PowerShell для аналізу malware поведінки                      │
-│                                                                              │
-│   SYSTEM ADMINISTRATION                                                      │
-│   ├── Active Directory керування:                                            │
-│   │   └── PowerShell AD module для 10,000+ користувачів                     │
-│   ├── Exchange/Microsoft 365:                                                │
-│   │   └── PowerShell для bulk операцій з mailboxes                          │
-│   └── Hyper-V / VMware:                                                      │
-│       └── PowerShell для автоматизації VM provisioning                      │
-│                                                                              │
-│   LEGACY SYSTEMS                                                             │
-│   ├── Виробництво:                                                           │
-│   │   └── Batch файли з 1990-х для промислових процесів                     │
-│   └── Логістика:                                                             │
-│       └── CMD scripts для інтеграції зі старими системами                   │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                  CMD/POWERSHELL У ENTERPRISE                          │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  АВТОМАТИЗАЦІЯ IT OPERATIONS                                          │
+│  ├── Microsoft (Azure): PowerShell DSC для серверів                   │
+│  ├── Банки: Scheduled tasks для бекапів                               │
+│  └── Телеком: PowerShell моніторинг 24/7                              │
+│                                                                       │
+│  DEVOPS & CI/CD                                                       │
+│  ├── Azure DevOps: PowerShell tasks для deployment                    │
+│  ├── GitHub Actions: pwsh на Windows runners                          │
+│  └── Jenkins: Batch/PowerShell для build agents                       │
+│                                                                       │
+│  SECURITY & COMPLIANCE                                                │
+│  ├── SOC Teams: PowerShell для forensics                              │
+│  ├── Compliance: Scripts для звітності                                │
+│  └── AV компанії: аналіз malware поведінки                            │
+│                                                                       │
+│  SYSTEM ADMINISTRATION                                                │
+│  ├── Active Directory: PowerShell AD module                           │
+│  ├── Exchange/M365: bulk операції з mailboxes                         │
+│  └── Hyper-V/VMware: VM provisioning                                  │
+│                                                                       │
+│  LEGACY SYSTEMS                                                       │
+│  ├── Виробництво: Batch з 1990-х                                      │
+│  └── Логістика: CMD для старих систем                                 │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 💼 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    КАР'ЄРНІ МОЖЛИВОСТІ                                       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   POWERSHELL DEVELOPER / AUTOMATION ENGINEER                                 │
-│   ├── Зарплата: $70,000 - $130,000 USD / €65,000 - €110,000 EUR             │
-│   ├── Навички: PowerShell advanced, DSC, Azure Automation                  │
-│   └── Сертифікації: AZ-040, PowerShell certifications                      │
-│                                                                              │
-│   WINDOWS SYSTEM ADMINISTRATOR                                               │
-│   ├── Зарплата: $50,000 - $90,000 USD / €45,000 - €80,000 EUR               │
-│   ├── Навички: CMD, PowerShell, batch scripting, AD                        │
-│   └── Сертифікації: AZ-800, AZ-801                                          │
-│                                                                              │
-│   DEVOPS ENGINEER (Windows)                                                  │
-│   ├── Зарплата: $80,000 - $150,000 USD / €70,000 - €130,000 EUR             │
-│   ├── Навички: PowerShell, Azure DevOps, CI/CD, IaC                        │
-│   └── Сертифікації: AZ-400, GitHub certifications                          │
-│                                                                              │
-│   SECURITY ANALYST / INCIDENT RESPONDER                                      │
-│   ├── Зарплата: $75,000 - $140,000 USD / €65,000 - €120,000 EUR             │
-│   ├── Навички: PowerShell forensics, threat hunting, SIEM                  │
-│   └── Сертифікації: SC-200, SANS GIAC                                       │
-│                                                                              │
-│   CLOUD ENGINEER (Azure)                                                     │
-│   ├── Зарплата: $90,000 - $160,000 USD / €80,000 - €140,000 EUR             │
-│   ├── Навички: Azure PowerShell, Az CLI, ARM templates                     │
-│   └── Сертифікації: AZ-104, AZ-305                                          │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                       КАР'ЄРНІ МОЖЛИВОСТІ                             │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  POWERSHELL DEVELOPER / AUTOMATION ENGINEER                           │
+│  ├── Зарплата: $70K-$130K USD / €65K-€110K EUR                        │
+│  ├── Навички: PowerShell advanced, DSC, Azure Automation              │
+│  └── Сертифікації: AZ-040, PowerShell certifications                  │
+│                                                                       │
+│  WINDOWS SYSTEM ADMINISTRATOR                                         │
+│  ├── Зарплата: $50K-$90K USD / €45K-€80K EUR                          │
+│  ├── Навички: CMD, PowerShell, batch scripting, AD                    │
+│  └── Сертифікації: AZ-800, AZ-801                                     │
+│                                                                       │
+│  DEVOPS ENGINEER (Windows)                                            │
+│  ├── Зарплата: $80K-$150K USD / €70K-€130K EUR                        │
+│  ├── Навички: PowerShell, Azure DevOps, CI/CD, IaC                    │
+│  └── Сертифікації: AZ-400, GitHub certifications                      │
+│                                                                       │
+│  SECURITY ANALYST / INCIDENT RESPONDER                                │
+│  ├── Зарплата: $75K-$140K USD / €65K-€120K EUR                        │
+│  ├── Навички: PowerShell forensics, threat hunting, SIEM              │
+│  └── Сертифікації: SC-200, SANS GIAC                                  │
+│                                                                       │
+│  CLOUD ENGINEER (Azure)                                               │
+│  ├── Зарплата: $90K-$160K USD / €80K-€140K EUR                        │
+│  ├── Навички: Azure PowerShell, Az CLI, ARM templates                 │
+│  └── Сертифікації: AZ-104, AZ-305                                     │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
@@ -735,79 +721,56 @@ $PSVersionTable
 | Microsoft Learn | Офіційні PowerShell модулі | learn.microsoft.com/powershell |
 | SS64 | Довідник CMD та PowerShell команд | ss64.com |
 
-### Книги
-
-| Назва | Автор | Рівень |
-|-------|-------|--------|
-| Learn PowerShell in a Month of Lunches | Don Jones, Travis Plunk | Початковий |
-| PowerShell for Sysadmins | Adam Bertram | Середній |
-| PowerShell Cookbook | Lee Holmes | Середній |
-| Windows PowerShell in Action | Bruce Payette | Просунутий |
-| PowerShell for Penetration Testing | Ruben Boonen | Просунутий |
-
-### YouTube канали
-
-| Канал | Тематика |
-|-------|----------|
-| PowerShell.org | Офіційні відео від спільноти |
-| TechThoughts | PowerShell від basics до advanced |
-| John Savill | Azure та PowerShell |
-| Adam the Automator | Практичні сценарії автоматизації |
-| Jeff Hicks | PowerShell tips від MVP |
-
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    CMD / POWERSHELL - QUICK REFERENCE                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   НАВІГАЦІЯ                                                                 │
-│   ┌───────────────────────────────────────────────────────────────────┐     │
-│   │  CMD                          │  PowerShell                       │     │
-│   ├───────────────────────────────┼───────────────────────────────────┤     │
-│   │  cd folder                    │  Set-Location folder (cd)         │     │
-│   │  cd /d D:\path                │  cd D:\path                       │     │
-│   │  dir                          │  Get-ChildItem (ls, dir)          │     │
-│   │  dir /s *.txt                 │  ls -Recurse -Filter *.txt        │     │
-│   │  tree /f                      │  tree /f (або custom function)    │     │
-│   └───────────────────────────────┴───────────────────────────────────┘     │
-│                                                                              │
-│   ФАЙЛОВІ ОПЕРАЦІЇ                                                          │
-│   ┌───────────────────────────────────────────────────────────────────┐     │
-│   │  CMD                          │  PowerShell                       │     │
-│   ├───────────────────────────────┼───────────────────────────────────┤     │
-│   │  copy src dst                 │  Copy-Item src dst (cp)           │     │
-│   │  move src dst                 │  Move-Item src dst (mv)           │     │
-│   │  del file                     │  Remove-Item file (rm)            │     │
-│   │  md folder                    │  New-Item -Type Directory         │     │
-│   │  type file                    │  Get-Content file (cat)           │     │
-│   │  echo text > file             │  "text" | Out-File file           │     │
-│   │  robocopy src dst /mir        │  robocopy src dst /mir            │     │
-│   └───────────────────────────────┴───────────────────────────────────┘     │
-│                                                                              │
-│   СИСТЕМНА ІНФОРМАЦІЯ                                                       │
-│   ┌───────────────────────────────────────────────────────────────────┐     │
-│   │  CMD                          │  PowerShell                       │     │
-│   ├───────────────────────────────┼───────────────────────────────────┤     │
-│   │  systeminfo                   │  Get-ComputerInfo                 │     │
-│   │  ipconfig /all                │  Get-NetIPAddress                 │     │
-│   │  tasklist                     │  Get-Process                      │     │
-│   │  taskkill /im name            │  Stop-Process -Name name          │     │
-│   │  net start                    │  Get-Service                      │     │
-│   │  sc query                     │  Get-Service | Format-Table       │     │
-│   └───────────────────────────────┴───────────────────────────────────┘     │
-│                                                                              │
-│   POWERSHELL PIPELINE ПРИКЛАДИ                                              │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Get-Process | Sort-Object CPU -Desc | Select -First 5              │   │
-│   │ Get-ChildItem -Recurse | Where {$_.Length -gt 10MB}                │   │
-│   │ Get-Service | Where Status -eq Running | Measure-Object            │   │
-│   │ Get-Content log.txt | Select-String "error"                        │   │
-│   │ Get-Process | Export-Csv processes.csv -NoTypeInformation          │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                CMD / POWERSHELL - QUICK REFERENCE                     │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  НАВІГАЦІЯ                                                            │
+│  ┌───────────────────────────┬─────────────────────────────────────┐  │
+│  │  CMD                      │  PowerShell                         │  │
+│  ├───────────────────────────┼─────────────────────────────────────┤  │
+│  │  cd folder                │  Set-Location folder (cd)           │  │
+│  │  cd /d D:\path            │  cd D:\path                         │  │
+│  │  dir                      │  Get-ChildItem (ls, dir)            │  │
+│  │  dir /s *.txt             │  ls -Recurse -Filter *.txt          │  │
+│  └───────────────────────────┴─────────────────────────────────────┘  │
+│                                                                       │
+│  ФАЙЛОВІ ОПЕРАЦІЇ                                                     │
+│  ┌───────────────────────────┬─────────────────────────────────────┐  │
+│  │  CMD                      │  PowerShell                         │  │
+│  ├───────────────────────────┼─────────────────────────────────────┤  │
+│  │  copy src dst             │  Copy-Item src dst (cp)             │  │
+│  │  move src dst             │  Move-Item src dst (mv)             │  │
+│  │  del file                 │  Remove-Item file (rm)              │  │
+│  │  md folder                │  New-Item -Type Directory           │  │
+│  │  type file                │  Get-Content file (cat)             │  │
+│  │  echo text > file         │  "text" | Out-File file             │  │
+│  └───────────────────────────┴─────────────────────────────────────┘  │
+│                                                                       │
+│  СИСТЕМНА ІНФОРМАЦІЯ                                                  │
+│  ┌───────────────────────────┬─────────────────────────────────────┐  │
+│  │  CMD                      │  PowerShell                         │  │
+│  ├───────────────────────────┼─────────────────────────────────────┤  │
+│  │  systeminfo               │  Get-ComputerInfo                   │  │
+│  │  ipconfig /all            │  Get-NetIPAddress                   │  │
+│  │  tasklist                 │  Get-Process                        │  │
+│  │  taskkill /im name        │  Stop-Process -Name name            │  │
+│  │  net start                │  Get-Service                        │  │
+│  └───────────────────────────┴─────────────────────────────────────┘  │
+│                                                                       │
+│  POWERSHELL PIPELINE ПРИКЛАДИ                                         │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Get-Process | Sort CPU -Desc | Select -First 5                 │  │
+│  │ Get-ChildItem -Recurse | Where {$_.Length -gt 10MB}            │  │
+│  │ Get-Service | Where Status -eq Running | Measure              │  │
+│  │ Get-Content log.txt | Select-String "error"                    │  │
+│  │ Get-Process | Export-Csv proc.csv -NoTypeInformation           │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки

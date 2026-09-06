@@ -568,26 +568,6 @@ apt list --installed | head -20
 | **Katacoda (O'Reilly)** | Hands-on Linux scenarios | katacoda.com |
 | **LPI Learning** | Офіційні матеріали Linux Professional Institute | learning.lpi.org |
 
-### Книги
-
-| Назва | Автор | Рівень |
-|-------|-------|--------|
-| **How Linux Works** | Brian Ward | Початковий-Середній |
-| **The Linux Command Line** | William Shotts | Початковий |
-| **Linux Bible** | Christopher Negus | Початковий-Середній |
-| **Understanding the Linux Kernel** | Bovet & Cesati | Просунутий |
-| **Linux System Programming** | Robert Love | Просунутий |
-
-### YouTube канали
-
-| Канал | Тематика |
-|-------|----------|
-| **Learn Linux TV** | Системне адміністрування, сервери |
-| **NetworkChuck** | Linux для початківців, DevOps |
-| **The Linux Experiment** | Огляди дистрибутивів, новини |
-| **DistroTube** | Дистрибутиви, тюнінг, філософія Linux |
-| **tutoriaLinux** | Linux для DevOps та SRE |
-
 ## 📋 Cheat Sheet
 
 ```

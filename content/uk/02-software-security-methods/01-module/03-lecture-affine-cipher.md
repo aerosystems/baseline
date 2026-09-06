@@ -504,31 +504,6 @@ def combined_encrypt(plaintext: str, keyword: str, a: int, b: int) -> str:
 | **Mystery Twister C3** | Класичні шифри | mysterytwister.org |
 | **dCode.fr** | Онлайн калькулятори | dcode.fr/affine-cipher |
 
-### Книги
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  📖 "An Introduction to Mathematical Cryptography"                  │
-│     Hoffstein, Pipher, Silverman                                    │
-│     Глибоке занурення в математику криптографії                     │
-├─────────────────────────────────────────────────────────────────────┤
-│  📖 "Cryptography Engineering" - Ferguson, Schneier, Kohno          │
-│     Практичне впровадження криптографії                             │
-├─────────────────────────────────────────────────────────────────────┤
-│  📖 "A Course in Number Theory and Cryptography" - Neal Koblitz     │
-│     Теорія чисел для криптографів                                   │
-├─────────────────────────────────────────────────────────────────────┤
-│  📖 "The Mathematics of Secrets" - Joshua Holden                    │
-│     Математика класичних та сучасних шифрів                         │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-### YouTube
-
-- **Christof Paar** — Лекції з криптографії (Ruhr University)
-- **Khan Academy** — Модулярна арифметика
-- **Eddie Woo** — Теорія чисел для початківців
-
 ---
 
 ## 📋 Cheat Sheet

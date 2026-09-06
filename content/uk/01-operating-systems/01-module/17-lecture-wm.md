@@ -581,24 +581,6 @@ feh --bg-scale ~/Pictures/wallpaper.jpg
 | **r/unixporn** | Натхнення для customization | reddit.com/r/unixporn |
 | **Arch Wiki - Window Managers** | Порівняння всіх WM | wiki.archlinux.org/title/Window_manager |
 
-### Книги
-
-| Назва | Автор | Рівень |
-|-------|-------|--------|
-| "i3 User's Guide" | i3 Documentation | Початковий |
-| "Mastering Linux Administration" | Alexandru Calcatinge | Середній |
-| "The Linux Programming Interface" | Michael Kerrisk | Просунутий |
-| "X Window System Administrator's Guide" | O'Reilly | Просунутий |
-
-### YouTube канали
-
-| Канал | Фокус |
-|-------|-------|
-| **Luke Smith** | i3, suckless tools, minimalism |
-| **DistroTube** | WM огляди та туторіали |
-| **Brodie Robertson** | Wayland, Sway, Hyprland |
-| **Mental Outlaw** | Linux ricing та WM |
-
 ## 📋 Cheat Sheet
 
 ```

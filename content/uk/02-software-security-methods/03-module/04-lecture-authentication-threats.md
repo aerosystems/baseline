@@ -580,17 +580,6 @@ def login_safe(username, password):
 - [HackTheBox](https://hackthebox.com/) — практичні labs
 - [TryHackMe](https://tryhackme.com/) — guided learning paths
 
-### Книги
-- **"The Web Application Hacker's Handbook"** — класика веб-безпеки
-- **"Identity Attack Vectors"** by Morey Haber — IAM security
-- **"OAuth 2 in Action"** — глибоке розуміння OAuth
-
-### YouTube
-- **OWASP** — офіційні відео про вразливості
-- **LiveOverflow** — хакінг та CTF
-- **John Hammond** — malware analysis, CTF
-- **IppSec** — HackTheBox walkthroughs
-
 ### Tools
 - **Burp Suite** — веб-тестування
 - **Hydra** — password cracking (етичне тестування)

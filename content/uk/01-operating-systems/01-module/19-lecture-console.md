@@ -774,18 +774,6 @@ cat /etc/os-release
 - [Terminus](https://web.mit.edu/mprat/Public/web/Terminus/Web/main.html) — text adventure для CLI
 - [Exercism: Bash Track](https://exercism.org/tracks/bash) — вправи з bash
 
-### Книги
-- **"The Linux Command Line"** by William Shotts — безкоштовна, відмінна
-- **"tmux 2"** by Brian Hogan — все про tmux
-- **"Learning the bash Shell"** by Cameron Newham — глибоке вивчення
-- **"Mastering Vim"** by Ruslan Osipov — для mcedit альтернативи
-
-### YouTube
-- **Learn Linux TV** — системне адміністрування
-- **NetworkChuck** — Linux для початківців
-- **The Linux Cast** — daily driving Linux
-- **Chris Titus Tech** — advanced CLI usage
-
 ### Cheat Sheets
 - [Bash Cheat Sheet](https://devhints.io/bash)
 - [tmux Cheat Sheet](https://tmuxcheatsheet.com/)

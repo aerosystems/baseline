@@ -466,71 +466,71 @@ Get-Volume | Where-Object {$_.DriveLetter}
 ## 🏢 Real World: Як це використовують у великих компаніях
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    АРХІТЕКТУРА WINDOWS У ENTERPRISE                          │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   MICROSOFT / AZURE                                                          │
-│   ├── Hyper-V побудований на архітектурі NT                                 │
-│   ├── Azure використовує модифіковане ядро Windows Server                   │
-│   └── Мільйони серверів працюють на Windows Server Datacenter               │
-│                                                                              │
-│   БАНКІВСЬКИЙ СЕКТОР (ПриватБанк, Monobank інфраструктура)                  │
-│   ├── Active Directory для автентифікації 10,000+ співробітників            │
-│   ├── Registry GPO для централізованих політик безпеки                      │
-│   └── NTFS ACL для захисту фінансових даних                                 │
-│                                                                              │
-│   ВИРОБНИЦТВО / ПРОМИСЛОВІСТЬ                                               │
-│   ├── Windows Embedded для промислових контролерів                          │
-│   ├── HAL забезпечує роботу на спеціалізованому обладнанні                  │
-│   └── Служби Windows для моніторингу 24/7                                   │
-│                                                                              │
-│   RETAIL / E-COMMERCE                                                        │
-│   ├── Windows Server для backend систем                                      │
-│   ├── IIS + .NET для веб-додатків                                           │
-│   └── Windows Services для обробки замовлень                                │
-│                                                                              │
-│   МЕДИЦИНА                                                                   │
-│   ├── Медичне обладнання часто працює на Windows Embedded                   │
-│   ├── NTFS шифрування (EFS) для захисту медичних записів                    │
-│   └── Сертифіковані драйвери для медичних пристроїв                         │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│               АРХІТЕКТУРА WINDOWS У ENTERPRISE                        │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  MICROSOFT / AZURE                                                    │
+│  ├── Hyper-V побудований на архітектурі NT                            │
+│  ├── Azure використовує модифіковане ядро Windows Server              │
+│  └── Мільйони серверів працюють на Windows Server Datacenter          │
+│                                                                       │
+│  БАНКІВСЬКИЙ СЕКТОР (ПриватБанк, Monobank)                            │
+│  ├── Active Directory для автентифікації 10,000+ співробітників       │
+│  ├── Registry GPO для централізованих політик безпеки                 │
+│  └── NTFS ACL для захисту фінансових даних                            │
+│                                                                       │
+│  ВИРОБНИЦТВО / ПРОМИСЛОВІСТЬ                                          │
+│  ├── Windows Embedded для промислових контролерів                     │
+│  ├── HAL забезпечує роботу на спеціалізованому обладнанні             │
+│  └── Служби Windows для моніторингу 24/7                              │
+│                                                                       │
+│  RETAIL / E-COMMERCE                                                  │
+│  ├── Windows Server для backend систем                                │
+│  ├── IIS + .NET для веб-додатків                                      │
+│  └── Windows Services для обробки замовлень                           │
+│                                                                       │
+│  МЕДИЦИНА                                                             │
+│  ├── Медичне обладнання на Windows Embedded                           │
+│  ├── NTFS шифрування (EFS) для захисту медичних записів               │
+│  └── Сертифіковані драйвери для медичних пристроїв                    │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 💼 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    КАР'ЄРНІ МОЖЛИВОСТІ                                       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   WINDOWS SYSTEM ADMINISTRATOR                                               │
-│   ├── Зарплата: $50,000 - $90,000 USD / €45,000 - €80,000 EUR               │
-│   ├── Навички: Active Directory, Group Policy, Registry, Services          │
-│   └── Сертифікації: Microsoft Certified: Windows Server Hybrid Admin        │
-│                                                                              │
-│   WINDOWS KERNEL DEVELOPER                                                   │
-│   ├── Зарплата: $120,000 - $200,000 USD / €100,000 - €170,000 EUR           │
-│   ├── Навички: C/C++, Windows Driver Kit, NT Architecture                  │
-│   └── Роботодавці: Microsoft, антивірусні компанії, hardware vendors       │
-│                                                                              │
-│   SECURITY ENGINEER (Windows)                                                │
-│   ├── Зарплата: $80,000 - $150,000 USD / €70,000 - €130,000 EUR             │
-│   ├── Навички: Security Reference Monitor, ACL, Credential Guard           │
-│   └── Сертифікації: Microsoft SC-200, CompTIA Security+                    │
-│                                                                              │
-│   AZURE INFRASTRUCTURE ENGINEER                                              │
-│   ├── Зарплата: $90,000 - $160,000 USD / €80,000 - €140,000 EUR             │
-│   ├── Навички: Windows Server, Hyper-V, Azure Stack                         │
-│   └── Сертифікації: AZ-104, AZ-800/801                                      │
-│                                                                              │
-│   DEVOPS ENGINEER (Windows)                                                  │
-│   ├── Зарплата: $80,000 - $140,000 USD / €70,000 - €120,000 EUR             │
-│   ├── Навички: PowerShell, Windows Services, CI/CD on Windows              │
-│   └── Сертифікації: AZ-400, GitHub Actions                                  │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                       КАР'ЄРНІ МОЖЛИВОСТІ                             │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  WINDOWS SYSTEM ADMINISTRATOR                                         │
+│  ├── Зарплата: $50K-$90K USD / €45K-€80K EUR                          │
+│  ├── Навички: Active Directory, Group Policy, Registry               │
+│  └── Сертифікації: MS Windows Server Hybrid Admin                    │
+│                                                                       │
+│  WINDOWS KERNEL DEVELOPER                                             │
+│  ├── Зарплата: $120K-$200K USD / €100K-€170K EUR                      │
+│  ├── Навички: C/C++, Windows Driver Kit, NT Architecture             │
+│  └── Роботодавці: Microsoft, AV компанії, hardware vendors           │
+│                                                                       │
+│  SECURITY ENGINEER (Windows)                                          │
+│  ├── Зарплата: $80K-$150K USD / €70K-€130K EUR                        │
+│  ├── Навички: Security Reference Monitor, ACL, Credential Guard      │
+│  └── Сертифікації: Microsoft SC-200, CompTIA Security+               │
+│                                                                       │
+│  AZURE INFRASTRUCTURE ENGINEER                                        │
+│  ├── Зарплата: $90K-$160K USD / €80K-€140K EUR                        │
+│  ├── Навички: Windows Server, Hyper-V, Azure Stack                   │
+│  └── Сертифікації: AZ-104, AZ-800/801                                │
+│                                                                       │
+│  DEVOPS ENGINEER (Windows)                                            │
+│  ├── Зарплата: $80K-$140K USD / €70K-€120K EUR                        │
+│  ├── Навички: PowerShell, Windows Services, CI/CD                    │
+│  └── Сертифікації: AZ-400, GitHub Actions                            │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
@@ -545,65 +545,45 @@ Get-Volume | Where-Object {$_.DriveLetter}
 | ITProTV | Windows Server курси | itpro.tv |
 | CBT Nuggets | Microsoft certification prep | cbtnuggets.com |
 
-### Книги
-
-| Назва | Автор | Рівень |
-|-------|-------|--------|
-| Windows Internals, Part 1 & 2 | Mark Russinovich, et al. | Просунутий |
-| Windows Server Administration Fundamentals | Microsoft Press | Початковий |
-| Windows Registry Forensics | Harlan Carvey | Середній |
-| Troubleshooting Windows Server with PowerShell | Derek Schauland | Середній |
-| Inside Windows Debugging | Tarik Soulami | Просунутий |
-
-### YouTube канали
-
-| Канал | Тематика |
-|-------|----------|
-| Microsoft Mechanics | Офіційні новини та демо від Microsoft |
-| John Savill's Technical Training | Azure та Windows Server глибоко |
-| PowerCert Animated Videos | Основи IT та Windows візуально |
-| ITFreeTraining | Windows Server покроково |
-| David Bombal | Мережі та Windows |
-
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    WINDOWS NT ARCHITECTURE - QUICK REFERENCE                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   КОМПОНЕНТИ ЯДРА                                                           │
-│   ┌─────────────────┬───────────────────────────────────────────────────┐   │
-│   │ ntoskrnl.exe    │ Ядро Windows (планувальник, переривання)          │   │
-│   │ hal.dll         │ Hardware Abstraction Layer                        │   │
-│   │ *.sys           │ Драйвери пристроїв                                │   │
-│   │ ntdll.dll       │ Native API (syscall wrapper)                      │   │
-│   └─────────────────┴───────────────────────────────────────────────────┘   │
-│                                                                              │
-│   EXECUTIVE MANAGERS                                                         │
-│   ┌─────────────────┬───────────────────────────────────────────────────┐   │
-│   │ I/O Manager     │ Драйвери, IRP, Plug and Play                      │   │
-│   │ Object Manager  │ Все — об'єкт, іменування, безпека                 │   │
-│   │ Process Manager │ Процеси, потоки, jobs                             │   │
-│   │ Memory Manager  │ Віртуальна пам'ять, paging                        │   │
-│   │ Security Ref.   │ ACL, токени, перевірка доступу                    │   │
-│   └─────────────────┴───────────────────────────────────────────────────┘   │
-│                                                                              │
-│   КЛЮЧОВІ ШЛЯХИ                                                             │
-│   Реєстр:           %SystemRoot%\System32\config                            │
-│   Драйвери:         %SystemRoot%\System32\drivers                           │
-│   Служби:           HKLM\SYSTEM\CurrentControlSet\Services                  │
-│                                                                              │
-│   КОРИСНІ КОМАНДИ                                                           │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │ Get-Process | Sort CPU -Desc | Select -First 10  # Топ процесів    │   │
-│   │ Get-Service | Where Status -eq Running           # Запущені служби │   │
-│   │ Get-ItemProperty "HKLM:\SOFTWARE\...\CurrentVersion" # Реєстр      │   │
-│   │ Get-Volume                                       # Інфо про диски  │   │
-│   │ Get-Acl C:\path\file                             # Права доступу   │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│              WINDOWS NT ARCHITECTURE - QUICK REFERENCE                │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  КОМПОНЕНТИ ЯДРА                                                      │
+│  ┌─────────────────┬─────────────────────────────────────────────┐    │
+│  │ ntoskrnl.exe    │ Ядро Windows (планувальник, переривання)    │    │
+│  │ hal.dll         │ Hardware Abstraction Layer                  │    │
+│  │ *.sys           │ Драйвери пристроїв                          │    │
+│  │ ntdll.dll       │ Native API (syscall wrapper)                │    │
+│  └─────────────────┴─────────────────────────────────────────────┘    │
+│                                                                       │
+│  EXECUTIVE MANAGERS                                                   │
+│  ┌─────────────────┬─────────────────────────────────────────────┐    │
+│  │ I/O Manager     │ Драйвери, IRP, Plug and Play                │    │
+│  │ Object Manager  │ Все — об'єкт, іменування, безпека           │    │
+│  │ Process Manager │ Процеси, потоки, jobs                       │    │
+│  │ Memory Manager  │ Віртуальна пам'ять, paging                  │    │
+│  │ Security Ref.   │ ACL, токени, перевірка доступу              │    │
+│  └─────────────────┴─────────────────────────────────────────────┘    │
+│                                                                       │
+│  КЛЮЧОВІ ШЛЯХИ                                                        │
+│  Реєстр:     %SystemRoot%\System32\config                             │
+│  Драйвери:   %SystemRoot%\System32\drivers                            │
+│  Служби:     HKLM\SYSTEM\CurrentControlSet\Services                   │
+│                                                                       │
+│  КОРИСНІ КОМАНДИ                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Get-Process | Sort CPU -Desc | Select -First 10  # Топ CPU     │  │
+│  │ Get-Service | Where Status -eq Running    # Запущені служби    │  │
+│  │ Get-ItemProperty "HKLM:\...\CurrentVersion"   # Реєстр         │  │
+│  │ Get-Volume                                    # Інфо про диски │  │
+│  │ Get-Acl C:\path\file                          # Права доступу  │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки
