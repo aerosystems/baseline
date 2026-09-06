@@ -479,6 +479,265 @@ sysctl -a 2>/dev/null | head -20
 ps aux | grep "^\[" | head -10
 ```
 
+## 🏢 Real World: Як це використовують у великих компаніях
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│              РЕЖИМИ CPU ТА КОМПОНЕНТИ ЯДРА В PRODUCTION               │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  GOOGLE CHROME (Protection Rings)                                     │
+│  ├── Кожна вкладка = окремий процес у Ring 3                          │
+│  ├── Renderer процеси ізольовані через sandbox                        │
+│  ├── Site Isolation: кожен домен у своєму процесі                     │
+│  └── GPU процес окремий для захисту від експлойтів                    │
+│                                                                       │
+│  CLOUDFLARE (Kernel Bypass)                                           │
+│  ├── XDP: обробка пакетів до kernel stack                             │
+│  ├── eBPF для DDoS фільтрації на 100+ Gbps                            │
+│  ├── DPDK для найшвидших мережевих операцій                           │
+│  └── Мінімізація переходів User↔Kernel                                │
+│                                                                       │
+│  NETFLIX (Scheduler Tuning)                                           │
+│  ├── Tuned Linux CFS для streaming                                    │
+│  ├── CPU affinity: закріплення за ядрами                              │
+│  ├── NUMA-aware scheduling                                            │
+│  └── Cgroups v2 для ізоляції ресурсів                                 │
+│                                                                       │
+│  AWS (Memory Management)                                              │
+│  ├── KVM + QEMU: віртуалізація                                        │
+│  ├── Memory ballooning для динамічного розподілу                      │
+│  ├── Huge pages (2MB, 1GB)                                            │
+│  └── Nitro hypervisor з мінімальним overhead                          │
+│                                                                       │
+│  APPLE SECURITY (Sandboxing)                                          │
+│  ├── iOS: додатки у sandbox з обмеженими syscalls                     │
+│  ├── macOS SIP для системних файлів                                   │
+│  ├── Secure Enclave працює в Ring (-1)                                │
+│  └── System Extensions замість Kernel extensions                      │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## 💼 Career Spotlight
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│              КАР'ЄРНІ ШЛЯХИ: РЕЖИМИ CPU ТА ЯДРО                       │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  KERNEL DEVELOPER                                                     │
+│  Розробка компонентів ядра, драйверів, scheduler                      │
+│  Зарплата: $150K-$300K (USA) | €80K-€160K (EU)                        │
+│  Компанії: Red Hat, SUSE, Google, Intel, AMD                          │
+│  Навички: C, assembly, kernel debugging, git                          │
+│                                                                       │
+│  SECURITY RESEARCHER                                                  │
+│  Пошук вразливостей, privilege escalation, sandboxing                 │
+│  Зарплата: $120K-$250K (USA) | €70K-€140K (EU)                        │
+│  Компанії: Google Project Zero, Trail of Bits, CrowdStrike            │
+│  Навички: Reverse engineering, C/C++, kernel internals                │
+│                                                                       │
+│  NETWORK SYSTEMS ENGINEER                                             │
+│  High-performance networking, kernel bypass, eBPF                     │
+│  Зарплата: $130K-$220K (USA) | €65K-€130K (EU)                        │
+│  Компанії: Cloudflare, Fastly, Akamai, trading firms                  │
+│  Навички: TCP/IP, XDP, DPDK, Linux networking                         │
+│                                                                       │
+│  VIRTUALIZATION ENGINEER                                              │
+│  KVM, QEMU, hypervisors, memory management                            │
+│  Зарплата: $140K-$240K (USA) | €70K-€140K (EU)                        │
+│  Компанії: AWS, VMware, Red Hat, Nutanix                              │
+│  Навички: KVM, QEMU, Xen, hardware virtualization                     │
+│                                                                       │
+│  PERFORMANCE ENGINEER                                                 │
+│  Syscall optimization, scheduler tuning, profiling                    │
+│  Зарплата: $130K-$230K (USA) | €70K-€130K (EU)                        │
+│  Компанії: Netflix, Meta, trading, gaming                             │
+│  Навички: perf, ftrace, bpftrace, flamegraphs                         │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## 🔗 Корисні ресурси
+
+### Онлайн-практика
+
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| **pwn.college** | CTF з privilege escalation та syscalls | pwn.college |
+| **Linux Kernel Labs** | Практичні лабораторні роботи | linux-kernel-labs.github.io |
+| **eBPF Tutorial** | Вивчення eBPF через приклади | ebpf.io/get-started |
+| **Exploit Education** | Вправи з експлуатації (Phoenix, Protostar) | exploit.education |
+| **syscall.sh** | Інтерактивна таблиця системних викликів | syscall.sh |
+
+## 📋 Cheat Sheet
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│                  РЕЖИМИ CPU ТА КОМПОНЕНТИ ЯДРА                        │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  КІЛЬЦЯ ЗАХИСТУ (x86/x64):                                            │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Ring 3  │ User Mode   │ Програми, обмежені права               │  │
+│  │ Ring 2,1│ (не використ.)│ Зарезервовано                        │  │
+│  │ Ring 0  │ Kernel Mode │ Ядро ОС, повний доступ до hardware     │  │
+│  │ Ring -1 │ Hypervisor  │ VMM (KVM, Hyper-V)                     │  │
+│  │ Ring -2 │ SMM         │ System Management Mode                 │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  ПЕРЕХІД МІЖ РЕЖИМАМИ:                                                │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ User → Kernel │ SYSCALL (x64), INT 0x80 (x86), SVC (ARM)       │  │
+│  │ Kernel → User │ SYSRET (x64), IRET (x86), ERET (ARM)           │  │
+│  │ Час переходу  │ 100-1000 наносекунд                            │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  КОМПОНЕНТИ ЯДРА LINUX:                                               │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Scheduler      │ CFS, RT, Deadline — розподіл CPU              │  │
+│  │ Memory Manager │ Paging, swap, OOM killer                      │  │
+│  │ VFS            │ Єдиний інтерфейс: ext4, xfs, nfs              │  │
+│  │ Network Stack  │ TCP/IP, sockets, netfilter, XDP               │  │
+│  │ LSM            │ SELinux, AppArmor                             │  │
+│  │ Device Drivers │ Block, char, network                          │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  КЛЮЧОВІ КОМАНДИ:                                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ strace -c cmd         → Статистика syscalls                    │  │
+│  │ cat /proc/self/maps   → Карта пам'яті процесу                  │  │
+│  │ cat /proc/self/status → Capabilities процесу                   │  │
+│  │ lsmod                 → Завантажені модулі ядра                │  │
+│  │ dmesg                 → Повідомлення ядра                      │  │
+│  │ perf top              → Профілювання в реальному часі          │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  НАСЛІДКИ ПОРУШЕННЯ ПРИВІЛЕЇВ:                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Читання kernel memory    → GPF → SIGSEGV                       │  │
+│  │ Привілейована інструкція → #GP → Процес завершується           │  │
+│  │ Помилка в user space     → Crash процесу                       │  │
+│  │ Помилка в kernel space   → Kernel panic                        │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## ❓ Питання для самоперевірки
+
+1. **Що таке "кільця захисту" процесора і чому використовуються лише Ring 0 та Ring 3?**
+
+2. **Що відбувається на апаратному рівні, коли програма намагається виконати привілейовану інструкцію з User Mode?**
+
+3. **Поясніть процес системного виклику: які кроки виконує CPU при переході з User Mode в Kernel Mode?**
+
+4. **Чому помилка в драйвері може призвести до kernel panic, а помилка в звичайній програмі — лише до crash цієї програми?**
+
+5. **Як VFS (Virtual File System) забезпечує уніфікований доступ до різних файлових систем?**
+
+## 🎯 Міні-проект (30 хв)
+
+### Завдання: Вимірювання "вартості" системних викликів
+
+Створіть benchmark, який виміряє реальний overhead переходу між User Mode та Kernel Mode на вашій системі.
+
+**Кроки:**
+
+1. Підготуйте середовище для експерименту:
+```bash
+mkdir ~/syscall-benchmark && cd ~/syscall-benchmark
+```
+
+2. Створіть простий benchmark-скрипт:
+```bash
+cat > benchmark.sh << 'EOF'
+#!/bin/bash
+echo "=== BENCHMARK СИСТЕМНИХ ВИКЛИКІВ ==="
+echo "Дата: $(date)"
+echo "Система: $(uname -r)"
+echo ""
+
+echo "--- Тест 1: getpid() (найпростіший syscall) ---"
+echo "Виконуємо 10000 викликів через dd..."
+START=$(date +%s%N)
+dd if=/dev/zero of=/dev/null bs=1 count=10000 2>/dev/null
+END=$(date +%s%N)
+DURATION=$((($END - $START) / 1000000))
+echo "Час: ${DURATION} мс"
+echo ""
+
+echo "--- Тест 2: read() syscalls ---"
+echo "Читаємо /dev/zero 10000 разів..."
+START=$(date +%s%N)
+for i in $(seq 1 100); do
+    head -c 100 /dev/zero > /dev/null
+done
+END=$(date +%s%N)
+DURATION=$((($END - $START) / 1000000))
+echo "Час: ${DURATION} мс"
+echo ""
+
+echo "--- Тест 3: open/close файлу ---"
+echo "Відкриваємо/закриваємо файл 100 разів..."
+touch testfile.tmp
+START=$(date +%s%N)
+for i in $(seq 1 100); do
+    cat testfile.tmp > /dev/null 2>&1
+done
+END=$(date +%s%N)
+DURATION=$((($END - $START) / 1000000))
+echo "Час: ${DURATION} мс"
+rm testfile.tmp
+echo ""
+EOF
+chmod +x benchmark.sh
+```
+
+3. Запустіть benchmark та збережіть результати:
+```bash
+./benchmark.sh | tee benchmark-results.txt
+```
+
+4. Порівняйте User vs Kernel time:
+```bash
+echo "--- Тест 4: User vs Kernel time ---" | tee -a benchmark-results.txt
+echo "Запускаємо 500 ls команд..." | tee -a benchmark-results.txt
+time (for i in $(seq 1 500); do ls /tmp > /dev/null 2>&1; done) 2>&1 | tee -a benchmark-results.txt
+echo "" | tee -a benchmark-results.txt
+```
+
+5. Дослідіть карту пам'яті процесу:
+```bash
+echo "--- Карта пам'яті shell ---" | tee -a benchmark-results.txt
+cat /proc/self/maps | grep -E "heap|stack|vdso" | tee -a benchmark-results.txt
+echo "" | tee -a benchmark-results.txt
+```
+
+6. Підрахуйте syscalls вашого улюбленого редактора:
+```bash
+echo "--- Syscalls при запуску vi ---" | tee -a benchmark-results.txt
+timeout 1 strace -c vi 2>&1 | tail -15 | tee -a benchmark-results.txt
+```
+
+7. Сформулюйте висновки:
+```bash
+echo "" | tee -a benchmark-results.txt
+echo "=== ВИСНОВКИ ===" | tee -a benchmark-results.txt
+echo "1. Найшвидший syscall: getpid() (мінімальний overhead)" | tee -a benchmark-results.txt
+echo "2. Overhead переходу User→Kernel: ~100-1000 нс" | tee -a benchmark-results.txt
+echo "3. sys time / total time показує скільки часу в ядрі" | tee -a benchmark-results.txt
+```
+
+**Очікуваний результат:**
+Файл `benchmark-results.txt` з результатами вимірювань overhead системних викликів на вашій конкретній системі.
+
+**Бонус (для допитливих):**
+- Порівняйте результати на різних ядрах (якщо є доступ до кількох машин)
+- Виміряйте різницю між HDD та SSD для read() syscalls
+- Створіть графік залежності часу від кількості syscalls
+
 ## Підсумок
 
 | Компонент | Функція | Приклад |

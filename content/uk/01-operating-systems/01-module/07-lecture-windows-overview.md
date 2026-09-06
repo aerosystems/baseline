@@ -463,6 +463,250 @@ Get-Service | Where-Object {$_.Status -eq "Running"} | Measure-Object
 Get-Volume | Where-Object {$_.DriveLetter}
 ```
 
+## 🏢 Real World: Як це використовують у великих компаніях
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│               АРХІТЕКТУРА WINDOWS У ENTERPRISE                        │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  MICROSOFT / AZURE                                                    │
+│  ├── Hyper-V побудований на архітектурі NT                            │
+│  ├── Azure використовує модифіковане ядро Windows Server              │
+│  └── Мільйони серверів працюють на Windows Server Datacenter          │
+│                                                                       │
+│  БАНКІВСЬКИЙ СЕКТОР (ПриватБанк, Monobank)                            │
+│  ├── Active Directory для автентифікації 10,000+ співробітників       │
+│  ├── Registry GPO для централізованих політик безпеки                 │
+│  └── NTFS ACL для захисту фінансових даних                            │
+│                                                                       │
+│  ВИРОБНИЦТВО / ПРОМИСЛОВІСТЬ                                          │
+│  ├── Windows Embedded для промислових контролерів                     │
+│  ├── HAL забезпечує роботу на спеціалізованому обладнанні             │
+│  └── Служби Windows для моніторингу 24/7                              │
+│                                                                       │
+│  RETAIL / E-COMMERCE                                                  │
+│  ├── Windows Server для backend систем                                │
+│  ├── IIS + .NET для веб-додатків                                      │
+│  └── Windows Services для обробки замовлень                           │
+│                                                                       │
+│  МЕДИЦИНА                                                             │
+│  ├── Медичне обладнання на Windows Embedded                           │
+│  ├── NTFS шифрування (EFS) для захисту медичних записів               │
+│  └── Сертифіковані драйвери для медичних пристроїв                    │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## 💼 Career Spotlight
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│                       КАР'ЄРНІ МОЖЛИВОСТІ                             │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  WINDOWS SYSTEM ADMINISTRATOR                                         │
+│  ├── Зарплата: $50K-$90K USD / €45K-€80K EUR                          │
+│  ├── Навички: Active Directory, Group Policy, Registry               │
+│  └── Сертифікації: MS Windows Server Hybrid Admin                    │
+│                                                                       │
+│  WINDOWS KERNEL DEVELOPER                                             │
+│  ├── Зарплата: $120K-$200K USD / €100K-€170K EUR                      │
+│  ├── Навички: C/C++, Windows Driver Kit, NT Architecture             │
+│  └── Роботодавці: Microsoft, AV компанії, hardware vendors           │
+│                                                                       │
+│  SECURITY ENGINEER (Windows)                                          │
+│  ├── Зарплата: $80K-$150K USD / €70K-€130K EUR                        │
+│  ├── Навички: Security Reference Monitor, ACL, Credential Guard      │
+│  └── Сертифікації: Microsoft SC-200, CompTIA Security+               │
+│                                                                       │
+│  AZURE INFRASTRUCTURE ENGINEER                                        │
+│  ├── Зарплата: $90K-$160K USD / €80K-€140K EUR                        │
+│  ├── Навички: Windows Server, Hyper-V, Azure Stack                   │
+│  └── Сертифікації: AZ-104, AZ-800/801                                │
+│                                                                       │
+│  DEVOPS ENGINEER (Windows)                                            │
+│  ├── Зарплата: $80K-$140K USD / €70K-€120K EUR                        │
+│  ├── Навички: PowerShell, Windows Services, CI/CD                    │
+│  └── Сертифікації: AZ-400, GitHub Actions                            │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## 🔗 Корисні ресурси
+
+### Онлайн-платформи для практики
+
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| Microsoft Learn | Офіційні безкоштовні курси з Windows | learn.microsoft.com |
+| Pluralsight | Курси Windows Administration | pluralsight.com |
+| TryHackMe | Windows Fundamentals (безпека) | tryhackme.com |
+| ITProTV | Windows Server курси | itpro.tv |
+| CBT Nuggets | Microsoft certification prep | cbtnuggets.com |
+
+## 📋 Cheat Sheet
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│              WINDOWS NT ARCHITECTURE - QUICK REFERENCE                │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  КОМПОНЕНТИ ЯДРА                                                      │
+│  ┌─────────────────┬─────────────────────────────────────────────┐    │
+│  │ ntoskrnl.exe    │ Ядро Windows (планувальник, переривання)    │    │
+│  │ hal.dll         │ Hardware Abstraction Layer                  │    │
+│  │ *.sys           │ Драйвери пристроїв                          │    │
+│  │ ntdll.dll       │ Native API (syscall wrapper)                │    │
+│  └─────────────────┴─────────────────────────────────────────────┘    │
+│                                                                       │
+│  EXECUTIVE MANAGERS                                                   │
+│  ┌─────────────────┬─────────────────────────────────────────────┐    │
+│  │ I/O Manager     │ Драйвери, IRP, Plug and Play                │    │
+│  │ Object Manager  │ Все — об'єкт, іменування, безпека           │    │
+│  │ Process Manager │ Процеси, потоки, jobs                       │    │
+│  │ Memory Manager  │ Віртуальна пам'ять, paging                  │    │
+│  │ Security Ref.   │ ACL, токени, перевірка доступу              │    │
+│  └─────────────────┴─────────────────────────────────────────────┘    │
+│                                                                       │
+│  КЛЮЧОВІ ШЛЯХИ                                                        │
+│  Реєстр:     %SystemRoot%\System32\config                             │
+│  Драйвери:   %SystemRoot%\System32\drivers                            │
+│  Служби:     HKLM\SYSTEM\CurrentControlSet\Services                   │
+│                                                                       │
+│  КОРИСНІ КОМАНДИ                                                      │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ Get-Process | Sort CPU -Desc | Select -First 10  # Топ CPU     │  │
+│  │ Get-Service | Where Status -eq Running    # Запущені служби    │  │
+│  │ Get-ItemProperty "HKLM:\...\CurrentVersion"   # Реєстр         │  │
+│  │ Get-Volume                                    # Інфо про диски │  │
+│  │ Get-Acl C:\path\file                          # Права доступу  │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## ❓ Питання для самоперевірки
+
+1. **Яка різниця між User Mode та Kernel Mode у Windows?** Поясніть, чому ця ізоляція важлива для стабільності та безпеки системи.
+
+2. **Що таке HAL (Hardware Abstraction Layer) і яку проблему він вирішує?** Наведіть приклад, коли HAL дозволяє Windows працювати на різному обладнанні без зміни ядра.
+
+3. **Чому Windows використовує потоки (threads) як одиниці планування, а не процеси?** Які переваги це дає для багатозадачності?
+
+4. **Опишіть структуру реєстру Windows.** Яка різниця між HKEY_LOCAL_MACHINE та HKEY_CURRENT_USER? Для чого використовується кожен з них?
+
+5. **Назвіть основні можливості файлової системи NTFS.** Чому NTFS краще підходить для серверів, ніж FAT32?
+
+## 🎯 Міні-проект (30 хв)
+
+### Завдання: Створення Windows System Reporter
+
+Створіть PowerShell-скрипт, який автоматично збирає повну інформацію про архітектуру Windows-системи та генерує красивий HTML-звіт.
+
+**Кроки:**
+
+1. Створіть директорію для проекту:
+```powershell
+New-Item -Path "$env:USERPROFILE\WinReporter" -ItemType Directory -Force
+Set-Location "$env:USERPROFILE\WinReporter"
+```
+
+2. Створіть скрипт збору інформації:
+```powershell
+# Збираємо дані про систему
+$Report = @{
+    GeneratedAt = Get-Date
+    ComputerName = $env:COMPUTERNAME
+    UserName = $env:USERNAME
+}
+
+# Інформація про ОС
+$OS = Get-WmiObject Win32_OperatingSystem
+$Report.OSName = $OS.Caption
+$Report.OSVersion = $OS.Version
+$Report.OSBuild = $OS.BuildNumber
+$Report.OSArchitecture = $OS.OSArchitecture
+
+# Інформація про залізо
+$Report.TotalRAM = [math]::Round($OS.TotalVisibleMemorySize / 1MB, 2)
+$Report.FreeRAM = [math]::Round($OS.FreePhysicalMemory / 1MB, 2)
+$Report.CPUCores = (Get-WmiObject Win32_Processor).NumberOfCores
+```
+
+3. Додайте інформацію про процеси та служби:
+```powershell
+# Топ-5 процесів за RAM
+$Report.TopProcesses = Get-Process |
+    Sort-Object WorkingSet -Descending |
+    Select-Object -First 5 Name, @{N='RAM_MB';E={[math]::Round($_.WorkingSet/1MB)}}
+
+# Кількість служб
+$Services = Get-Service
+$Report.RunningServices = ($Services | Where-Object Status -eq "Running").Count
+$Report.StoppedServices = ($Services | Where-Object Status -eq "Stopped").Count
+```
+
+4. Додайте інформацію про диски:
+```powershell
+# Інформація про томи
+$Report.Volumes = Get-Volume |
+    Where-Object DriveLetter |
+    Select-Object DriveLetter, FileSystemType,
+        @{N='Size_GB';E={[math]::Round($_.Size/1GB, 2)}},
+        @{N='Free_GB';E={[math]::Round($_.SizeRemaining/1GB, 2)}}
+```
+
+5. Згенеруйте текстовий звіт:
+```powershell
+$TextReport = @"
+========================================
+    WINDOWS SYSTEM REPORT
+========================================
+Generated: $($Report.GeneratedAt)
+Computer: $($Report.ComputerName)
+User: $($Report.UserName)
+
+--- OPERATING SYSTEM ---
+Name: $($Report.OSName)
+Version: $($Report.OSVersion)
+Build: $($Report.OSBuild)
+Architecture: $($Report.OSArchitecture)
+
+--- HARDWARE ---
+Total RAM: $($Report.TotalRAM) GB
+Free RAM: $($Report.FreeRAM) GB
+CPU Cores: $($Report.CPUCores)
+
+--- SERVICES ---
+Running: $($Report.RunningServices)
+Stopped: $($Report.StoppedServices)
+
+--- TOP PROCESSES BY RAM ---
+$($Report.TopProcesses | Format-Table -AutoSize | Out-String)
+
+--- DISK VOLUMES ---
+$($Report.Volumes | Format-Table -AutoSize | Out-String)
+========================================
+"@
+
+$TextReport | Out-File "SystemReport.txt"
+Write-Host "Report saved to SystemReport.txt" -ForegroundColor Green
+```
+
+6. Перегляньте результат:
+```powershell
+Get-Content "SystemReport.txt"
+```
+
+**Очікуваний результат:**
+Файл `SystemReport.txt` у директорії `WinReporter` з повним звітом про архітектуру вашої Windows-системи.
+
+**Бонус (для допитливих):**
+- Додайте до звіту інформацію з реєстру (встановлені програми)
+- Згенеруйте HTML-версію звіту з таблицями та кольорами
+- Налаштуйте автоматичний запуск через Task Scheduler щодня
+
 ## Підсумок
 
 | Компонент | Призначення | Розташування |

@@ -383,6 +383,291 @@ Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 10
 Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name CommercialId -ErrorAction SilentlyContinue
 ```
 
+## 🏢 Real World: Як це використовують у великих компаніях
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│               ВИБІР ВЕРСІЙ WINDOWS У ENTERPRISE                       │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  КОРПОРАЦІЇ (Enterprise Agreement)                                    │
+│  ├── Microsoft, Google, Amazon офіси:                                 │
+│  │   └── Windows 11 Enterprise + Microsoft 365 E5                     │
+│  ├── Фінансові установи (Goldman Sachs, JP Morgan):                   │
+│  │   └── Windows 10/11 Enterprise LTSC для торгових терміналів        │
+│  └── Переваги: Volume Licensing, централізоване керування             │
+│                                                                       │
+│  СТАРТАПИ ТА МАЛИЙ БІЗНЕС                                             │
+│  ├── SaaS-компанії:                                                   │
+│  │   └── Windows 11 Pro + Microsoft 365 Business                      │
+│  ├── Переваги Pro над Home:                                           │
+│  │   ├── BitLocker для захисту ноутбуків                              │
+│  │   ├── Remote Desktop для віддаленої роботи                         │
+│  │   └── Hyper-V для розробки та тестування                           │
+│  └── Вартість: ~$200 за ліцензію (одноразово)                         │
+│                                                                       │
+│  ДАТАЦЕНТРИ ТА ХМАРИ                                                  │
+│  ├── Azure: Windows Server Datacenter Azure Edition                   │
+│  ├── On-premise: Windows Server Datacenter (unlimited VMs)            │
+│  └── Ліцензування: Per-core (мінімум 16 cores)                        │
+│                                                                       │
+│  КРИТИЧНА ІНФРАСТРУКТУРА                                              │
+│  ├── Банкомати: Windows 10 IoT Enterprise LTSC                        │
+│  ├── Промислові системи: Windows Server IoT                           │
+│  └── Чому LTSC: стабільність, без feature updates                     │
+│                                                                       │
+│  ОСВІТА                                                               │
+│  ├── Університети: Windows 11 Education (= Enterprise)                │
+│  └── Azure Lab Services для віртуальних лабораторій                   │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## 💼 Career Spotlight
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│                       КАР'ЄРНІ МОЖЛИВОСТІ                             │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  MICROSOFT 365 ADMINISTRATOR                                          │
+│  ├── Зарплата: $60K-$100K USD / €55K-€90K EUR                         │
+│  ├── Навички: Windows deployment, Intune, Autopilot                   │
+│  └── Сертифікації: MS-102, MD-102                                     │
+│                                                                       │
+│  WINDOWS DEPLOYMENT SPECIALIST                                        │
+│  ├── Зарплата: $55K-$85K USD / €50K-€75K EUR                          │
+│  ├── Навички: MDT, SCCM/MECM, WDS, Windows Imaging                    │
+│  └── Сертифікації: MD-102, AZ-140                                     │
+│                                                                       │
+│  ENDPOINT MANAGER / INTUNE SPECIALIST                                 │
+│  ├── Зарплата: $70K-$120K USD / €65K-€100K EUR                        │
+│  ├── Навички: Intune, Autopilot, Windows Update for Business          │
+│  └── Сертифікації: MD-102, SC-300                                     │
+│                                                                       │
+│  WINDOWS SERVER ADMINISTRATOR                                         │
+│  ├── Зарплата: $60K-$110K USD / €55K-€95K EUR                         │
+│  ├── Навички: Server Core, Hyper-V, Failover Clustering               │
+│  └── Сертифікації: AZ-800, AZ-801                                     │
+│                                                                       │
+│  LICENSING SPECIALIST                                                 │
+│  ├── Зарплата: $50K-$90K USD / €45K-€80K EUR                          │
+│  ├── Навички: Microsoft licensing, SAM, compliance                    │
+│  └── Сертифікації: Microsoft Licensing Professional                   │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## 🔗 Корисні ресурси
+
+### Онлайн-платформи для практики
+
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| Microsoft Evaluation Center | Безкоштовні trial версії Windows Server | microsoft.com/evalcenter |
+| Microsoft Learn | Модулі з Windows 11 та Server | learn.microsoft.com |
+| Azure Free Account | Безкоштовні Windows VMs на 12 місяців | azure.microsoft.com/free |
+| Windows Insider Program | Тестування нових версій | insider.windows.com |
+| Hands-on Labs (Microsoft) | Віртуальні лабораторії | microsoft.com/handsonlabs |
+
+## 📋 Cheat Sheet
+
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│                WINDOWS VERSIONS - QUICK REFERENCE                     │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  DESKTOP EDITIONS (Win 10/11)                                         │
+│  ┌─────────────────┬─────────────────────────────────────────────┐    │
+│  │ Home            │ Базові функції, 128 GB RAM, без BitLocker   │    │
+│  │ Pro             │ + BitLocker, Hyper-V, RDP, Domain Join      │    │
+│  │ Pro Workstation │ + ReFS, Persistent Memory                   │    │
+│  │ Enterprise      │ + LTSC, DirectAccess, AppLocker             │    │
+│  │ Education       │ = Enterprise, академічна ліцензія           │    │
+│  └─────────────────┴─────────────────────────────────────────────┘    │
+│                                                                       │
+│  SERVER EDITIONS                                                      │
+│  ┌─────────────────┬─────────────────────────────────────────────┐    │
+│  │ Essentials      │ До 25 users, 50 devices, спрощена ліцензія  │    │
+│  │ Standard        │ 2 VMs per license, Hyper-V, Clustering      │    │
+│  │ Datacenter      │ Unlimited VMs, Shielded VMs, SDN            │    │
+│  │ Azure Edition   │ Оптимізовано для Azure, Hot Patching        │    │
+│  └─────────────────┴─────────────────────────────────────────────┘    │
+│                                                                       │
+│  WINDOWS 11 ВИМОГИ                                                    │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ • CPU: 64-bit, 2+ cores, 1 GHz   • TPM: 2.0 ОБОВ'ЯЗКОВО        │  │
+│  │ • RAM: 4 GB мінімум              • UEFI + Secure Boot          │  │
+│  │ • Диск: 64 GB мінімум            • DirectX 12 + WDDM 2.0       │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+│  ПЕРЕВІРКА ВЕРСІЇ (PowerShell)                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │ (Get-WmiObject Win32_OperatingSystem).Caption  # Назва         │  │
+│  │ [Environment]::OSVersion.Version               # Версія        │  │
+│  │ Get-ComputerInfo | Select Windows*             # Детально      │  │
+│  │ Get-Tpm                                        # Статус TPM    │  │
+│  │ Confirm-SecureBootUEFI                         # Secure Boot   │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+## ❓ Питання для самоперевірки
+
+1. **Яка основна різниця між Windows Home та Windows Pro?** Назвіть три ключові функції, які є в Pro, але відсутні в Home.
+
+2. **Для чого призначена редакція Windows Enterprise LTSC?** Чому вона підходить для банкоматів та медичного обладнання?
+
+3. **Порівняйте Windows Server Standard та Datacenter.** Коли варто обирати Datacenter замість Standard?
+
+4. **Які нові вимоги до обладнання має Windows 11 порівняно з Windows 10?** Чому Microsoft вимагає TPM 2.0?
+
+5. **Що таке Windows Server Core?** Які переваги та недоліки використання Server Core замість версії з GUI?
+
+## 🎯 Міні-проект (30 хв)
+
+### Завдання: Windows Upgrade Advisor
+
+Створіть власний інструмент для перевірки сумісності системи з Windows 11 та рекомендацій щодо апгрейду.
+
+**Кроки:**
+
+1. Створіть директорію для проекту:
+```powershell
+New-Item -Path "$env:USERPROFILE\UpgradeAdvisor" -ItemType Directory -Force
+Set-Location "$env:USERPROFILE\UpgradeAdvisor"
+```
+
+2. Перевірте базові вимоги Windows 11:
+```powershell
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "    WINDOWS 11 UPGRADE ADVISOR" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
+
+$Results = @{
+    CheckDate = Get-Date
+    PassedChecks = 0
+    FailedChecks = 0
+}
+
+# Перевірка RAM (мінімум 4 GB)
+$RAM_GB = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2)
+if ($RAM_GB -ge 4) {
+    Write-Host "[PASS] RAM: $RAM_GB GB (потрібно: 4 GB)" -ForegroundColor Green
+    $Results.PassedChecks++
+} else {
+    Write-Host "[FAIL] RAM: $RAM_GB GB (потрібно: 4 GB)" -ForegroundColor Red
+    $Results.FailedChecks++
+}
+```
+
+3. Перевірте TPM та Secure Boot:
+```powershell
+# Перевірка TPM
+$tpm = Get-Tpm -ErrorAction SilentlyContinue
+if ($tpm.TpmPresent -and $tpm.TpmReady) {
+    Write-Host "[PASS] TPM 2.0: Присутній та готовий" -ForegroundColor Green
+    $Results.PassedChecks++
+} else {
+    Write-Host "[FAIL] TPM 2.0: Відсутній або не готовий" -ForegroundColor Red
+    $Results.FailedChecks++
+}
+
+# Перевірка Secure Boot
+try {
+    $SecureBoot = Confirm-SecureBootUEFI
+    if ($SecureBoot) {
+        Write-Host "[PASS] Secure Boot: Увімкнено" -ForegroundColor Green
+        $Results.PassedChecks++
+    } else {
+        Write-Host "[WARN] Secure Boot: Вимкнено" -ForegroundColor Yellow
+        $Results.FailedChecks++
+    }
+} catch {
+    Write-Host "[FAIL] Secure Boot: Не підтримується (Legacy BIOS?)" -ForegroundColor Red
+    $Results.FailedChecks++
+}
+```
+
+4. Перевірте CPU та диск:
+```powershell
+# Перевірка CPU (мінімум 2 ядра, 1 GHz)
+$CPU = Get-WmiObject Win32_Processor
+$Cores = $CPU.NumberOfCores
+if ($Cores -ge 2) {
+    Write-Host "[PASS] CPU: $($CPU.Name) ($Cores cores)" -ForegroundColor Green
+    $Results.PassedChecks++
+} else {
+    Write-Host "[FAIL] CPU: $Cores cores (потрібно: 2+)" -ForegroundColor Red
+    $Results.FailedChecks++
+}
+
+# Перевірка диску (мінімум 64 GB)
+$SystemDrive = Get-Volume -DriveLetter C
+$Disk_GB = [math]::Round($SystemDrive.Size / 1GB, 2)
+if ($Disk_GB -ge 64) {
+    Write-Host "[PASS] Диск C: $Disk_GB GB (потрібно: 64 GB)" -ForegroundColor Green
+    $Results.PassedChecks++
+} else {
+    Write-Host "[FAIL] Диск C: $Disk_GB GB (потрібно: 64 GB)" -ForegroundColor Red
+    $Results.FailedChecks++
+}
+```
+
+5. Виведіть підсумок та рекомендації:
+```powershell
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "           ПІДСУМОК" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Пройдено перевірок: $($Results.PassedChecks)" -ForegroundColor Green
+Write-Host "Провалено перевірок: $($Results.FailedChecks)" -ForegroundColor Red
+Write-Host ""
+
+if ($Results.FailedChecks -eq 0) {
+    Write-Host "ВИСНОВОК: Ваша система ГОТОВА до Windows 11!" -ForegroundColor Green
+    Write-Host "Рекомендована редакція: Windows 11 Pro" -ForegroundColor Cyan
+} else {
+    Write-Host "ВИСНОВОК: Потрібні оновлення перед апгрейдом" -ForegroundColor Yellow
+    Write-Host "Рекомендації:" -ForegroundColor Cyan
+    Write-Host "- Перевірте налаштування BIOS (TPM, Secure Boot)" -ForegroundColor White
+    Write-Host "- Можливо, потрібне оновлення обладнання" -ForegroundColor White
+}
+```
+
+6. Збережіть результати у файл:
+```powershell
+$ReportFile = "UpgradeReport_$(Get-Date -Format 'yyyyMMdd').txt"
+@"
+WINDOWS 11 UPGRADE ADVISOR REPORT
+Generated: $(Get-Date)
+
+RAM: $RAM_GB GB
+CPU: $($CPU.Name) ($Cores cores)
+Disk: $Disk_GB GB
+TPM: $(if($tpm.TpmPresent){'Present'}else{'Missing'})
+Secure Boot: $(if($SecureBoot){'Enabled'}else{'Disabled'})
+
+Passed: $($Results.PassedChecks)
+Failed: $($Results.FailedChecks)
+
+Ready for Windows 11: $(if($Results.FailedChecks -eq 0){'YES'}else{'NO'})
+"@ | Out-File $ReportFile
+
+Write-Host ""
+Write-Host "Звіт збережено: $ReportFile" -ForegroundColor Cyan
+```
+
+**Очікуваний результат:**
+Скрипт, який перевіряє сумісність з Windows 11 та генерує файл звіту з рекомендаціями.
+
+**Бонус (для допитливих):**
+- Додайте перевірку сумісності CPU за списком підтримуваних процесорів
+- Створіть GUI-версію з Windows Forms
+- Додайте порівняння редакцій (Home vs Pro vs Enterprise)
+
 ## Підсумок
 
 | Редакція | Для кого | Ключові функції |
