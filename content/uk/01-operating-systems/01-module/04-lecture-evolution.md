@@ -713,6 +713,300 @@ uptime
 cat /etc/os-release 2>/dev/null || sw_vers 2>/dev/null
 ```
 
+## 🏢 Real World: Як це використовують у великих компаніях
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ЕВОЛЮЦІЯ ОС У СУЧАСНИХ КОМПАНІЯХ                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  GOOGLE (Від Unix до Borg)                                                  │
+│  ├── 2004: Створили власну версію Linux для дата-центрів                   │
+│  ├── 2006: Borg — внутрішня система оркестрації контейнерів                │
+│  ├── 2014: Відкрили Kubernetes як open-source версію Borg                  │
+│  └── 2024: Керують мільйонами контейнерів на custom Linux                  │
+│                                                                             │
+│  ANDROID/GOOGLE (Мобільна революція)                                        │
+│  ├── 2008: Android 1.0 на базі Linux kernel                                │
+│  ├── 2024: 3+ мільярди активних пристроїв                                  │
+│  ├── Project Treble: модульність для швидших оновлень                      │
+│  └── Fuchsia: експериментальна ОС з мікроядром Zircon                      │
+│                                                                             │
+│  MICROSOFT (Від MS-DOS до Azure)                                            │
+│  ├── 1981: MS-DOS — однозадачна система для IBM PC                         │
+│  ├── 1993: Windows NT — нова архітектура для серверів                      │
+│  ├── 2016: Windows Subsystem for Linux (WSL)                               │
+│  └── 2024: Azure працює переважно на Linux серверах                        │
+│                                                                             │
+│  NETFLIX (Хмарна еволюція)                                                  │
+│  ├── 2008: Перехід з власних серверів на AWS                               │
+│  ├── 2010: Повністю в хмарі на Linux (FreeBSD раніше)                      │
+│  ├── 2015: Контейнеризація з Docker                                        │
+│  └── 2024: Titus — власний оркестратор на базі Linux cgroups              │
+│                                                                             │
+│  TESLA (Embedded + Desktop гібрид)                                          │
+│  ├── Автопілот: Real-time Linux з гарантіями затримок                      │
+│  ├── Інфотейнмент: Ubuntu-based система для мультимедіа                    │
+│  ├── Superchargers: Embedded Linux для зарядних станцій                    │
+│  └── Dojo: Custom Linux для AI/ML суперкомп'ютера                          │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 💼 Career Spotlight
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    КАР'ЄРНІ ШЛЯХИ: ЕВОЛЮЦІЯ ТА КЛАСИФІКАЦІЯ ОС              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  📱 MOBILE OS DEVELOPER                                                     │
+│     Розробка для Android/iOS, системні компоненти                          │
+│     Зарплата: $130,000 - $220,000 (USA) | €65,000 - €120,000 (EU)          │
+│     Компанії: Google, Apple, Samsung, Qualcomm                             │
+│     Навички: C/C++, Java/Kotlin, Swift, Linux internals                    │
+│                                                                             │
+│  🚗 EMBEDDED SYSTEMS ENGINEER                                               │
+│     Програмування для автомобілів, IoT, медичних пристроїв                 │
+│     Зарплата: $100,000 - $180,000 (USA) | €55,000 - €100,000 (EU)          │
+│     Компанії: Tesla, Bosch, Siemens, Medtronic                             │
+│     Навички: C, RTOS (FreeRTOS, QNX), low-level debugging                  │
+│                                                                             │
+│  ☁️  CLOUD INFRASTRUCTURE ENGINEER                                          │
+│     Хмарні платформи, контейнеризація, IaC                                 │
+│     Зарплата: $120,000 - $200,000 (USA) | €60,000 - €110,000 (EU)          │
+│     Компанії: AWS, Google Cloud, Azure, DigitalOcean                       │
+│     Навички: Linux, Kubernetes, Terraform, Docker                          │
+│                                                                             │
+│  🎮 GAMING SYSTEMS DEVELOPER                                                │
+│     ОС для ігрових консолей, оптимізація графіки                           │
+│     Зарплата: $110,000 - $180,000 (USA) | €55,000 - €100,000 (EU)          │
+│     Компанії: Sony, Microsoft (Xbox), Nintendo, Valve                      │
+│     Навички: FreeBSD/Linux, GPU programming, real-time systems            │
+│                                                                             │
+│  🔬 OS RESEARCHER                                                           │
+│     Нові архітектури ОС, формальна верифікація                             │
+│     Зарплата: $100,000 - $200,000 (USA) | €50,000 - €100,000 (EU)          │
+│     Організації: Universities, Google Research, Microsoft Research        │
+│     Навички: Systems theory, Rust, formal methods, PhD часто               │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 🔗 Корисні ресурси
+
+### Онлайн-практика
+
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| **OS Dev Wiki** | Створення власної ОС з нуля | wiki.osdev.org |
+| **Writing an OS in Rust** | Туторіал по створенню ОС на Rust | os.phil-opp.com |
+| **Build Your Own X** | Колекція туторіалів, включаючи ОС | github.com/codecrafters-io |
+| **xv6 Labs (MIT)** | Практичні лабораторні роботи з ОС | pdos.csail.mit.edu/6.828 |
+| **QEMU + GDB** | Емуляція та відлагодження ОС | qemu.org |
+
+### Книги
+
+| Назва | Автор | Про що |
+|-------|-------|--------|
+| "Operating Systems: Three Easy Pieces" | Arpaci-Dusseau | Найкращий вступ до ОС |
+| "Modern Operating Systems" | Andrew Tanenbaum | Класика, всі типи ОС |
+| "The Design of the UNIX Operating System" | Maurice Bach | Історія та архітектура UNIX |
+| "Lions' Commentary on UNIX" | John Lions | Анотований код UNIX v6 |
+| "Windows Internals" | Russinovich et al. | Глибоке занурення в Windows |
+
+### YouTube-канали
+
+| Канал | Тематика |
+|-------|----------|
+| **Computerphile** | Історія комп'ютерів та ОС |
+| **Crash Course Computer Science** | Еволюція обчислювальної техніки |
+| **GOTO Conferences** | Доповіді про системи та архітектуру |
+| **ACM** | Класичні лекції з computer science |
+| **retro bits** | Історія старих ОС та комп'ютерів |
+
+## 📋 Cheat Sheet
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ЕВОЛЮЦІЯ ТА КЛАСИФІКАЦІЯ ОС                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ХРОНОЛОГІЯ КЛЮЧОВИХ ПОДІЙ:                                                 │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ 1969  UNIX (Bell Labs)        → Прабатько всіх сучасних ОС          │  │
+│  │ 1981  MS-DOS (Microsoft)      → Ера персональних комп'ютерів        │  │
+│  │ 1991  Linux 0.01 (Torvalds)   → Open Source революція               │  │
+│  │ 1993  Windows NT              → Сучасна архітектура Windows         │  │
+│  │ 2001  Mac OS X                → UNIX-based macOS                    │  │
+│  │ 2007  iPhone OS               → Мобільна революція                  │  │
+│  │ 2008  Android 1.0             → Linux для смартфонів                │  │
+│  │ 2013  Docker                  → Контейнеризація                     │  │
+│  │ 2014  Kubernetes              → Оркестрація хмари                   │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  КЛАСИФІКАЦІЯ ЗА ПРИЗНАЧЕННЯМ:                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Desktop   │ Windows, macOS, Ubuntu      │ GUI, продуктивність       │  │
+│  │ Server    │ RHEL, Ubuntu Server, Debian │ Uptime, мережа, CLI       │  │
+│  │ Mobile    │ Android, iOS                │ Touch, батарея, apps      │  │
+│  │ Embedded  │ FreeRTOS, Zephyr, VxWorks   │ Розмір, real-time         │  │
+│  │ Real-time │ QNX, VxWorks, RT-Linux      │ Гарантії затримок         │  │
+│  │ Cloud     │ CoreOS, Bottlerocket        │ Контейнери, immutable     │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  РОДОВЕ ДЕРЕВО UNIX:                                                        │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │                        UNIX (1969)                                   │  │
+│  │                            │                                         │  │
+│  │          ┌─────────────────┼─────────────────┐                       │  │
+│  │          ▼                 ▼                 ▼                       │  │
+│  │        BSD             System V           MINIX                      │  │
+│  │          │                 │                 │                       │  │
+│  │    ┌─────┴─────┐           │                 │                       │  │
+│  │    ▼     ▼     ▼           ▼                 ▼                       │  │
+│  │ FreeBSD macOS OpenBSD   Solaris   Linux (UNIX-like, не UNIX)        │  │
+│  │    │                                         │                       │  │
+│  │ PS4/PS5                              Android, Chrome OS, SteamOS     │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  КОМАНДИ ДЛЯ ДОСЛІДЖЕННЯ:                                                   │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ uname -a                  → Повна інформація про систему             │  │
+│  │ cat /etc/os-release       → Дистрибутив Linux                        │  │
+│  │ getconf _POSIX_VERSION    → Версія POSIX                             │  │
+│  │ lsmod | wc -l             → Кількість модулів ядра                   │  │
+│  │ docker version            → Версія Docker (якщо встановлено)         │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## ❓ Питання для самоперевірки
+
+1. **Що таке мультипрограмування і яку проблему воно вирішило? Чому це було революційною ідеєю?**
+
+2. **Поясніть, чому UNIX вважається "прабатьком" сучасних операційних систем. Які системи походять від нього?**
+
+3. **У чому різниця між Desktop OS та Server OS? Наведіть приклади компромісів у дизайні для кожного типу.**
+
+4. **Що таке Real-Time OS і в яких сферах вона критично необхідна? Чим вона відрізняється від звичайної ОС?**
+
+5. **Як контейнеризація (Docker, Kubernetes) змінила підхід до розгортання додатків? Чому це називають "сьомим поколінням" ОС?**
+
+## 🎯 Міні-проект (30 хв)
+
+### Завдання: Побудова родового дерева вашої ОС
+
+Створіть візуальну "генеалогію" вашої операційної системи — від UNIX 1969 року до вашої поточної системи.
+
+**Кроки:**
+
+1. Визначте "ДНК" вашої системи:
+```bash
+mkdir ~/os-genealogy && cd ~/os-genealogy
+
+# Створіть файл родового дерева
+echo "=== РОДОВЕ ДЕРЕВО ОС ===" > family-tree.txt
+echo "" >> family-tree.txt
+
+# Визначте базову інформацію
+echo "Моя система: $(uname -s) $(uname -r)" >> family-tree.txt
+echo "Архітектура: $(uname -m)" >> family-tree.txt
+echo "" >> family-tree.txt
+```
+
+2. Визначте UNIX-сумісність (предки):
+```bash
+echo "--- UNIX-СУМІСНІСТЬ ---" >> family-tree.txt
+
+# Чи є /etc/passwd? (ознака UNIX)
+if [ -f /etc/passwd ]; then
+    echo "✓ /etc/passwd існує → нащадок UNIX" >> family-tree.txt
+fi
+
+# Перевірте POSIX
+POSIX_VER=$(getconf _POSIX_VERSION 2>/dev/null)
+if [ -n "$POSIX_VER" ]; then
+    echo "✓ POSIX версія: $POSIX_VER" >> family-tree.txt
+fi
+
+# Перевірте характерні директорії UNIX
+for dir in /bin /usr /var /etc /tmp; do
+    if [ -d "$dir" ]; then
+        echo "✓ $dir існує (UNIX-стиль)" >> family-tree.txt
+    fi
+done
+echo "" >> family-tree.txt
+```
+
+3. Визначте покоління ОС:
+```bash
+echo "--- ПОКОЛІННЯ ОС ---" >> family-tree.txt
+
+# Покоління 3: Time-sharing
+echo "Time-sharing (пок. 3):" >> family-tree.txt
+echo "  Процесів в системі: $(ps aux | wc -l)" >> family-tree.txt
+
+# Покоління 6: Мобільні технології
+if [ -d /sys/class/power_supply ]; then
+    echo "  Підтримка батареї: ✓" >> family-tree.txt
+fi
+
+# Покоління 7: Контейнери
+if command -v docker &> /dev/null; then
+    echo "Контейнери (пок. 7): ✓ Docker встановлено" >> family-tree.txt
+fi
+if [ -d /proc/self/ns ]; then
+    echo "  Namespaces: $(ls /proc/self/ns/ | tr '\n' ' ')" >> family-tree.txt
+fi
+echo "" >> family-tree.txt
+```
+
+4. Побудуйте візуальне дерево:
+```bash
+echo "--- ВІЗУАЛЬНЕ ДЕРЕВО ---" >> family-tree.txt
+echo "" >> family-tree.txt
+echo "UNIX (1969, Bell Labs)" >> family-tree.txt
+echo "    │" >> family-tree.txt
+echo "    ├── BSD (1977)" >> family-tree.txt
+echo "    │   └── FreeBSD, macOS" >> family-tree.txt
+echo "    │" >> family-tree.txt
+echo "    └── System V" >> family-tree.txt
+echo "        └── [Linux-like]" >> family-tree.txt
+echo "            │" >> family-tree.txt
+echo "            └── Linux (1991)" >> family-tree.txt
+
+# Додайте вашу систему
+if [ -f /etc/os-release ]; then
+    DISTRO=$(grep "^NAME=" /etc/os-release | cut -d'"' -f2)
+    echo "                └── $DISTRO (ваша система)" >> family-tree.txt
+fi
+echo "" >> family-tree.txt
+```
+
+5. Додайте цікаві факти:
+```bash
+echo "--- ЦІКАВІ ФАКТИ ---" >> family-tree.txt
+echo "Вік ядра Linux: $(($(date +%Y) - 1991)) років" >> family-tree.txt
+echo "Ваше ядро зібрано: $(uname -v)" >> family-tree.txt
+echo "Підтримуваних ФС: $(cat /proc/filesystems | wc -l)" >> family-tree.txt
+echo "Модулів ядра: $(lsmod | wc -l)" >> family-tree.txt
+```
+
+6. Перегляньте результат:
+```bash
+cat family-tree.txt
+```
+
+**Очікуваний результат:**
+Файл `family-tree.txt` з візуальним родовим деревом вашої ОС, показуючи її зв'язок з UNIX та еволюційні особливості.
+
+**Бонус (для допитливих):**
+- Знайдіть, коли саме було випущено версію вашого дистрибутива
+- Порівняйте дерево Linux та macOS (якщо є доступ до Mac)
+- Дослідіть, чи є у вашій системі код, який старший за 30 років
+
 ## Підсумок
 
 | Покоління | Роки | Ключова інновація |

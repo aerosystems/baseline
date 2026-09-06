@@ -553,6 +553,259 @@ uname -r
 cat /proc/version
 ```
 
+## 🏢 Real World: Як це використовують у великих компаніях
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ВИМОГИ ДО ОС У PRODUCTION                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  AMAZON AWS (Надійність)                                                    │
+│  ├── SLA 99.99% для EC2 = максимум 52 хвилини простою на рік              │
+│  ├── Multi-AZ реплікація для критичних сервісів                            │
+│  ├── Chaos Engineering: навмисно "вбивають" сервери для тестування         │
+│  └── Використовують власну ОС Bottlerocket (immutable, auto-update)        │
+│                                                                             │
+│  CLOUDFLARE (Безпека)                                                       │
+│  ├── Обробляють 20% всього HTTP трафіку інтернету                          │
+│  ├── Kernel-level захист від DDoS (XDP, eBPF)                              │
+│  ├── Кожен сервер = потенційна ціль, hardening критичний                   │
+│  └── Використовують memory-safe мови (Rust) для критичного коду            │
+│                                                                             │
+│  DISCORD (Ефективність)                                                     │
+│  ├── 150+ мільйонів користувачів, мікросекундні затримки                   │
+│  ├── Elixir/Erlang VM оптимізовані під Linux scheduler                     │
+│  ├── Zero-copy networking для мінімізації latency                          │
+│  └── Kernel bypass (DPDK) для найшвидших мережевих операцій               │
+│                                                                             │
+│  ALIBABA CLOUD (Масштабованість)                                            │
+│  ├── Singles' Day: 583,000 замовлень за секунду (пік)                      │
+│  ├── Динамічне масштабування з 1000 до 100,000+ інстансів                  │
+│  ├── Custom Linux kernel з оптимізаціями для великих кластерів             │
+│  └── Kubernetes керує мільйонами контейнерів                               │
+│                                                                             │
+│  APPLE (Портативність)                                                      │
+│  ├── macOS працює на Intel → Apple Silicon без перекомпіляції apps         │
+│  ├── Rosetta 2: емуляція x86 на ARM з 80% продуктивності                   │
+│  ├── Один XNU kernel для Mac, iPhone, iPad, Watch, TV                      │
+│  └── Universal Binary: один додаток для різних архітектур                  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 💼 Career Spotlight
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    КАР'ЄРНІ ШЛЯХИ: ВИМОГИ ДО ОС                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  📊 RELIABILITY ENGINEER / SRE                                              │
+│     Забезпечення uptime, моніторинг, incident response                     │
+│     Зарплата: $140,000 - $280,000 (USA) | €70,000 - €140,000 (EU)          │
+│     Компанії: Google, Netflix, Datadog, PagerDuty                          │
+│     Навички: Linux, monitoring (Prometheus), incident management           │
+│                                                                             │
+│  🔐 SECURITY ARCHITECT                                                      │
+│     Проектування безпечних систем, threat modeling                         │
+│     Зарплата: $150,000 - $250,000 (USA) | €80,000 - €150,000 (EU)          │
+│     Компанії: Cloudflare, CrowdStrike, Palo Alto Networks                  │
+│     Навички: Security hardening, SELinux, penetration testing              │
+│                                                                             │
+│  ⚡ PERFORMANCE ENGINEER                                                    │
+│     Оптимізація швидкодії, профілювання, benchmarking                      │
+│     Зарплата: $130,000 - $220,000 (USA) | €70,000 - €130,000 (EU)          │
+│     Компанії: Discord, Trading firms, Gaming companies                     │
+│     Навички: perf, flamegraphs, kernel tuning, C/C++                       │
+│                                                                             │
+│  🌐 DISTRIBUTED SYSTEMS ENGINEER                                            │
+│     Масштабовані системи, consensus algorithms                             │
+│     Зарплата: $160,000 - $300,000 (USA) | €90,000 - €160,000 (EU)          │
+│     Компанії: Databricks, Confluent, CockroachDB                           │
+│     Навички: Distributed systems, Kubernetes, networking                   │
+│                                                                             │
+│  🔧 PLATFORM ENGINEER                                                       │
+│     Портативність, CI/CD, developer experience                             │
+│     Зарплата: $120,000 - $200,000 (USA) | €60,000 - €120,000 (EU)          │
+│     Компанії: Spotify, Shopify, Stripe                                     │
+│     Навички: Docker, Kubernetes, Terraform, multiple OS                    │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 🔗 Корисні ресурси
+
+### Онлайн-практика
+
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| **Chaos Monkey** | Практика reliability через хаос-інжиніринг | netflix.github.io/chaosmonkey |
+| **TryHackMe** | Інтерактивні лабораторії з безпеки | tryhackme.com |
+| **HackTheBox** | CTF та пентест лабораторії | hackthebox.com |
+| **Katacoda/KillerCoda** | Інтерактивні Linux/K8s сценарії | killercoda.com |
+| **Linux Performance** | Матеріали Брендана Грегга | brendangregg.com |
+
+### Книги
+
+| Назва | Автор | Фокус |
+|-------|-------|-------|
+| "Site Reliability Engineering" | Google SRE Team | Надійність |
+| "Systems Performance" | Brendan Gregg | Ефективність |
+| "Designing Data-Intensive Applications" | Martin Kleppmann | Масштабованість |
+| "The Art of Scalability" | Abbott & Fisher | Масштабованість |
+| "Linux Security Cookbook" | Daniel Barrett | Безпека |
+
+### YouTube-канали
+
+| Канал | Тематика |
+|-------|----------|
+| **Google SRE** | Практики надійності від Google |
+| **DEFCON** | Конференція з безпеки, найкращі доповіді |
+| **Strange Loop** | Distributed systems, performance |
+| **Brendan Gregg** | Linux performance, tracing, eBPF |
+| **Hussein Nasser** | Backend, system design, networking |
+
+## 📋 Cheat Sheet
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    ВИМОГИ ДО СУЧАСНИХ ОС                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ШІСТЬ КЛЮЧОВИХ ВИМОГ:                                                      │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ 1. Надійність      │ Uptime 99.99% = 52 хв простою/рік              │  │
+│  │ 2. Безпека         │ Захист від атак: firewall, SELinux, isolation  │  │
+│  │ 3. Ефективність    │ Мінімальний overhead: syscall < 1μs            │  │
+│  │ 4. Масштабованість │ Від IoT до суперкомп'ютерів                    │  │
+│  │ 5. Портативність   │ x86, ARM, RISC-V — той самий код               │  │
+│  │ 6. Зручність       │ CLI + GUI + API для різних потреб              │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  МЕТРИКИ НАДІЙНОСТІ:                                                        │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ MTBF  = Mean Time Between Failures (час між збоями)                  │  │
+│  │ MTTR  = Mean Time To Repair (час на відновлення)                     │  │
+│  │ Avail = MTBF / (MTBF + MTTR) × 100%                                  │  │
+│  │                                                                       │  │
+│  │ 99.9%   = "three nines"  = 8.7 годин простою/рік                     │  │
+│  │ 99.99%  = "four nines"   = 52 хвилини простою/рік                    │  │
+│  │ 99.999% = "five nines"   = 5 хвилин простою/рік                      │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  КОМАНДИ ДЛЯ ОЦІНКИ СИСТЕМИ:                                               │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ uptime                    → час роботи без перезавантаження          │  │
+│  │ cat /proc/loadavg         → навантаження системи                     │  │
+│  │ getenforce / aa-status    → статус SELinux/AppArmor                  │  │
+│  │ vmstat 1                  → ефективність CPU/пам'яті                 │  │
+│  │ iostat -x 1               → ефективність дисків                      │  │
+│  │ uname -m                  → архітектура процесора                    │  │
+│  │ cat /etc/os-release       → інформація про дистрибутив               │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  ВИБІР ОС ЗА СЦЕНАРІЄМ:                                                     │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ Web-сервер  → Linux (Ubuntu/Debian) — надійність, безкоштовність    │  │
+│  │ Enterprise  → RHEL/Windows Server — підтримка, сертифікації         │  │
+│  │ Embedded    → QNX/FreeRTOS — детермінованість, розмір               │  │
+│  │ Desktop     → Windows/macOS — зручність, екосистема                 │  │
+│  │ Розробка    → Linux/macOS — інструменти, термінал                   │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## ❓ Питання для самоперевірки
+
+1. **Що означає "99.99% uptime" у контексті надійності? Скільки часу простою це дозволяє на рік?**
+
+2. **Поясніть принцип найменших привілеїв на прикладі веб-сервера. Чому nginx не повинен працювати від root?**
+
+3. **Що таке "накладні витрати" (overhead) в контексті ефективності ОС? Наведіть приклади таких витрат.**
+
+4. **В чому різниця між вертикальним та горизонтальним масштабуванням? Яку роль грає ОС у кожному випадку?**
+
+5. **Чому стандарт POSIX важливий для портативності програмного забезпечення?**
+
+## 🎯 Міні-проект (30 хв)
+
+### Завдання: Аудит вашої системи за вимогами production
+
+Уявіть, що ви — системний адміністратор, який готує звіт для керівництва про готовність сервера до production. Проведіть аудит системи за 6 ключовими вимогами.
+
+**Кроки:**
+
+1. Створіть структуру звіту:
+```bash
+mkdir ~/system-audit && cd ~/system-audit
+echo "=== АУДИТ СИСТЕМИ ===" > audit-report.txt
+echo "Дата: $(date)" >> audit-report.txt
+echo "Хост: $(hostname)" >> audit-report.txt
+echo "" >> audit-report.txt
+```
+
+2. Оцініть НАДІЙНІСТЬ (Reliability):
+```bash
+echo "1. НАДІЙНІСТЬ" >> audit-report.txt
+echo "   Uptime: $(uptime -p 2>/dev/null || uptime)" >> audit-report.txt
+echo "   Load average: $(cat /proc/loadavg)" >> audit-report.txt
+# Порахуйте помилки в логах
+ERROR_COUNT=$(journalctl -p err --since "24 hours ago" 2>/dev/null | wc -l || echo "N/A")
+echo "   Помилок за 24 год: $ERROR_COUNT" >> audit-report.txt
+echo "" >> audit-report.txt
+```
+
+3. Оцініть БЕЗПЕКУ (Security):
+```bash
+echo "2. БЕЗПЕКА" >> audit-report.txt
+echo "   SELinux: $(getenforce 2>/dev/null || echo 'не встановлено')" >> audit-report.txt
+echo "   AppArmor: $(aa-status 2>/dev/null | head -1 || echo 'не встановлено')" >> audit-report.txt
+echo "   Firewall: $(sudo ufw status 2>/dev/null | head -1 || echo 'перевірте iptables')" >> audit-report.txt
+echo "   Відкриті порти: $(ss -tuln | grep LISTEN | wc -l)" >> audit-report.txt
+echo "" >> audit-report.txt
+```
+
+4. Оцініть ЕФЕКТИВНІСТЬ та МАСШТАБОВАНІСТЬ:
+```bash
+echo "3. ЕФЕКТИВНІСТЬ / МАСШТАБОВАНІСТЬ" >> audit-report.txt
+echo "   CPU cores: $(nproc)" >> audit-report.txt
+echo "   RAM total: $(free -h | awk '/Mem:/{print $2}')" >> audit-report.txt
+echo "   RAM used: $(free -h | awk '/Mem:/{print $3}')" >> audit-report.txt
+echo "   Disk usage: $(df -h / | awk 'NR==2{print $5}')" >> audit-report.txt
+echo "" >> audit-report.txt
+```
+
+5. Оцініть ПОРТАТИВНІСТЬ:
+```bash
+echo "4. ПОРТАТИВНІСТЬ" >> audit-report.txt
+echo "   Архітектура: $(uname -m)" >> audit-report.txt
+echo "   Ядро: $(uname -r)" >> audit-report.txt
+echo "   POSIX: $(getconf _POSIX_VERSION 2>/dev/null || echo 'N/A')" >> audit-report.txt
+echo "" >> audit-report.txt
+```
+
+6. Сформулюйте ВИСНОВОК:
+```bash
+echo "5. ВИСНОВОК" >> audit-report.txt
+echo "   Система готова до production: [ТАК/НІ/ПОТРЕБУЄ ДООПРАЦЮВАННЯ]" >> audit-report.txt
+echo "   Рекомендації:" >> audit-report.txt
+echo "   - [Ваші рекомендації тут]" >> audit-report.txt
+```
+
+7. Перегляньте звіт:
+```bash
+cat audit-report.txt
+```
+
+**Очікуваний результат:**
+Файл `audit-report.txt` з повним аудитом системи за 6 вимогами та вашим висновком щодо готовності до production.
+
+**Бонус (для допитливих):**
+- Додайте оцінку у зірках (1-5) для кожної вимоги
+- Порівняйте результати з рекомендованими значеннями для серверів
+- Автоматизуйте скрипт для щоденного запуску через cron
+
 ## Підсумок
 
 | Вимога | Що означає | Приклад метрики |

@@ -7,11 +7,15 @@ preview: "cmd.exe, PowerShell, базові команди."
 
 ## Навіщо командний рядок, коли є GUI?
 
-Багато адміністративних задач неможливо виконати через графічний інтерфейс:
-- Масові операції з файлами (перейменувати 1000 файлів за шаблоном)
-- Автоматизація (щоденний бекап о 3:00 ночі)
-- Віддалене керування серверами без GUI
-- Скриптування повторюваних дій
+Багато адміністративних задач неможливо або незручно виконувати через графічний інтерфейс:
+
+| Задача | GUI | CLI |
+|--------|-----|-----|
+| Перейменувати 1000 файлів за шаблоном | Годинами вручну | 1 команда |
+| Щоденний бекап о 3:00 ночі | Складно | Планувальник + скрипт |
+| Керування сервером без GUI | Неможливо | SSH/RDP + команди |
+| Повторити дію 100 разів | Вручну | Цикл у скрипті |
+| Задокументувати процедуру | Скріншоти | Текстовий файл |
 
 Windows має два основних інтерпретатори командного рядка: **CMD** (класичний) та **PowerShell** (сучасний).
 
@@ -37,7 +41,13 @@ Windows має два основних інтерпретатори команд
 │   │ C:\> del *.tmp      │          │ PS C:\> Remove-Item  │     │
 │   └─────────────────────┘          └─────────────────────┘     │
 │                                                                 │
-│   Висновок: CMD для простих задач, PowerShell для всього       │
+│   Pipeline:                        Pipeline:                   │
+│   • Передає ТЕКСТ                  • Передає ОБ'ЄКТИ           │
+│   • Парсити вручну                 • Властивості/методи       │
+│                                                                 │
+│   Висновок:                                                    │
+│   CMD — для простих задач та legacy скриптів                   │
+│   PowerShell — для всього іншого (основний інструмент)         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -50,21 +60,55 @@ Windows має два основних інтерпретатори команд
 │   CMD:                                                          │
 │   • Win+R → cmd → Enter                                        │
 │   • Пошук → "cmd" або "Command Prompt"                         │
-│   • Win+X → Terminal (Admin)                                   │
+│   • Win+X → Terminal (або Terminal Admin)                      │
+│   • File Explorer → адресна строка → cmd                       │
 │                                                                 │
 │   PowerShell:                                                   │
 │   • Win+R → powershell → Enter                                 │
+│   • Win+R → pwsh → Enter (PowerShell 7)                        │
 │   • Пошук → "PowerShell" або "pwsh"                            │
-│   • Win+X → Terminal (Admin)                                   │
+│   • Win+X → Terminal                                           │
 │                                                                 │
 │   Windows Terminal (рекомендовано):                            │
 │   • Об'єднує CMD, PowerShell, WSL в одному вікні              │
-│   • Вкладки, панелі, теми                                      │
-│   • Налаштування через JSON                                    │
+│   • Вкладки, split-панелі, теми                                │
+│   • Налаштування через JSON або GUI                            │
+│   • Ctrl+Shift+1/2/3 — різні профілі                          │
 │                                                                 │
 │   Запуск з правами адміністратора:                             │
 │   • Ctrl+Shift+Enter замість Enter                             │
 │   • Правий клік → "Run as administrator"                       │
+│   • Win+X → Terminal (Admin)                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Windows Terminal
+
+**Windows Terminal** — сучасний термінальний емулятор від Microsoft. Рекомендований спосіб роботи з CLI.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    WINDOWS TERMINAL                             │
+│                                                                 │
+│   ┌───────────────────────────────────────────────────────┐    │
+│   │ PowerShell │ CMD │ Ubuntu │ + │                  ─ □ × │    │
+│   ├───────────────────────────────────────────────────────┤    │
+│   │ PS C:\Users\Student>                                  │    │
+│   │                                                       │    │
+│   │                                                       │    │
+│   │                                                       │    │
+│   └───────────────────────────────────────────────────────┘    │
+│                                                                 │
+│   Гарячі клавіші:                                              │
+│   • Ctrl+Shift+T — нова вкладка (default profile)             │
+│   • Ctrl+Shift+1/2/3 — вкладка з профілем 1/2/3               │
+│   • Ctrl+Shift+D — дублювати панель                           │
+│   • Alt+Shift+D — split вертикально                           │
+│   • Alt+Shift+- — split горизонтально                         │
+│   • Ctrl+Shift+W — закрити панель                             │
+│   • Ctrl+Tab — наступна вкладка                               │
+│   • Ctrl+Shift+P — command palette                            │
+│   • Ctrl+, — налаштування                                     │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -76,12 +120,13 @@ Windows має два основних інтерпретатори команд
 ┌─────────────────────────────────────────────────────────────────┐
 │                    НАВІГАЦІЯ В CMD                              │
 │                                                                 │
-│   C:\Users\User> cd Desktop                                    │
-│   C:\Users\User\Desktop> cd ..                                 │
-│   C:\Users\User> cd \                                          │
+│   C:\Users\Student> cd Desktop                                 │
+│   C:\Users\Student\Desktop> cd ..                              │
+│   C:\Users\Student> cd \                                       │
 │   C:\> cd "Program Files"                                      │
-│   C:\Program Files> D:                                         │
-│   D:\>                                                          │
+│   C:\Program Files> D:                  ← Зміна диска          │
+│   D:\> cd /d C:\Users                   ← Зміна диска і каталогу│
+│   C:\Users>                                                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -90,20 +135,32 @@ Windows має два основних інтерпретатори команд
 | `cd` | Змінити каталог | `cd Desktop` |
 | `cd ..` | Перейти на рівень вище | `cd ..` |
 | `cd \` | Перейти до кореня диску | `cd \` |
-| `D:` | Змінити диск | `D:` |
+| `cd /d D:\` | Змінити диск і каталог | `cd /d D:\Data` |
+| `D:` | Змінити диск (без cd) | `D:` |
 | `dir` | Показати вміст каталогу | `dir /a` |
 | `tree` | Показати дерево каталогів | `tree /f` |
+| `pushd` | Зберегти поточний каталог | `pushd D:\temp` |
+| `popd` | Повернутися до збереженого | `popd` |
 
 ```cmd
-:: Практичні приклади
+:: Практичні приклади dir
 dir                     :: Вміст поточного каталогу
-dir /a                  :: + приховані файли
-dir /s *.txt            :: Пошук рекурсивно
+dir /a                  :: + приховані та системні файли
+dir /a:h                :: Тільки приховані
+dir /a:d                :: Тільки каталоги
+dir /s                  :: Рекурсивно (всі підкаталоги)
+dir /s *.txt            :: Пошук файлів рекурсивно
+dir /o:n                :: Сортувати за іменем
 dir /o:d                :: Сортувати за датою
 dir /o:-s               :: Сортувати за розміром (спадання)
+dir /o:e                :: Сортувати за розширенням
+dir /b                  :: Тільки імена (bare format)
+dir /w                  :: Широкий формат
 
-tree                    :: Дерево каталогів
+:: Дерево каталогів
+tree                    :: Тільки каталоги
 tree /f                 :: + файли
+tree /a                 :: ASCII-символи (для терміналів)
 ```
 
 ### Робота з файлами та каталогами
@@ -115,24 +172,54 @@ tree /f                 :: + файли
 | `robocopy` | Надійне копіювання | `robocopy src dst /mir` |
 | `move` | Перемістити/перейменувати | `move old.txt new.txt` |
 | `del` | Видалити файл | `del *.tmp` |
-| `rd` | Видалити каталог | `rd /s /q folder` |
-| `md` | Створити каталог | `md newfolder` |
+| `erase` | Синонім del | `erase file.txt` |
+| `rd` / `rmdir` | Видалити каталог | `rd /s /q folder` |
+| `md` / `mkdir` | Створити каталог | `md newfolder` |
 | `ren` | Перейменувати | `ren old.txt new.txt` |
+| `attrib` | Атрибути файлу | `attrib +h file.txt` |
 
 ```cmd
-:: Практичні приклади
+:: Копіювання
 copy file.txt D:\backup\            :: Копіювати на інший диск
 copy *.jpg photos\                  :: Копіювати всі jpg
-xcopy /s /e source\ dest\           :: Копіювати з підкаталогами
+copy file1.txt+file2.txt combined.txt  :: Об'єднати файли
+copy /y file.txt backup.txt         :: Без підтвердження перезапису
 
-robocopy C:\source D:\dest /mir     :: Дзеркальне копіювання
-robocopy source dest /mov           :: Перемістити (не копіювати)
+:: xcopy (потужніший copy)
+xcopy /s source\ dest\              :: Копіювати з підкаталогами
+xcopy /e source\ dest\              :: + порожні каталоги
+xcopy /h source\ dest\              :: + приховані файли
+xcopy /y source\ dest\              :: Без підтвердження
 
-del /q *.tmp                        :: Видалити без підтвердження
-del /s /q temp\                     :: Видалити рекурсивно
+:: robocopy (рекомендований для backup)
+robocopy C:\source D:\dest          :: Базове копіювання
+robocopy src dst /mir               :: Mirror (sync)
+robocopy src dst /mov               :: Перемістити (не копіювати)
+robocopy src dst /e                 :: + порожні каталоги
+robocopy src dst /z                 :: Restartable mode
+robocopy src dst /mt:8              :: Багатопоточність (8 потоків)
+robocopy src dst /log:copy.log      :: Логування
 
+:: Видалення
+del file.txt                        :: Видалити файл
+del /q *.tmp                        :: Без підтвердження
+del /s *.tmp                        :: Рекурсивно
+del /f file.txt                     :: Force (read-only файли)
+del /a:h *.txt                      :: Приховані файли
+
+:: Каталоги
 md "New Folder"                     :: Створити каталог
-rd /s /q "Old Folder"               :: Видалити каталог з вмістом
+md a\b\c                            :: Створити вкладені
+rd folder                           :: Видалити порожній каталог
+rd /s folder                        :: З вмістом (з підтвердженням)
+rd /s /q folder                     :: Без підтвердження
+
+:: Атрибути
+attrib file.txt                     :: Показати атрибути
+attrib +h file.txt                  :: Зробити прихованим
+attrib -h file.txt                  :: Зняти прихований
+attrib +r file.txt                  :: Read-only
+attrib +s file.txt                  :: System
 ```
 
 ### Перегляд та редагування файлів
@@ -141,16 +228,32 @@ rd /s /q "Old Folder"               :: Видалити каталог з вмі
 :: Показати вміст файлу
 type file.txt
 
-:: Перші/останні рядки (PowerShell-style в CMD не працює)
-more file.txt                       :: Посторінково
+:: Посторінковий перегляд
+more file.txt
+type file.txt | more
 
 :: Пошук тексту у файлі
 find "error" logfile.txt
-findstr /i "error\|warning" *.log   :: Регулярні вирази
+find /i "error" logfile.txt         :: Case-insensitive
+find /c "error" logfile.txt         :: Тільки кількість
+
+:: Розширений пошук (регулярні вирази)
+findstr "error" *.log
+findstr /i "error" *.log            :: Case-insensitive
+findstr /r "error.*warning" *.log   :: Regex
+findstr /s "pattern" *.txt          :: Рекурсивно
+findstr /n "pattern" file.txt       :: З номерами рядків
 
 :: Редагування
-notepad file.txt                    :: Відкрити в Notepad
-code file.txt                       :: Відкрити в VS Code (якщо встановлено)
+notepad file.txt                    :: Блокнот
+notepad++ file.txt                  :: Notepad++ (якщо встановлено)
+code file.txt                       :: VS Code (якщо встановлено)
+
+:: Створення файлу
+echo Hello > file.txt               :: Створити/перезаписати
+echo World >> file.txt              :: Дописати в кінець
+copy con file.txt                   :: Введення з клавіатури (Ctrl+Z для збереження)
+type nul > empty.txt                :: Створити порожній файл
 ```
 
 ### Інформація про систему
@@ -158,22 +261,50 @@ code file.txt                       :: Відкрити в VS Code (якщо в�
 ```cmd
 :: Системна інформація
 systeminfo                          :: Повна інформація
+systeminfo | findstr /c:"OS"        :: Тільки OS
 hostname                            :: Ім'я комп'ютера
 whoami                              :: Поточний користувач
+whoami /groups                      :: Групи користувача
 ver                                 :: Версія Windows
+winver                              :: GUI версії
 
 :: Мережа
-ipconfig                            :: IP-адреси
+ipconfig                            :: IP-адреси (коротко)
 ipconfig /all                       :: Детально
+ipconfig /release                   :: Звільнити DHCP
+ipconfig /renew                     :: Оновити DHCP
+ipconfig /flushdns                  :: Очистити DNS кеш
+
 ping google.com                     :: Перевірка з'єднання
+ping -t google.com                  :: Безперервний ping (Ctrl+C для зупинки)
+ping -n 10 google.com               :: 10 пакетів
+
 tracert google.com                  :: Маршрут до хоста
+pathping google.com                 :: Детальний tracert
+
 netstat -an                         :: Активні з'єднання
+netstat -b                          :: + програми (потрібен адмін)
+netstat -o                          :: + PID
+
 nslookup google.com                 :: DNS-запит
+nslookup -type=mx gmail.com         :: MX записи
 
 :: Процеси
 tasklist                            :: Список процесів
+tasklist /v                         :: Детально
+tasklist | findstr "chrome"         :: Знайти процес
+tasklist /svc                       :: Служби в процесах
+
 taskkill /im notepad.exe            :: Завершити за іменем
 taskkill /pid 1234                  :: Завершити за PID
+taskkill /f /im app.exe             :: Force kill
+
+:: Служби
+sc query                            :: Список служб
+sc query wuauserv                   :: Статус конкретної служби
+net start                           :: Запущені служби
+net start "Service Name"            :: Запустити службу
+net stop "Service Name"             :: Зупинити службу
 ```
 
 ## Базові команди PowerShell
@@ -191,6 +322,7 @@ PowerShell використовує команди у форматі **Verb-Noun
 │   └── Process  ← Іменник (з чим)                               │
 │                                                                 │
 │   Типові дієслова:                                             │
+│   ────────────────                                             │
 │   • Get     — отримати інформацію                              │
 │   • Set     — змінити значення                                 │
 │   • New     — створити новий об'єкт                            │
@@ -200,6 +332,9 @@ PowerShell використовує команди у форматі **Verb-Noun
 │   • Copy    — копіювати                                        │
 │   • Move    — перемістити                                      │
 │   • Test    — перевірити                                       │
+│   • Invoke  — виконати                                         │
+│   • Export  — експортувати                                     │
+│   • Import  — імпортувати                                      │
 │                                                                 │
 │   Приклади:                                                    │
 │   Get-Service      Set-Location      New-Item                  │
@@ -210,18 +345,19 @@ PowerShell використовує команди у форматі **Verb-Noun
 
 ### Еквіваленти CMD → PowerShell
 
-| CMD | PowerShell | Аліас |
-|-----|------------|-------|
+| CMD | PowerShell | Аліаси |
+|-----|------------|--------|
 | `dir` | `Get-ChildItem` | `ls`, `dir`, `gci` |
-| `cd` | `Set-Location` | `cd`, `sl` |
-| `copy` | `Copy-Item` | `cp`, `copy` |
-| `move` | `Move-Item` | `mv`, `move` |
-| `del` | `Remove-Item` | `rm`, `del` |
+| `cd` | `Set-Location` | `cd`, `sl`, `chdir` |
+| `copy` | `Copy-Item` | `cp`, `copy`, `cpi` |
+| `move` | `Move-Item` | `mv`, `move`, `mi` |
+| `del` | `Remove-Item` | `rm`, `del`, `ri` |
 | `md` | `New-Item -Type Directory` | `mkdir` |
-| `type` | `Get-Content` | `cat`, `gc` |
+| `type` | `Get-Content` | `cat`, `gc`, `type` |
 | `cls` | `Clear-Host` | `clear`, `cls` |
+| `echo` | `Write-Output` | `echo`, `write` |
 
-### Навігація
+### Навігація та перегляд
 
 ```powershell
 # Навігація
@@ -231,11 +367,20 @@ Set-Location ..                     # На рівень вище
 Push-Location D:\temp               # Зберегти поточний, перейти
 Pop-Location                        # Повернутися
 
-# Перегляд
+# Перегляд каталогу
 Get-ChildItem                       # Вміст каталогу (ls)
 Get-ChildItem -Hidden               # + приховані
-Get-ChildItem -Recurse -Filter *.txt  # Рекурсивний пошук
+Get-ChildItem -Force                # Всі файли (приховані, системні)
+Get-ChildItem -Recurse              # Рекурсивно
+Get-ChildItem -Recurse -Filter *.txt    # Фільтр
+Get-ChildItem -Directory            # Тільки каталоги
+Get-ChildItem -File                 # Тільки файли
 Get-ChildItem | Sort-Object Length -Descending  # Сортування
+
+# Alias (скорочення)
+ls                                  # = Get-ChildItem
+cd ..                               # = Set-Location ..
+pwd                                 # = Get-Location
 ```
 
 ### Робота з файлами
@@ -244,23 +389,33 @@ Get-ChildItem | Sort-Object Length -Descending  # Сортування
 # Створення
 New-Item -Path "file.txt" -ItemType File
 New-Item -Path "folder" -ItemType Directory
+New-Item -Path "a\b\c" -ItemType Directory -Force   # Вкладені каталоги
 "Hello World" | Out-File file.txt
 Set-Content file.txt "New content"
+Add-Content file.txt "Appended line"
 
 # Читання
 Get-Content file.txt
 Get-Content file.txt -Head 10       # Перші 10 рядків
 Get-Content file.txt -Tail 5        # Останні 5 рядків
-Select-String "error" *.log         # Grep-аналог
+Get-Content file.txt -Wait          # Follow (як tail -f)
+Get-Content file.txt | Measure-Object -Line   # Кількість рядків
+
+# Пошук у файлах (grep-аналог)
+Select-String "error" *.log
+Select-String -Pattern "error" -Path *.log -CaseSensitive
+Select-String -Pattern "error|warning" -Path *.log   # Regex
 
 # Копіювання/переміщення
 Copy-Item file.txt backup.txt
 Copy-Item folder -Recurse newfolder
+Copy-Item *.txt D:\backup\
 Move-Item old.txt new.txt
 
 # Видалення
 Remove-Item file.txt
 Remove-Item folder -Recurse -Force  # Каталог з вмістом
+Remove-Item *.tmp                   # За шаблоном
 ```
 
 ### Pipeline — потужність PowerShell
@@ -270,36 +425,55 @@ Remove-Item folder -Recurse -Force  # Каталог з вмістом
 │                    PIPELINE (КОНВЕЄР)                           │
 │                                                                 │
 │   CMD pipeline передає ТЕКСТ:                                  │
+│   ─────────────────────────────                                │
 │   dir | find "txt"                                             │
-│   └────────────────┘                                           │
 │   "file.txt" — просто рядок символів                           │
+│   Парсити вручну, легко помилитися                             │
 │                                                                 │
 │   PowerShell pipeline передає ОБ'ЄКТИ:                         │
+│   ────────────────────────────────────                         │
 │   Get-ChildItem | Where-Object {$_.Length -gt 1MB}             │
-│   └────────────────────────────────────────────────┘           │
+│                                                                 │
 │   Кожен елемент — об'єкт з властивостями:                      │
-│   • Name, Length, LastWriteTime, FullName...                   │
+│   • Name         — ім'я файлу                                  │
+│   • Length       — розмір у байтах                             │
+│   • LastWriteTime — дата модифікації                          │
+│   • FullName     — повний шлях                                 │
+│   • Extension    — розширення                                  │
 │                                                                 │
 │   Це дозволяє:                                                 │
 │   • Фільтрувати за будь-якою властивістю                       │
 │   • Сортувати                                                  │
 │   • Групувати                                                  │
 │   • Обчислювати                                                │
+│   • Форматувати вивід                                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ```powershell
 # Приклади pipeline
+# Топ-5 процесів за CPU
 Get-Process | Sort-Object CPU -Descending | Select-Object -First 5
 
+# Файли більше 10 МБ
 Get-ChildItem -Recurse | Where-Object {$_.Length -gt 10MB} |
     Select-Object FullName, @{N='MB';E={[math]::Round($_.Length/1MB,2)}}
 
+# Кількість запущених служб
 Get-Service | Where-Object Status -eq "Running" | Measure-Object
 
+# Останні помилки з Event Log
 Get-EventLog System -Newest 100 |
     Where-Object {$_.EntryType -eq "Error"} |
-    Group-Object Source
+    Group-Object Source |
+    Sort-Object Count -Descending
+
+# Експорт у CSV
+Get-Process | Select-Object Name, CPU, WorkingSet |
+    Export-Csv processes.csv -NoTypeInformation
+
+# Конвертація в JSON
+Get-Process | Select-Object Name, CPU | ConvertTo-Json
 ```
 
 ### Системна інформація
@@ -307,24 +481,32 @@ Get-EventLog System -Newest 100 |
 ```powershell
 # Комп'ютер
 Get-ComputerInfo
+Get-ComputerInfo | Select-Object WindowsProductName, OsVersion
 $env:COMPUTERNAME
 $env:USERNAME
 
 # Процеси
 Get-Process
 Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 10
+Get-Process -Name "chrome"
 Stop-Process -Name "notepad" -Force
+Start-Process notepad.exe
+Start-Process "https://google.com"   # Відкрити URL
 
 # Служби
 Get-Service
 Get-Service | Where-Object Status -eq "Running"
+Get-Service -Name "Spooler"
 Start-Service -Name "Spooler"
 Stop-Service -Name "Spooler"
+Restart-Service -Name "Spooler"
 
 # Мережа
 Get-NetIPAddress
 Get-NetAdapter
+Get-NetTCPConnection | Where-Object State -eq "Established"
 Test-Connection google.com
+Test-NetConnection google.com -Port 443
 Resolve-DnsName google.com
 ```
 
@@ -335,7 +517,8 @@ Resolve-DnsName google.com
 Get-Help Get-Process
 Get-Help Get-Process -Full
 Get-Help Get-Process -Examples
-Get-Help *process*                  # Пошук команд
+Get-Help Get-Process -Online          # Відкрити в браузері
+Get-Help *process*                    # Пошук команд
 
 # Оновити довідку (потрібні права адміна)
 Update-Help
@@ -344,12 +527,14 @@ Update-Help
 Get-Command
 Get-Command -Verb Get
 Get-Command -Noun Process
+Get-Command *file*
 
 # Властивості об'єкта
 Get-Process | Get-Member
+Get-Service | Get-Member -MemberType Property
 ```
 
-## Змінні середовища (Environment Variables)
+## Змінні середовища
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -359,10 +544,14 @@ Get-Process | Get-Member
 │   • PATH                           • USERPROFILE               │
 │   • COMPUTERNAME                   • APPDATA                   │
 │   • OS                             • LOCALAPPDATA              │
-│   • SYSTEMROOT                     • TEMP                      │
+│   • SYSTEMROOT                     • TEMP / TMP                │
+│   • WINDIR                         • HOMEPATH                  │
 │                                                                 │
 │   PATH — список каталогів для пошуку програм:                  │
 │   C:\Windows\System32;C:\Windows;C:\Python310;...              │
+│                                                                 │
+│   Коли ви вводите "python", Windows шукає python.exe           │
+│   в кожному каталозі з PATH по порядку                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -370,7 +559,12 @@ Get-Process | Get-Member
 :: CMD
 echo %PATH%
 echo %USERPROFILE%
-set MYVAR=Hello
+echo %TEMP%
+
+set                                 :: Всі змінні
+set PATH                            :: Змінні, що починаються з PATH
+
+set MYVAR=Hello                     :: Встановити (тимчасово)
 echo %MYVAR%
 
 :: Додати до PATH тимчасово
@@ -378,33 +572,39 @@ set PATH=%PATH%;C:\MyProgram
 
 :: Постійно — через GUI:
 :: System Properties → Environment Variables
+:: або команда setx (постійно):
+setx MYVAR "Hello"                  :: Для користувача
+setx MYVAR "Hello" /m               :: Системна (потрібен адмін)
 ```
 
 ```powershell
 # PowerShell
 $env:PATH
 $env:USERPROFILE
-$env:MYVAR = "Hello"
+$env:TEMP
+
+$env:MYVAR = "Hello"                # Встановити (тимчасово)
 $env:MYVAR
 
 # Всі змінні
 Get-ChildItem env:
+Get-ChildItem env: | Where-Object Name -like "PATH*"
 
 # Додати до PATH
 $env:PATH += ";C:\MyProgram"
 
 # Постійно
 [Environment]::SetEnvironmentVariable("MYVAR", "Hello", "User")
+[Environment]::SetEnvironmentVariable("MYVAR", "Hello", "Machine")  # Системна
 ```
 
 ## Практичне завдання
-
-Виконайте наступні команди:
 
 ```cmd
 :: CMD
 :: 1. Дізнатися версію Windows
 ver
+systeminfo | findstr /c:"OS Name" /c:"OS Version"
 
 :: 2. Показати мережеву конфігурацію
 ipconfig /all
@@ -415,20 +615,21 @@ dir %USERPROFILE%\Documents\*.txt /s
 :: 4. Створити структуру каталогів
 md project\src project\docs project\tests
 
-:: 5. Системна інформація
-systeminfo | find "OS"
+:: 5. Ping з логуванням
+ping -n 5 google.com > ping_log.txt
 ```
 
 ```powershell
 # PowerShell
 # 1. Топ-5 процесів за пам'яттю
-Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 5 Name, @{N='MB';E={[math]::Round($_.WorkingSet/1MB)}}
+Get-Process | Sort-Object WorkingSet -Descending |
+    Select-Object -First 5 Name, @{N='MB';E={[math]::Round($_.WorkingSet/1MB)}}
 
 # 2. Запущені служби
 Get-Service | Where-Object Status -eq Running | Measure-Object
 
-# 3. Файли більше 100 МБ
-Get-ChildItem C:\Users -Recurse -ErrorAction SilentlyContinue |
+# 3. Файли більше 100 МБ в профілі
+Get-ChildItem $env:USERPROFILE -Recurse -ErrorAction SilentlyContinue |
     Where-Object {$_.Length -gt 100MB} |
     Select-Object FullName, @{N='MB';E={[math]::Round($_.Length/1MB)}}
 
@@ -439,6 +640,309 @@ Get-History
 $PSVersionTable
 ```
 
+## 🏢 Real World: Як це використовують у великих компаніях
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CMD/POWERSHELL У ENTERPRISE                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   АВТОМАТИЗАЦІЯ IT OPERATIONS                                                │
+│   ├── Microsoft (Azure):                                                     │
+│   │   └── PowerShell DSC для конфігурації тисяч серверів                    │
+│   ├── Великі банки:                                                          │
+│   │   └── Scheduled tasks + batch для щоденних бекапів                      │
+│   └── Телеком-оператори:                                                     │
+│       └── PowerShell для моніторингу та алертів 24/7                        │
+│                                                                              │
+│   DEVOPS & CI/CD                                                             │
+│   ├── Azure DevOps Pipelines:                                                │
+│   │   └── PowerShell tasks для deployment Windows apps                      │
+│   ├── GitHub Actions:                                                        │
+│   │   └── pwsh scripts для тестування на Windows runners                    │
+│   └── Jenkins:                                                               │
+│       └── Batch/PowerShell для Windows build agents                         │
+│                                                                              │
+│   SECURITY & COMPLIANCE                                                      │
+│   ├── SOC Teams (Security Operations):                                       │
+│   │   └── PowerShell для forensics та incident response                     │
+│   ├── Compliance Audits:                                                     │
+│   │   └── Scripts для збору конфігурацій та звітності                       │
+│   └── Антивірусні компанії:                                                  │
+│       └── CMD/PowerShell для аналізу malware поведінки                      │
+│                                                                              │
+│   SYSTEM ADMINISTRATION                                                      │
+│   ├── Active Directory керування:                                            │
+│   │   └── PowerShell AD module для 10,000+ користувачів                     │
+│   ├── Exchange/Microsoft 365:                                                │
+│   │   └── PowerShell для bulk операцій з mailboxes                          │
+│   └── Hyper-V / VMware:                                                      │
+│       └── PowerShell для автоматизації VM provisioning                      │
+│                                                                              │
+│   LEGACY SYSTEMS                                                             │
+│   ├── Виробництво:                                                           │
+│   │   └── Batch файли з 1990-х для промислових процесів                     │
+│   └── Логістика:                                                             │
+│       └── CMD scripts для інтеграції зі старими системами                   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 💼 Career Spotlight
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    КАР'ЄРНІ МОЖЛИВОСТІ                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   POWERSHELL DEVELOPER / AUTOMATION ENGINEER                                 │
+│   ├── Зарплата: $70,000 - $130,000 USD / €65,000 - €110,000 EUR             │
+│   ├── Навички: PowerShell advanced, DSC, Azure Automation                  │
+│   └── Сертифікації: AZ-040, PowerShell certifications                      │
+│                                                                              │
+│   WINDOWS SYSTEM ADMINISTRATOR                                               │
+│   ├── Зарплата: $50,000 - $90,000 USD / €45,000 - €80,000 EUR               │
+│   ├── Навички: CMD, PowerShell, batch scripting, AD                        │
+│   └── Сертифікації: AZ-800, AZ-801                                          │
+│                                                                              │
+│   DEVOPS ENGINEER (Windows)                                                  │
+│   ├── Зарплата: $80,000 - $150,000 USD / €70,000 - €130,000 EUR             │
+│   ├── Навички: PowerShell, Azure DevOps, CI/CD, IaC                        │
+│   └── Сертифікації: AZ-400, GitHub certifications                          │
+│                                                                              │
+│   SECURITY ANALYST / INCIDENT RESPONDER                                      │
+│   ├── Зарплата: $75,000 - $140,000 USD / €65,000 - €120,000 EUR             │
+│   ├── Навички: PowerShell forensics, threat hunting, SIEM                  │
+│   └── Сертифікації: SC-200, SANS GIAC                                       │
+│                                                                              │
+│   CLOUD ENGINEER (Azure)                                                     │
+│   ├── Зарплата: $90,000 - $160,000 USD / €80,000 - €140,000 EUR             │
+│   ├── Навички: Azure PowerShell, Az CLI, ARM templates                     │
+│   └── Сертифікації: AZ-104, AZ-305                                          │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 🔗 Корисні ресурси
+
+### Онлайн-платформи для практики
+
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| PSKoans | Інтерактивне навчання PowerShell через тести | github.com/vexx32/PSKoans |
+| Under The Wire | CTF-style PowerShell challenges | underthewire.tech |
+| PowerShell.org | Спільнота та форум | powershell.org |
+| Microsoft Learn | Офіційні PowerShell модулі | learn.microsoft.com/powershell |
+| SS64 | Довідник CMD та PowerShell команд | ss64.com |
+
+### Книги
+
+| Назва | Автор | Рівень |
+|-------|-------|--------|
+| Learn PowerShell in a Month of Lunches | Don Jones, Travis Plunk | Початковий |
+| PowerShell for Sysadmins | Adam Bertram | Середній |
+| PowerShell Cookbook | Lee Holmes | Середній |
+| Windows PowerShell in Action | Bruce Payette | Просунутий |
+| PowerShell for Penetration Testing | Ruben Boonen | Просунутий |
+
+### YouTube канали
+
+| Канал | Тематика |
+|-------|----------|
+| PowerShell.org | Офіційні відео від спільноти |
+| TechThoughts | PowerShell від basics до advanced |
+| John Savill | Azure та PowerShell |
+| Adam the Automator | Практичні сценарії автоматизації |
+| Jeff Hicks | PowerShell tips від MVP |
+
+## 📋 Cheat Sheet
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CMD / POWERSHELL - QUICK REFERENCE                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   НАВІГАЦІЯ                                                                 │
+│   ┌───────────────────────────────────────────────────────────────────┐     │
+│   │  CMD                          │  PowerShell                       │     │
+│   ├───────────────────────────────┼───────────────────────────────────┤     │
+│   │  cd folder                    │  Set-Location folder (cd)         │     │
+│   │  cd /d D:\path                │  cd D:\path                       │     │
+│   │  dir                          │  Get-ChildItem (ls, dir)          │     │
+│   │  dir /s *.txt                 │  ls -Recurse -Filter *.txt        │     │
+│   │  tree /f                      │  tree /f (або custom function)    │     │
+│   └───────────────────────────────┴───────────────────────────────────┘     │
+│                                                                              │
+│   ФАЙЛОВІ ОПЕРАЦІЇ                                                          │
+│   ┌───────────────────────────────────────────────────────────────────┐     │
+│   │  CMD                          │  PowerShell                       │     │
+│   ├───────────────────────────────┼───────────────────────────────────┤     │
+│   │  copy src dst                 │  Copy-Item src dst (cp)           │     │
+│   │  move src dst                 │  Move-Item src dst (mv)           │     │
+│   │  del file                     │  Remove-Item file (rm)            │     │
+│   │  md folder                    │  New-Item -Type Directory         │     │
+│   │  type file                    │  Get-Content file (cat)           │     │
+│   │  echo text > file             │  "text" | Out-File file           │     │
+│   │  robocopy src dst /mir        │  robocopy src dst /mir            │     │
+│   └───────────────────────────────┴───────────────────────────────────┘     │
+│                                                                              │
+│   СИСТЕМНА ІНФОРМАЦІЯ                                                       │
+│   ┌───────────────────────────────────────────────────────────────────┐     │
+│   │  CMD                          │  PowerShell                       │     │
+│   ├───────────────────────────────┼───────────────────────────────────┤     │
+│   │  systeminfo                   │  Get-ComputerInfo                 │     │
+│   │  ipconfig /all                │  Get-NetIPAddress                 │     │
+│   │  tasklist                     │  Get-Process                      │     │
+│   │  taskkill /im name            │  Stop-Process -Name name          │     │
+│   │  net start                    │  Get-Service                      │     │
+│   │  sc query                     │  Get-Service | Format-Table       │     │
+│   └───────────────────────────────┴───────────────────────────────────┘     │
+│                                                                              │
+│   POWERSHELL PIPELINE ПРИКЛАДИ                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ Get-Process | Sort-Object CPU -Desc | Select -First 5              │   │
+│   │ Get-ChildItem -Recurse | Where {$_.Length -gt 10MB}                │   │
+│   │ Get-Service | Where Status -eq Running | Measure-Object            │   │
+│   │ Get-Content log.txt | Select-String "error"                        │   │
+│   │ Get-Process | Export-Csv processes.csv -NoTypeInformation          │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## ❓ Питання для самоперевірки
+
+1. **Яка основна різниця між pipeline у CMD та PowerShell?** Чому об'єктний pipeline є перевагою?
+
+2. **Що означає структура Verb-Noun у cmdlets PowerShell?** Наведіть 5 прикладів типових дієслів та їх значення.
+
+3. **Як знайти всі файли більше 100 МБ у вашому профілі користувача?** Напишіть команду для CMD та PowerShell.
+
+4. **Для чого використовуються змінні середовища?** Як переглянути значення PATH у CMD та PowerShell?
+
+5. **Які переваги Windows Terminal над класичними cmd.exe та powershell.exe?** Назвіть 3 ключові функції.
+
+## 🎯 Міні-проект (30 хв)
+
+### Завдання: Створення System Health Dashboard
+
+Створіть скрипт, який збирає ключові метрики системи та виводить їх у вигляді наочного "дашборду" прямо в терміналі.
+
+**Кроки:**
+
+1. Створіть директорію для проекту:
+```powershell
+New-Item -Path "$env:USERPROFILE\HealthDashboard" -ItemType Directory -Force
+Set-Location "$env:USERPROFILE\HealthDashboard"
+```
+
+2. Створіть функцію для візуалізації прогрес-бару:
+```powershell
+function Show-ProgressBar {
+    param([int]$Percent, [int]$Width = 30)
+    $filled = [math]::Round($Width * $Percent / 100)
+    $empty = $Width - $filled
+    $bar = "[" + ("=" * $filled) + (" " * $empty) + "]"
+    return "$bar $Percent%"
+}
+```
+
+3. Зберіть метрики системи:
+```powershell
+Clear-Host
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "    SYSTEM HEALTH DASHBOARD" -ForegroundColor Cyan
+Write-Host "    $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor Gray
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
+
+# CPU Usage
+$CPU = (Get-WmiObject Win32_Processor).LoadPercentage
+Write-Host "CPU Usage:    " -NoNewline
+if ($CPU -lt 50) { $color = "Green" }
+elseif ($CPU -lt 80) { $color = "Yellow" }
+else { $color = "Red" }
+Write-Host (Show-ProgressBar $CPU) -ForegroundColor $color
+
+# RAM Usage
+$OS = Get-WmiObject Win32_OperatingSystem
+$TotalRAM = $OS.TotalVisibleMemorySize
+$FreeRAM = $OS.FreePhysicalMemory
+$UsedRAM = [math]::Round((($TotalRAM - $FreeRAM) / $TotalRAM) * 100)
+Write-Host "RAM Usage:    " -NoNewline
+if ($UsedRAM -lt 60) { $color = "Green" }
+elseif ($UsedRAM -lt 85) { $color = "Yellow" }
+else { $color = "Red" }
+Write-Host (Show-ProgressBar $UsedRAM) -ForegroundColor $color
+```
+
+4. Додайте інформацію про диски:
+```powershell
+# Disk Usage
+Write-Host ""
+Write-Host "DISK USAGE:" -ForegroundColor White
+Get-Volume | Where-Object { $_.DriveLetter -and $_.Size -gt 0 } | ForEach-Object {
+    $UsedPercent = [math]::Round((($_.Size - $_.SizeRemaining) / $_.Size) * 100)
+    Write-Host "  Drive $($_.DriveLetter): " -NoNewline
+    if ($UsedPercent -lt 70) { $color = "Green" }
+    elseif ($UsedPercent -lt 90) { $color = "Yellow" }
+    else { $color = "Red" }
+    Write-Host (Show-ProgressBar $UsedPercent 20) -ForegroundColor $color
+}
+```
+
+5. Додайте топ процесів:
+```powershell
+Write-Host ""
+Write-Host "TOP 5 PROCESSES BY RAM:" -ForegroundColor White
+Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 5 | ForEach-Object {
+    $RAM_MB = [math]::Round($_.WorkingSet / 1MB)
+    Write-Host ("  {0,-25} {1,8} MB" -f $_.Name, $RAM_MB)
+}
+```
+
+6. Додайте статус мережі:
+```powershell
+Write-Host ""
+Write-Host "NETWORK STATUS:" -ForegroundColor White
+$Hosts = @("google.com", "microsoft.com")
+foreach ($h in $Hosts) {
+    $result = Test-Connection $h -Count 1 -Quiet -ErrorAction SilentlyContinue
+    if ($result) {
+        Write-Host "  $h : " -NoNewline
+        Write-Host "ONLINE" -ForegroundColor Green
+    } else {
+        Write-Host "  $h : " -NoNewline
+        Write-Host "OFFLINE" -ForegroundColor Red
+    }
+}
+```
+
+7. Збережіть дашборд у файл:
+```powershell
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+
+# Збереження в лог
+$LogFile = "health_$(Get-Date -Format 'yyyyMMdd_HHmm').log"
+@"
+System Health Report - $(Get-Date)
+CPU: $CPU%
+RAM: $UsedRAM%
+Network: OK
+"@ | Out-File $LogFile
+
+Write-Host "Log saved: $LogFile" -ForegroundColor Gray
+```
+
+**Очікуваний результат:**
+Скрипт, який виводить красивий дашборд зі станом CPU, RAM, дисків, топ процесів та статусом мережі.
+
+**Бонус (для допитливих):**
+- Додайте автоматичне оновлення кожні 5 секунд (`while($true) {...; Start-Sleep 5}`)
+- Збережіть історію метрик для побудови графіків
+- Додайте алерти, коли метрики перевищують порогові значення
+
 ## Підсумок
 
 | Аспект | CMD | PowerShell |
@@ -447,10 +951,8 @@ $PSVersionTable
 | **Тип даних** | Текст | Об'єкти |
 | **Скрипти** | .bat, .cmd | .ps1 |
 | **Автодоповнення** | Обмежене | Tab, Ctrl+Space |
-| **Кросплатформність** | Ні | Так (7+) |
-| **Рекомендація** | Legacy | Основний інструмент |
-
-**Ключові команди для запам'ятовування:**
+| **Кросплатформність** | Ні | Так (PowerShell 7+) |
+| **Рекомендація** | Legacy скрипти | Основний інструмент |
 
 | Дія | CMD | PowerShell |
 |-----|-----|------------|
@@ -459,6 +961,7 @@ $PSVersionTable
 | Копіювати | `copy` | `Copy-Item` / `cp` |
 | Видалити | `del` | `Remove-Item` / `rm` |
 | Вміст файлу | `type` | `Get-Content` / `cat` |
+| Пошук у файлі | `find` / `findstr` | `Select-String` |
 | Процеси | `tasklist` | `Get-Process` |
 | Мережа | `ipconfig` | `Get-NetIPAddress` |
 
