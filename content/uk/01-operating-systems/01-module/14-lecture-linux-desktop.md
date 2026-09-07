@@ -564,7 +564,7 @@ xrandr --query | grep " connected"
 nautilus . 2>/dev/null || dolphin . 2>/dev/null || thunar .
 ```
 
-## 💼 Real World: Desktop Linux у компаніях
+## 🏢 Real World: Desktop Linux у компаніях
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -607,7 +607,7 @@ nautilus . 2>/dev/null || dolphin . 2>/dev/null || thunar .
 | **Освіта (школи)** | Locked-down GNOME | Безпека |
 | **Медіа (Netflix)** | Ubuntu workstations | Content creation |
 
-## 🎯 Career Spotlight
+## 💼 Career Spotlight
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -635,13 +635,16 @@ nautilus . 2>/dev/null || dolphin . 2>/dev/null || thunar .
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## 📚 Resources
+## 🔗 Корисні ресурси
 
-### Онлайн практика
-- [GNOME Developer Documentation](https://developer.gnome.org/) — офіційна документація
-- [KDE UserBase](https://userbase.kde.org/) — туторіали для KDE
-- [ArchWiki - GNOME](https://wiki.archlinux.org/title/GNOME) — детальні налаштування
-- [Linux Journey](https://linuxjourney.com/) — інтерактивний курс
+### Онлайн-практика
+
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| **GNOME Developer Docs** | Офіційна документація GNOME | developer.gnome.org |
+| **KDE UserBase** | Туторіали для KDE | userbase.kde.org |
+| **ArchWiki - GNOME** | Детальні налаштування | wiki.archlinux.org/title/GNOME |
+| **Linux Journey** | Інтерактивний курс | linuxjourney.com |
 
 ## 📋 Cheat Sheet
 
@@ -681,21 +684,14 @@ nautilus . 2>/dev/null || dolphin . 2>/dev/null || thunar .
 ## ❓ Питання для самоперевірки
 
 1. **Яка різниця між GNOME Settings та GNOME Tweaks?**
-   - Settings — базові налаштування (мережа, звук, дисплей)
-   - Tweaks — розширені (теми, шрифти, titlebar buttons)
 
 2. **Де зберігаються користувацькі GNOME extensions?**
-   - `~/.local/share/gnome-shell/extensions/`
 
 3. **Як створити autostart entry для програми?**
-   - Створити `.desktop` файл у `~/.config/autostart/`
 
 4. **Яка команда для зміни GTK теми через термінал?**
-   - `gsettings set org.gnome.desktop.interface gtk-theme "ThemeName"`
 
 5. **Що таке Plasma Widgets і як їх додати?**
-   - Інтерактивні елементи робочого столу KDE
-   - Правий клік → Add Widgets
 
 ## 🎯 Міні-проект (30 хв)
 

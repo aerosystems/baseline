@@ -690,7 +690,7 @@ uname -a
 cat /etc/os-release
 ```
 
-## 💼 Real World: Console у Production
+## 🏢 Real World: Console у Production
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -733,7 +733,7 @@ cat /etc/os-release
 | **Emergency recovery** | TTY console | GUI crashed, потрібен доступ |
 | **CI/CD debugging** | bash + screen | Інтерактивний shell в pipeline |
 
-## 🎯 Career Spotlight
+## 💼 Career Spotlight
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -766,18 +766,18 @@ cat /etc/os-release
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## 📚 Resources
+## 🔗 Корисні ресурси
 
-### Онлайн практика
-- [OverTheWire: Bandit](https://overthewire.org/wargames/bandit/) — CLI challenges
-- [Linux Journey](https://linuxjourney.com/) — інтерактивний курс
-- [Terminus](https://web.mit.edu/mprat/Public/web/Terminus/Web/main.html) — text adventure для CLI
-- [Exercism: Bash Track](https://exercism.org/tracks/bash) — вправи з bash
+### Онлайн-практика
 
-### Cheat Sheets
-- [Bash Cheat Sheet](https://devhints.io/bash)
-- [tmux Cheat Sheet](https://tmuxcheatsheet.com/)
-- [Readline Shortcuts](https://readline.kablrat.com/)
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| **OverTheWire: Bandit** | CLI challenges | overthewire.org/wargames/bandit |
+| **Linux Journey** | Інтерактивний курс | linuxjourney.com |
+| **Terminus** | Text adventure для CLI | web.mit.edu/mprat/Public/web/Terminus |
+| **Exercism: Bash** | Вправи з bash | exercism.org/tracks/bash |
+| **Bash Cheat Sheet** | Шпаргалка bash | devhints.io/bash |
+| **tmux Cheat Sheet** | Шпаргалка tmux | tmuxcheatsheet.com |
 
 ## 📋 Cheat Sheet
 

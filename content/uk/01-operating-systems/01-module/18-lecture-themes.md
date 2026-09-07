@@ -547,7 +547,7 @@ gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 xdg-open http://localhost:631
 ```
 
-## 💼 Real World: Theming та Typography в індустрії
+## 🏢 Real World: Theming та Typography в індустрії
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -590,7 +590,7 @@ xdg-open http://localhost:631
 | **Education** | Dyslexia-friendly fonts | Інклюзивне навчання |
 | **DevOps** | Nerd Fonts + ligatures | Читабельність коду |
 
-## 🎯 Career Spotlight
+## 💼 Career Spotlight
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -623,19 +623,18 @@ xdg-open http://localhost:631
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## 📚 Resources
+## 🔗 Корисні ресурси
 
-### Онлайн практика
-- [GNOME Look](https://www.gnome-look.org/) — теми, іконки, курсори
-- [KDE Store](https://store.kde.org/) — KDE Plasma themes
-- [Nerd Fonts](https://www.nerdfonts.com/) — патчені шрифти для dev
-- [Google Fonts](https://fonts.google.com/) — безкоштовні шрифти
+### Онлайн-практика
 
-### Tools для практики
-- **Oomox/Themix** — GTK theme generator
-- **Kvantum Manager** — Qt theme engine
-- **LXAppearance** — lightweight theme switcher
-- **Font Manager** — GUI для управління шрифтами
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| **GNOME Look** | Теми, іконки, курсори | gnome-look.org |
+| **KDE Store** | KDE Plasma themes | store.kde.org |
+| **Nerd Fonts** | Патчені шрифти для dev | nerdfonts.com |
+| **Google Fonts** | Безкоштовні шрифти | fonts.google.com |
+| **Oomox/Themix** | GTK theme generator | github.com/themix-project |
+| **Font Manager** | GUI для управління шрифтами | github.com/FontManager |
 
 ## 📋 Cheat Sheet
 
@@ -680,24 +679,14 @@ xdg-open http://localhost:631
 ## ❓ Питання для самоперевірки
 
 1. **Яка різниця між GTK та Qt themes?**
-   - GTK — для GNOME та GTK-based програм
-   - Qt — для KDE та Qt-based програм
-   - Для кросс-сумісності потрібні qt5ct або Kvantum
 
 2. **Де зберігаються користувацькі шрифти?**
-   - `~/.local/share/fonts/` (рекомендовано)
-   - `~/.fonts/` (legacy)
 
 3. **Як оновити кеш шрифтів після встановлення?**
-   - `fc-cache -fv`
 
 4. **Що таке CUPS і для чого він потрібен?**
-   - Common Unix Printing System
-   - Стандартна система друку в Linux/macOS
-   - Web UI: http://localhost:631
 
 5. **Як увімкнути Dark Mode в GNOME через CLI?**
-   - `gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'`
 
 ## 🎯 Міні-проект (30 хв)
 

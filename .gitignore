@@ -16,6 +16,7 @@ dist/
 *.tsbuildinfo
 
 # Plan (local only)
-PLAN.md
+PLAN*.md
 
 /data/
+/CLAUDE.md
