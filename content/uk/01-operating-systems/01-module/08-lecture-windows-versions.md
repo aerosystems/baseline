@@ -460,7 +460,7 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataC
 
 ## 🔗 Корисні ресурси
 
-### Онлайн-платформи для практики
+### Онлайн-практика
 
 | Ресурс | Опис | Посилання |
 |--------|------|-----------|
