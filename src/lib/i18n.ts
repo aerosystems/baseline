@@ -24,6 +24,9 @@ const resources = {
       'lecture.stubMessage': 'Матеріал цієї теми готується…',
       'lecture.noTranslation': 'Переклад відсутній — показано українську версію',
 
+      // Lab
+      'lab.download': 'Завантажити .docx',
+
       // Theme
       'theme.day': 'Денна тема',
       'theme.night': 'Нічна тема',
@@ -50,6 +53,9 @@ const resources = {
       // Lecture page
       'lecture.stubMessage': 'This content is being prepared…',
       'lecture.noTranslation': 'No translation yet — showing the Ukrainian version',
+
+      // Lab
+      'lab.download': 'Download .docx',
 
       // Theme
       'theme.day': 'Day theme',

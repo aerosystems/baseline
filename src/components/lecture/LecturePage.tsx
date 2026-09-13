@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReadingProgressBar } from '@/components/layout/ReadingProgressBar';
 import { LectureHeader } from './LectureHeader';
 import { MarkdownRenderer } from './MarkdownRenderer';
-import type { Lesson, Module } from '@/types/content';
+import { LabMetadata } from '@/components/lab/LabMetadata';
+import type { Lesson, Module, LabFrontmatter } from '@/types/content';
 
 interface LecturePageProps {
   lesson: Lesson;
@@ -13,13 +14,61 @@ interface LecturePageProps {
   onBack: () => void;
 }
 
+// Course directory to subject code mapping
+const SUBJECT_MAP: Record<string, string> = {
+  '01-operating-systems': 'os',
+  '02-software-security-methods': 'pmzi'
+};
+
+// Subject codes to Ukrainian abbreviations for filenames
+const SUBJECT_NAMES: Record<string, string> = {
+  'os': 'ОС',
+  'pmzi': 'ПМЗІ'
+};
+
+// Generates path to the .docx file for a lab
+function generateDocxPath(lesson: Lesson, courseSlug?: string): string | undefined {
+  if (lesson.frontmatter.type !== 'lab') return undefined;
+
+  const subject = courseSlug ? SUBJECT_MAP[courseSlug] : undefined;
+  if (!subject) return undefined;
+
+  const subjectName = SUBJECT_NAMES[subject];
+  const labFm = lesson.frontmatter as LabFrontmatter;
+  // Use labNumber if specified, otherwise fall back to order
+  const labNum = labFm.labNumber || lesson.frontmatter.order;
+  const title = lesson.frontmatter.title
+    .replace(/[^\wа-яіїєґА-ЯІЇЄҐ\s-]/g, '')
+    .replace(/\s+/g, '_')
+    .substring(0, 50);
+
+  return `/labs/${subject}/ЛР${labNum}_${subjectName}_${title}.docx`;
+}
+
 export function LecturePage({ lesson, module, isFallback, anchor, onBack }: LecturePageProps) {
   const { t } = useTranslation();
 
-  // Scroll to anchor when page loads or anchor changes
+  const isLab = lesson.frontmatter.type === 'lab';
+
+  // Extract course slug from lesson path
+  const courseSlug = useMemo(() => {
+    const parts = lesson.path.split('/');
+    return parts.length >= 2 ? parts[1] : undefined;
+  }, [lesson.path]);
+
+  // Generate path to .docx file
+  const docxPath = useMemo(() => {
+    if (!isLab) return undefined;
+    return generateDocxPath(lesson, courseSlug);
+  }, [isLab, lesson, courseSlug]);
+
+  // Get lab-specific frontmatter
+  const labFrontmatter = isLab ? lesson.frontmatter as LabFrontmatter : undefined;
+
+  // Scroll to top when lesson changes, or to anchor if specified
   useEffect(() => {
     if (anchor) {
-      // Delay to ensure content is fully rendered (especially on initial page load)
+      // Delay to ensure content is fully rendered
       const timer = setTimeout(() => {
         const element = document.getElementById(anchor);
         if (element) {
@@ -27,6 +76,9 @@ export function LecturePage({ lesson, module, isFallback, anchor, onBack }: Lect
         }
       }, 300);
       return () => clearTimeout(timer);
+    } else {
+      // Scroll to top when navigating to a new lesson without anchor
+      window.scrollTo(0, 0);
     }
   }, [anchor, lesson.slug]);
 
@@ -42,6 +94,15 @@ export function LecturePage({ lesson, module, isFallback, anchor, onBack }: Lect
           isStub={lesson.isStub}
           onBack={onBack}
         />
+
+        {/* Lab metadata block with download button */}
+        {isLab && !lesson.isStub && (
+          <LabMetadata
+            duration={labFrontmatter?.duration}
+            equipment={labFrontmatter?.equipment}
+            docxPath={docxPath}
+          />
+        )}
 
         {/* Fallback notice */}
         {isFallback && (
