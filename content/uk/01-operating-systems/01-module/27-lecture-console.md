@@ -1,7 +1,7 @@
 ---
 title: "Консольний режим Linux. Файловий менеджер"
 type: lecture
-order: 19
+order: 27
 preview: "TTY, bash, Midnight Commander."
 ---
 

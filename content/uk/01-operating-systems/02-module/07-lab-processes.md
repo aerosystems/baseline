@@ -2,6 +2,7 @@
 title: "Управління процесами"
 type: lab
 order: 7
+labNumber: 11
 preview: "ps, top, kill, пріоритети процесів."
 ---
 

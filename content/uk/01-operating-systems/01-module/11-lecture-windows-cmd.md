@@ -1,7 +1,7 @@
 ---
 title: "Командний режим роботи в ОС Windows"
 type: lecture
-order: 9
+order: 11
 preview: "cmd.exe, PowerShell, базові команди."
 ---
 

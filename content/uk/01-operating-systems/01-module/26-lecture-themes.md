@@ -1,7 +1,7 @@
 ---
 title: "Теми робочого стола. Шрифти. Друк"
 type: lecture
-order: 18
+order: 26
 preview: "Теми GTK/Qt, налаштування шрифтів, CUPS."
 ---
 

@@ -1,7 +1,8 @@
 ---
 title: "Сценарії Windows Script Host"
 type: lab
-order: 24
+order: 15
+labNumber: 5
 preview: "VBScript, JScript, автоматизація задач."
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "Дистрибутиви Linux"
 type: lecture
-order: 12
+order: 17
 preview: "Debian, Ubuntu, Fedora, Arch. Вибір дистрибутива."
 ---
 

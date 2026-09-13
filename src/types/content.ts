@@ -1,10 +1,20 @@
-export type LessonType = 'lecture' | 'lab' | 'seminar' | 'test' | 'final';
+export type LessonType = 'lecture' | 'lab' | 'seminar' | 'test' | 'final' | 'grading' | 'self-study' | 'control-work';
+
+export type Subject = 'os' | 'pmzi';
 
 export interface LessonFrontmatter {
   title: string;
   type: LessonType;
   order: number;
   preview: string;
+}
+
+export interface LabFrontmatter extends LessonFrontmatter {
+  type: 'lab';
+  labNumber?: number;  // Номер лабораторної для .docx (якщо відрізняється від order)
+  duration?: string;
+  equipment?: string[];
+  subject?: Subject;
 }
 
 export interface Lesson {
@@ -38,6 +48,7 @@ export interface Course {
   title: string;
   description?: string;
   modules: Module[];
+  labs?: Lesson[];  // Лабораторні роботи з labs/ директорії
 }
 
 export interface ContentTree {

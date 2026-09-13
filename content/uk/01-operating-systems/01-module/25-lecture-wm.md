@@ -1,7 +1,7 @@
 ---
 title: "Використання диспетчера вікон"
 type: lecture
-order: 17
+order: 25
 preview: "Window managers, tiling WM, композитори."
 ---
 

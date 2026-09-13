@@ -1,7 +1,7 @@
 ---
 title: "Огляд операційної системи Linux"
 type: lecture
-order: 11
+order: 16
 preview: "Історія Linux, ядро, GNU/Linux."
 ---
 

@@ -22,16 +22,46 @@ function parseFrontmatter(markdown: string): { data: Record<string, unknown>; co
   const yamlString = match[1];
   const content = match[2];
 
-  // Simple YAML parser for our use case
+  // Simple YAML parser for our use case (supports arrays and basic values)
   const data: Record<string, unknown> = {};
   const lines = yamlString.split('\n');
+  let currentKey: string | null = null;
+  let currentArray: string[] | null = null;
 
   for (const line of lines) {
+    // Check for array item (starts with "  - ")
+    if (line.match(/^\s+-\s+/)) {
+      if (currentKey && currentArray) {
+        let value = line.replace(/^\s+-\s+/, '').trim();
+        // Remove quotes if present
+        if ((value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'"))) {
+          value = value.slice(1, -1);
+        }
+        currentArray.push(value);
+      }
+      continue;
+    }
+
+    // Save previous array if exists
+    if (currentKey && currentArray) {
+      data[currentKey] = currentArray;
+      currentKey = null;
+      currentArray = null;
+    }
+
     const colonIndex = line.indexOf(':');
     if (colonIndex === -1) continue;
 
     const key = line.slice(0, colonIndex).trim();
     let value: string | number = line.slice(colonIndex + 1).trim();
+
+    // Check if this starts an array (empty value after colon)
+    if (value === '') {
+      currentKey = key;
+      currentArray = [];
+      continue;
+    }
 
     // Remove quotes if present
     if ((value.startsWith('"') && value.endsWith('"')) ||
@@ -45,6 +75,11 @@ function parseFrontmatter(markdown: string): { data: Record<string, unknown>; co
     } else {
       data[key] = value;
     }
+  }
+
+  // Save final array if exists
+  if (currentKey && currentArray) {
+    data[currentKey] = currentArray;
   }
 
   return { data, content };

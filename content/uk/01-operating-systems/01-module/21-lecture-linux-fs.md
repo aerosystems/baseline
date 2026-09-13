@@ -1,7 +1,7 @@
 ---
 title: "Файлова система Linux"
 type: lecture
-order: 15
+order: 21
 preview: "Структура /, ext4, права доступу, FHS."
 ---
 

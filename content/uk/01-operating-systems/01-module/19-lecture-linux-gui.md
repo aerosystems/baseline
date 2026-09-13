@@ -1,7 +1,7 @@
 ---
 title: "Графічні середовища ОС Linux"
 type: lecture
-order: 13
+order: 19
 preview: "GNOME, KDE, Xfce, X11, Wayland."
 ---
 
