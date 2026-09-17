@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 export interface Route {
-  type: 'landing' | 'course' | 'lesson';
+  type: 'landing' | 'course' | 'lesson' | 'grading';
   course?: string;
   module?: string;
   slug?: string;
@@ -28,6 +28,11 @@ function parseHash(hash: string): Route {
   // #/course-slug
   if (parts.length === 1) {
     return { type: 'course', course: parts[0] };
+  }
+
+  // #/course-slug/grading — критерії оцінювання курсу
+  if (parts.length === 2 && parts[1] === 'grading') {
+    return { type: 'grading', course: parts[0], anchor };
   }
 
   // #/course-slug/module-slug/lesson-slug or #/course-slug/module-slug/lesson-slug::anchor
@@ -65,6 +70,10 @@ export function useHashRouter() {
     window.location.hash = `#/${courseSlug}`;
   }, []);
 
+  const goToGrading = useCallback((courseSlug: string) => {
+    window.location.hash = `#/${courseSlug}/grading`;
+  }, []);
+
   const goToLesson = useCallback((course: string, module: string, slug: string, anchor?: string) => {
     const base = `#/${course}/${module}/${slug}`;
     window.location.hash = anchor ? `${base}::${anchor}` : base;
@@ -82,6 +91,7 @@ export function useHashRouter() {
     goToLanding,
     goToCourse,
     goToLesson,
+    goToGrading,
     scrollToAnchor,
   };
 }

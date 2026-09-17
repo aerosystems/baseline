@@ -7,7 +7,7 @@ import { useHashRouter } from '@/hooks/useHashRouter';
 import { buildContentTree, getLessonWithFallback } from '@/lib/content';
 
 export function App() {
-  const { route, goToLanding, goToCourse, goToLesson } = useHashRouter();
+  const { route, goToLanding, goToCourse, goToLesson, goToGrading } = useHashRouter();
 
   const contentTree = useMemo(() => buildContentTree(), []);
 
@@ -41,6 +41,26 @@ export function App() {
     }
   }
 
+  // Render course grading criteria
+  if (route.type === 'grading' && route.course) {
+    const course = courses.find(c => c.slug === route.course);
+
+    if (course?.grading) {
+      return (
+        <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
+          <Header showBack onBackClick={() => goToCourse(route.course!)} />
+          <LecturePage
+            lesson={course.grading}
+            module={{ slug: 'grading', title: course.title, order: 0, lessons: [] }}
+            isFallback={false}
+            anchor={route.anchor}
+            onBack={() => goToCourse(route.course!)}
+          />
+        </div>
+      );
+    }
+  }
+
   // Render course roadmap
   if (route.type === 'course' && route.course) {
     const course = courses.find(c => c.slug === route.course);
@@ -54,6 +74,7 @@ export function App() {
             onLessonClick={(courseSlug, moduleSlug, lessonSlug) => {
               goToLesson(courseSlug, moduleSlug, lessonSlug);
             }}
+            onGradingClick={() => goToGrading(course.slug)}
           />
         </div>
       );

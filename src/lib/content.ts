@@ -146,6 +146,27 @@ function parseLesson(filePath: string, rawContent: string): Lesson | null {
   };
 }
 
+// Критерії оцінювання лежать на рівні курсу: /content/uk/<course>/_grading.md
+export const GRADING_SLUG = 'grading';
+
+function parseGradingLesson(lang: string, courseSlug: string): Lesson | null {
+  const rawContent = markdownFiles[`/content/${lang}/${courseSlug}/_grading.md`];
+  if (!rawContent) return null;
+
+  const { data, content } = parseFrontmatter(rawContent);
+  const frontmatter = data as unknown as LessonFrontmatter;
+  if (!frontmatter.title) return null;
+
+  return {
+    slug: GRADING_SLUG,
+    path: `${lang}/${courseSlug}/${GRADING_SLUG}`,
+    frontmatter: { ...frontmatter, type: 'grading', order: frontmatter.order ?? 0 },
+    content,
+    readingTime: calculateReadingTime(content),
+    isStub: isStubContent(rawContent),
+  };
+}
+
 export function buildContentTree(): ContentTree {
   const tree: ContentTree = {};
 
@@ -180,6 +201,7 @@ export function buildContentTree(): ContentTree {
         title: courseJson?.title || courseSlug,
         description: courseJson?.description,
         modules: [],
+        grading: parseGradingLesson(lang, courseSlug) ?? undefined,
       };
 
       for (const [moduleSlug, lessons] of Object.entries(modules)) {

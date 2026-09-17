@@ -26,14 +26,18 @@ const SUBJECT_NAMES: Record<string, string> = {
   'pmzi': 'ПМЗІ'
 };
 
-// Generates path to the .docx file for a lab
+// Generates path to the .docx file for a lab or for the grading criteria
 function generateDocxPath(lesson: Lesson, courseSlug?: string): string | undefined {
-  if (lesson.frontmatter.type !== 'lab') return undefined;
-
   const subject = courseSlug ? SUBJECT_MAP[courseSlug] : undefined;
   if (!subject) return undefined;
 
   const subjectName = SUBJECT_NAMES[subject];
+
+  if (lesson.frontmatter.type === 'grading') {
+    return `/labs/${subject}/Критерії_оцінювання_${subjectName}.docx`;
+  }
+
+  if (lesson.frontmatter.type !== 'lab') return undefined;
   const labFm = lesson.frontmatter as LabFrontmatter;
   // Use labNumber if specified, otherwise fall back to order
   const labNum = labFm.labNumber || lesson.frontmatter.order;
@@ -49,6 +53,7 @@ export function LecturePage({ lesson, module, isFallback, anchor, onBack }: Lect
   const { t } = useTranslation();
 
   const isLab = lesson.frontmatter.type === 'lab';
+  const isGrading = lesson.frontmatter.type === 'grading';
 
   // Extract course slug from lesson path
   const courseSlug = useMemo(() => {
@@ -58,9 +63,9 @@ export function LecturePage({ lesson, module, isFallback, anchor, onBack }: Lect
 
   // Generate path to .docx file
   const docxPath = useMemo(() => {
-    if (!isLab) return undefined;
+    if (!isLab && !isGrading) return undefined;
     return generateDocxPath(lesson, courseSlug);
-  }, [isLab, lesson, courseSlug]);
+  }, [isLab, isGrading, lesson, courseSlug]);
 
   // Get lab-specific frontmatter
   const labFrontmatter = isLab ? lesson.frontmatter as LabFrontmatter : undefined;
@@ -96,7 +101,7 @@ export function LecturePage({ lesson, module, isFallback, anchor, onBack }: Lect
         />
 
         {/* Lab metadata block with download button */}
-        {isLab && !lesson.isStub && (
+        {(isGrading || (isLab && !lesson.isStub)) && (
           <LabMetadata
             duration={labFrontmatter?.duration}
             equipment={labFrontmatter?.equipment}

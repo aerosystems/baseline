@@ -7,12 +7,15 @@ interface LabMetadataProps {
   docxPath?: string;
 }
 
+// Resolve a public/ path against the deployment base (e.g. /baseline/)
+function resolveFileUrl(filePath: string): string {
+  const base = window.location.origin + import.meta.env.BASE_URL;
+  return new URL(filePath.replace(/^\//, ''), base).href;
+}
+
 // Construct Google Docs viewer URL for a file
 function getGoogleDocsUrl(docxPath: string): string {
-  // Get base URL (works for both dev and production)
-  const base = window.location.origin + import.meta.env.BASE_URL;
-  const fullUrl = new URL(docxPath, base).href;
-  return `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}`;
+  return `https://docs.google.com/viewer?url=${encodeURIComponent(resolveFileUrl(docxPath))}`;
 }
 
 export function LabMetadata({ duration, equipment, docxPath }: LabMetadataProps) {
@@ -21,6 +24,17 @@ export function LabMetadata({ duration, equipment, docxPath }: LabMetadataProps)
   const googleDocsUrl = useMemo(() => {
     if (!docxPath) return undefined;
     return getGoogleDocsUrl(docxPath);
+  }, [docxPath]);
+
+  const downloadUrl = useMemo(() => {
+    if (!docxPath) return undefined;
+    return resolveFileUrl(docxPath);
+  }, [docxPath]);
+
+  // Name the saved file explicitly: the URL is percent-encoded Cyrillic
+  const downloadName = useMemo(() => {
+    if (!docxPath) return undefined;
+    return decodeURIComponent(docxPath.split('/').pop() ?? '');
   }, [docxPath]);
 
   return (
@@ -79,17 +93,19 @@ export function LabMetadata({ duration, equipment, docxPath }: LabMetadataProps)
             href={googleDocsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-1.5 rounded transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded text-sm font-medium transition-colors"
             style={{
-              backgroundColor: 'var(--card)',
+              backgroundColor: 'var(--bg)',
               border: '1px solid var(--border)',
-              color: 'var(--foreground)',
+              color: 'var(--ink)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--border)';
+              e.currentTarget.style.borderColor = 'var(--red)';
+              e.currentTarget.style.color = 'var(--red)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--card)';
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--ink)';
             }}
           >
             <svg
@@ -105,15 +121,15 @@ export function LabMetadata({ duration, equipment, docxPath }: LabMetadataProps)
 
           {/* Download button */}
           <a
-            href={docxPath}
-            download
-            className="flex items-center gap-2 px-3 py-1.5 rounded transition-colors"
+            href={downloadUrl}
+            download={downloadName}
+            className="flex items-center gap-2 px-3 py-1.5 rounded text-sm font-semibold transition-opacity"
             style={{
-              backgroundColor: 'var(--accent)',
-              color: 'white',
+              backgroundColor: 'var(--red)',
+              color: 'var(--red-text)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.9';
+              e.currentTarget.style.opacity = '0.85';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.opacity = '1';

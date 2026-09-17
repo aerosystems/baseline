@@ -8,9 +8,10 @@ import { Legend } from './Legend';
 interface RoadmapProps {
   course: Course;
   onLessonClick: (courseSlug: string, moduleSlug: string, lessonSlug: string) => void;
+  onGradingClick?: () => void;
 }
 
-export function Roadmap({ course, onLessonClick }: RoadmapProps) {
+export function Roadmap({ course, onLessonClick, onGradingClick }: RoadmapProps) {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       {/* Roadmap with rail */}
@@ -80,6 +81,24 @@ export function Roadmap({ course, onLessonClick }: RoadmapProps) {
           </div>
         ))}
       </div>
+
+      {/* Критерії оцінювання курсу */}
+      {course.grading && onGradingClick && (
+        <button
+          onClick={onGradingClick}
+          className="mt-10 w-full text-left px-4 py-3 rounded-lg border transition-colors"
+          style={{
+            backgroundColor: 'var(--card)',
+            borderColor: 'var(--border)',
+            color: 'var(--ink)',
+          }}
+        >
+          <span className="text-sm font-semibold">{course.grading.frontmatter.title}</span>
+          <span className="block text-sm mt-1" style={{ color: 'var(--muted)' }}>
+            {course.grading.frontmatter.preview}
+          </span>
+        </button>
+      )}
 
       {/* Legend */}
       <Legend />
