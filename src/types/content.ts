@@ -49,6 +49,7 @@ export interface Course {
   description?: string;
   modules: Module[];
   labs?: Lesson[];  // Лабораторні роботи з labs/ директорії
+  grading?: Lesson;  // Критерії оцінювання курсу (_grading.md)
 }
 
 export interface ContentTree {
