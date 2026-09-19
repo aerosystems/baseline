@@ -10,9 +10,9 @@ preview: "Віртуальні робочі столи, гарячі клаві�
 Віртуальні робочі столи (workspaces) — одна з найпотужніших функцій Linux desktop. Вони дозволяють організувати вікна по групах: робота, браузер, комунікація, розваги.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    ВІРТУАЛЬНІ РОБОЧІ СТОЛИ                      │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    ВІРТУАЛЬНІ РОБОЧІ СТОЛИ                     │
+│                                                                │
 │   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
 │   │ Workspace 1 │  │ Workspace 2 │  │ Workspace 3 │            │
 │   │   "Робота"  │  │  "Браузер"  │  │   "Музика"  │            │
@@ -22,15 +22,15 @@ preview: "Віртуальні робочі столи, гарячі клаві�
 │   │  DBeaver    │  │  Telegram   │  │             │            │
 │   │             │  │             │  │             │            │
 │   └─────────────┘  └─────────────┘  └─────────────┘            │
-│        ▲                                                        │
+│        ▲                                                       │
 │        └── Поточний робочий стіл                               │
-│                                                                 │
+│                                                                │
 │   Переваги:                                                    │
 │   ✅ Організація роботи за контекстом                          │
 │   ✅ Менше відволікання                                        │
 │   ✅ Швидке перемикання (клавіатура)                           │
-│   ✅ Більше простору (не потрібен великий монітор)            │
-└─────────────────────────────────────────────────────────────────┘
+│   ✅ Більше простору (не потрібен великий монітор)             │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Реалізація в різних DE
@@ -88,17 +88,17 @@ gsettings set org.gnome.mutter workspaces-only-on-primary true
 ### Загальні гарячі клавіші GNOME
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    GNOME KEYBOARD SHORTCUTS                     │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    GNOME KEYBOARD SHORTCUTS                    │
+│                                                                │
 │   Навігація:                                                   │
 │   Super           Activities overview                          │
 │   Super + A       Показати всі програми                        │
 │   Alt + Tab       Перемикання вікон                            │
 │   Super + Tab     Перемикання програм (групує вікна)           │
-│   Alt + ` (тільда) Перемикання вікон однієї програми            │
+│   Alt + ` (тільда) Перемикання вікон однієї програми           │
 │   Alt + F2        Командний рядок                              │
-│                                                                 │
+│                                                                │
 │   Вікна:                                                       │
 │   Super + ↑       Максимізувати                                │
 │   Super + ↓       Відновити/мінімізувати                       │
@@ -108,8 +108,8 @@ gsettings set org.gnome.mutter workspaces-only-on-primary true
 │   Alt + F4        Закрити вікно                                │
 │   Alt + F7        Перемістити вікно (клавіатурою)              │
 │   Alt + F8        Змінити розмір (клавіатурою)                 │
-│   Super + Shift + ←/→  Перемістити на інший монітор           │
-│                                                                 │
+│   Super + Shift + ←/→  Перемістити на інший монітор            │
+│                                                                │
 │   Система:                                                     │
 │   Super + L       Заблокувати екран                            │
 │   Super + M       Notification tray                            │
@@ -117,22 +117,22 @@ gsettings set org.gnome.mutter workspaces-only-on-primary true
 │   Print Screen    Скріншот (весь екран)                        │
 │   Alt + Print     Скріншот (поточне вікно)                     │
 │   Shift + Print   Скріншот (область)                           │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Загальні гарячі клавіші KDE
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    KDE PLASMA SHORTCUTS                         │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    KDE PLASMA SHORTCUTS                        │
+│                                                                │
 │   Навігація:                                                   │
-│   Meta            Application Menu                              │
+│   Meta            Application Menu                             │
 │   Meta + Tab      Показати всі вікна                           │
 │   Alt + Tab       Перемикання вікон                            │
 │   Meta + D        Показати робочий стіл                        │
 │   Meta + T        Термінал                                     │
-│                                                                 │
+│                                                                │
 │   Вікна:                                                       │
 │   Meta + Page Up  Максимізувати                                │
 │   Meta + Page Down Мінімізувати                                │
@@ -141,12 +141,12 @@ gsettings set org.gnome.mutter workspaces-only-on-primary true
 │   Meta + ↓        Відновити                                    │
 │   Alt + F3        Меню вікна                                   │
 │   Alt + F4        Закрити вікно                                │
-│                                                                 │
+│                                                                │
 │   KWin Effects:                                                │
 │   Meta + W        Overview (як macOS Exposé)                   │
 │   Ctrl + F8       Desktop Grid (всі workspaces)                │
 │   Meta + =/-      Zoom                                         │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Налаштування гарячих клавіш
@@ -183,26 +183,26 @@ kcmshell5 keys
 │                                                                 │
 │   ┌──────────────────────────────────────────────────────────┐  │
 │   │🔲                                                      🔲│  │
-│   │ Top-left           Top              Top-right           │  │
+│   │ Top-left           Top              Top-right            │  │
 │   │ (Activities)                                             │  │
 │   │                                                          │  │
 │   │Left                                               Right  │  │
 │   │                                                          │  │
 │   │                                                          │  │
 │   │🔲                                                      🔲│  │
-│   │ Bottom-left       Bottom         Bottom-right           │  │
+│   │ Bottom-left       Bottom         Bottom-right            │  │
 │   └──────────────────────────────────────────────────────────┘  │
 │                                                                 │
-│   GNOME: тільки top-left (Activities) за замовчуванням         │
-│   KDE: повна кастомізація всіх кутів та сторін                 │
+│   GNOME: тільки top-left (Activities) за замовчуванням          │
+│   KDE: повна кастомізація всіх кутів та сторін                  │
 │                                                                 │
-│   Можливі дії (KDE):                                           │
-│   • Show Desktop                                               │
-│   • Present All Windows                                        │
-│   • Desktop Grid                                               │
-│   • Application Launcher                                       │
-│   • Lock Screen                                                │
-│   • Custom script                                              │
+│   Можливі дії (KDE):                                            │
+│   • Show Desktop                                                │
+│   • Present All Windows                                         │
+│   • Desktop Grid                                                │
+│   • Application Launcher                                        │
+│   • Lock Screen                                                 │
+│   • Custom script                                               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -222,11 +222,11 @@ kcmshell5 kwinscreenedges
 **Night Light** — функція зменшення синього світла ввечері. Допомагає зберегти здоров'я очей та покращити сон.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    NIGHT LIGHT                                  │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    NIGHT LIGHT                                 │
+│                                                                │
 │   Колірна температура:                                         │
-│                                                                 │
+│                                                                │
 │   6500K ──────────────────────────────── Cold (денне світло)   │
 │         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░                        │
 │   5000K ────────────────────────── Neutral                     │
@@ -235,12 +235,12 @@ kcmshell5 kwinscreenedges
 │         ░░░░░░░░░░░░░░░                                        │
 │   3000K ────────── Very warm (перед сном)                      │
 │         ░░░░░░░                                                │
-│                                                                 │
+│                                                                │
 │   Чому це важливо:                                             │
 │   • Синє світло пригнічує мелатонін (гормон сну)               │
 │   • Вечірній екран може порушити сон                           │
 │   • Тепле світло менш напружує очі                             │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ```bash
@@ -279,20 +279,20 @@ redshift-gtk         # GUI з tray icon
 ┌─────────────────────────────────────────────────────────────────┐
 │                    HiDPI SCALING                                │
 │                                                                 │
-│   Масштаб     Приклад монітора              Результат          │
+│   Масштаб     Приклад монітора              Результат           │
 │   ──────     ──────────────────              ─────────          │
-│   100%       1920×1080 на 24"               Нормальний         │
-│   100%       3840×2160 на 24"               Занадто дрібно     │
-│   200%       3840×2160 на 24"               Чітко, як 1080p    │
-│   150%       2560×1440 на 27"               Компроміс          │
+│   100%       1920×1080 на 24"               Нормальний          │
+│   100%       3840×2160 на 24"               Занадто дрібно      │
+│   200%       3840×2160 на 24"               Чітко, як 1080p     │
+│   150%       2560×1440 на 27"               Компроміс           │
 │                                                                 │
-│   GNOME:                                                       │
-│   • Integer scaling: 100%, 200%, 300%                          │
-│   • Fractional scaling: 125%, 150%, 175% (experimental)       │
+│   GNOME:                                                        │
+│   • Integer scaling: 100%, 200%, 300%                           │
+│   • Fractional scaling: 125%, 150%, 175% (experimental)         │
 │                                                                 │
-│   KDE:                                                         │
-│   • Повна підтримка fractional scaling                         │
-│   • Per-monitor scaling                                        │
+│   KDE:                                                          │
+│   • Повна підтримка fractional scaling                          │
+│   • Per-monitor scaling                                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -327,31 +327,31 @@ xrdb -merge ~/.Xresources
 Linux має багато функцій доступності для людей з обмеженими можливостями.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    ACCESSIBILITY FEATURES                       │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    ACCESSIBILITY FEATURES                      │
+│                                                                │
 │   Візуальні:                                                   │
 │   ├── High Contrast themes                                     │
 │   ├── Large Text                                               │
 │   ├── Screen Reader (Orca)                                     │
 │   ├── Screen Magnifier                                         │
 │   └── Cursor size & color                                      │
-│                                                                 │
+│                                                                │
 │   Клавіатура:                                                  │
 │   ├── Sticky Keys (натискати по одній)                         │
-│   ├── Slow Keys (ігнорувати короткі натискання)               │
+│   ├── Slow Keys (ігнорувати короткі натискання)                │
 │   ├── Bounce Keys (ігнорувати повторні)                        │
 │   └── On-Screen Keyboard                                       │
-│                                                                 │
+│                                                                │
 │   Миша:                                                        │
-│   ├── Mouse Keys (керування мишею з клавіатури)               │
-│   ├── Click Assist (автоматичний клік)                        │
+│   ├── Mouse Keys (керування мишею з клавіатури)                │
+│   ├── Click Assist (автоматичний клік)                         │
 │   └── Hover Click                                              │
-│                                                                 │
+│                                                                │
 │   Звук:                                                        │
 │   ├── Visual Alerts (flash screen)                             │
 │   └── Audio descriptions                                       │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ```bash
@@ -444,68 +444,68 @@ gsettings list-keys org.gnome.desktop.a11y.keyboard
 │           DESKTOP CONFIGURATION В ENTERPRISE                    │
 │                                                                 │
 │   IT-компанії (Google, Microsoft, Meta):                        │
-│   ├── Стандартизовані робочі станції Linux                     │
-│   ├── Централізоване управління shortcuts через dconf/GPO      │
-│   ├── Обов'язковий Night Light для здоров'я працівників        │
-│   └── HiDPI scaling для 4K моніторів розробників               │
+│   ├── Стандартизовані робочі станції Linux                      │
+│   ├── Централізоване управління shortcuts через dconf/GPO       │
+│   ├── Обов'язковий Night Light для здоров'я працівників         │
+│   └── HiDPI scaling для 4K моніторів розробників                │
 │                                                                 │
 │   Enterprise Desktop Management:                                │
 │   ┌─────────────────────────────────────────────────────────┐   │
-│   │ • dconf + Ansible для масового розгортання налаштувань │   │
-│   │ • GNOME Initial Setup для onboarding нових працівників │   │
+│   │ • dconf + Ansible для масового розгортання налаштувань  │   │
+│   │ • GNOME Initial Setup для onboarding нових працівників  │   │
 │   │ • Kiosk mode для публічних терміналів                   │   │
 │   │ • Accessibility compliance (ADA, Section 508)           │   │
 │   │ • Corporate branding через theming                      │   │
 │   └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │   Фінансові установи:                                           │
-│   • Multi-monitor trading desks з workspaces per market        │
-│   • Hot corners заборонені (випадкові кліки = втрати)          │
-│   • Великий cursor size для швидкої навігації                  │
+│   • Multi-monitor trading desks з workspaces per market         │
+│   • Hot corners заборонені (випадкові кліки = втрати)           │
+│   • Великий cursor size для швидкої навігації                   │
 │                                                                 │
 │   Call-центри та служби підтримки:                              │
-│   • Accessibility features для інклюзивності                   │
-│   • On-screen keyboard для планшетних терміналів               │
-│   • Screen reader інтеграція (Orca) для незрячих операторів    │
+│   • Accessibility features для інклюзивності                    │
+│   • On-screen keyboard для планшетних терміналів                │
+│   • Screen reader інтеграція (Orca) для незрячих операторів     │
 │                                                                 │
 │   Remote Development (GitLab, Automattic):                      │
-│   • Налаштування workspaces для context switching              │
-│   • Keyboard-centric workflow (мінімум миші)                   │
-│   • Night Light + f.lux для роботи в різних часових зонах      │
+│   • Налаштування workspaces для context switching               │
+│   • Keyboard-centric workflow (мінімум миші)                    │
+│   • Night Light + f.lux для роботи в різних часових зонах       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ## 💼 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 КАР'ЄРНІ МОЖЛИВОСТІ                             │
-│                                                                 │
-│   Desktop Support Specialist                                    │
-│   ├── Зарплата: $45,000 - $70,000 (EUR 40,000 - 60,000)        │
-│   ├── Навички: GNOME/KDE config, accessibility, troubleshooting│
-│   └── Задачі: підтримка Linux workstations, user training      │
-│                                                                 │
-│   Linux Desktop Administrator                                   │
-│   ├── Зарплата: $55,000 - $85,000 (EUR 50,000 - 75,000)        │
-│   ├── Навички: dconf, gsettings, policy management             │
-│   └── Задачі: масове розгортання, стандартизація desktops      │
-│                                                                 │
-│   UX Engineer (Linux)                                           │
-│   ├── Зарплата: $70,000 - $120,000 (EUR 65,000 - 105,000)      │
-│   ├── Навички: GTK/Qt, accessibility, HiDPI, theming           │
-│   └── Задачі: покращення user experience в Linux apps          │
-│                                                                 │
-│   Systems Integration Engineer                                  │
-│   ├── Зарплата: $75,000 - $130,000 (EUR 68,000 - 115,000)      │
-│   ├── Навички: multi-monitor, kiosk mode, enterprise config    │
+┌──────────────────────────────────────────────────────────────────┐
+│                 КАР'ЄРНІ МОЖЛИВОСТІ                              │
+│                                                                  │
+│   Desktop Support Specialist                                     │
+│   ├── Зарплата: $45,000 - $70,000 (EUR 40,000 - 60,000)          │
+│   ├── Навички: GNOME/KDE config, accessibility, troubleshooting  │
+│   └── Задачі: підтримка Linux workstations, user training        │
+│                                                                  │
+│   Linux Desktop Administrator                                    │
+│   ├── Зарплата: $55,000 - $85,000 (EUR 50,000 - 75,000)          │
+│   ├── Навички: dconf, gsettings, policy management               │
+│   └── Задачі: масове розгортання, стандартизація desktops        │
+│                                                                  │
+│   UX Engineer (Linux)                                            │
+│   ├── Зарплата: $70,000 - $120,000 (EUR 65,000 - 105,000)        │
+│   ├── Навички: GTK/Qt, accessibility, HiDPI, theming             │
+│   └── Задачі: покращення user experience в Linux apps            │
+│                                                                  │
+│   Systems Integration Engineer                                   │
+│   ├── Зарплата: $75,000 - $130,000 (EUR 68,000 - 115,000)        │
+│   ├── Навички: multi-monitor, kiosk mode, enterprise config      │
 │   └── Задачі: інтеграція Linux desktops в корпоративне середовище│
-│                                                                 │
-│   Accessibility Specialist                                      │
-│   ├── Зарплата: $60,000 - $100,000 (EUR 55,000 - 90,000)       │
-│   ├── Навички: Orca, screen readers, accessibility standards   │
-│   └── Задачі: забезпечення доступності для людей з інвалідністю│
-└─────────────────────────────────────────────────────────────────┘
+│                                                                  │
+│   Accessibility Specialist                                       │
+│   ├── Зарплата: $60,000 - $100,000 (EUR 55,000 - 90,000)         │
+│   ├── Навички: Orca, screen readers, accessibility standards     │
+│   └── Задачі: забезпечення доступності для людей з інвалідністю  │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
@@ -522,43 +522,43 @@ gsettings list-keys org.gnome.desktop.a11y.keyboard
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│              LINUX DESKTOP PROPERTIES CHEAT SHEET               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│              LINUX DESKTOP PROPERTIES CHEAT SHEET              │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
 │   GNOME WORKSPACES:                                            │
 │   Super              Activities overview                       │
 │   Super+PageDown/Up  Наступний/попередній workspace            │
 │   Super+Shift+PageDown  Перемістити вікно на workspace         │
-│                                                                 │
-│   GNOME WINDOWS:                                                │
+│                                                                │
+│   GNOME WINDOWS:                                               │
 │   Super+←/→         Snap ліворуч/праворуч                      │
 │   Super+↑           Максимізувати                              │
 │   Alt+Tab           Перемикання вікон                          │
 │   Super+L           Заблокувати екран                          │
 │   Alt+F4            Закрити вікно                              │
-│                                                                 │
+│                                                                │
 │   GSETTINGS КОМАНДИ:                                           │
 │   gsettings list-schemas             Всі схеми                 │
 │   gsettings list-keys SCHEMA         Ключі схеми               │
 │   gsettings get SCHEMA KEY           Отримати значення         │
 │   gsettings set SCHEMA KEY VALUE     Встановити значення       │
-│                                                                 │
+│                                                                │
 │   ПОПУЛЯРНІ НАЛАШТУВАННЯ:                                      │
 │   org.gnome.desktop.interface        Інтерфейс (теми, шрифти)  │
 │   org.gnome.desktop.wm.keybindings   Гарячі клавіші            │
 │   org.gnome.mutter                   Workspaces                │
 │   org.gnome.settings-daemon.plugins.color  Night Light         │
-│                                                                 │
-│   ACCESSIBILITY:                                                │
+│                                                                │
+│   ACCESSIBILITY:                                               │
 │   Super+Alt+S       Toggle Orca (screen reader)                │
 │   org.gnome.desktop.a11y.*  Accessibility налаштування         │
-│                                                                 │
-│   TOOLS:                                                        │
+│                                                                │
+│   TOOLS:                                                       │
 │   gnome-tweaks      GUI для розширених налаштувань             │
 │   gnome-control-center  Системні налаштування                  │
 │   dconf-editor      Редактор всіх dconf keys                   │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки

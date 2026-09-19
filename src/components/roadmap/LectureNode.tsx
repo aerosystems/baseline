@@ -24,7 +24,7 @@ export function LectureNode({ lesson, onClick }: LectureNodeProps) {
           borderColor: 'var(--rail)',
           backgroundColor: 'var(--bg)',
         }}
-        aria-label={lesson.frontmatter.title}
+        aria-label={lesson.frontmatter.shortTitle || lesson.frontmatter.title}
       />
 
       {/* Content */}
@@ -40,7 +40,7 @@ export function LectureNode({ lesson, onClick }: LectureNodeProps) {
               borderBottom: hasContent ? '2px solid var(--red)' : 'none',
             }}
           >
-            {lesson.frontmatter.title}
+            {lesson.frontmatter.shortTitle || lesson.frontmatter.title}
           </span>
         </button>
 

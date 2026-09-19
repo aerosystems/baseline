@@ -21,9 +21,9 @@ preview: "ЕЦП, криптографічні хеш-функції, SHA, за�
 │   "Переведи 1000 грн на рахунок Карла"                              │
 │                                                                     │
 │   Питання:                                                          │
-│   • Чи справді це Аліса? (автентичність)                           │
-│   • Чи не змінив хтось суму? (цілісність)                          │
-│   • Чи не скаже Аліса: "Я цього не писала"? (неспростовність)      │
+│   • Чи справді це Аліса? (автентичність)                            │
+│   • Чи не змінив хтось суму? (цілісність)                           │
+│   • Чи не скаже Аліса: "Я цього не писала"? (неспростовність)       │
 │                                                                     │
 │   Рішення: ЕЛЕКТРОННИЙ ЦИФРОВИЙ ПІДПИС                              │
 │                                                                     │
@@ -53,7 +53,7 @@ preview: "ЕЦП, криптографічні хеш-функції, SHA, за�
 │                                                                     │
 │   ПЕРЕВІРКА (Боб):                                                  │
 │                                                                     │
-│   (M, S) ──► [Перевірка публічним ключем] ──► Дійсний / Недійсний  │
+│   (M, S) ──► [Перевірка публічним ключем] ──► Дійсний / Недійсний   │
 │                         │                                           │
 │                    Pub_Alice                                        │
 │                                                                     │
@@ -84,14 +84,14 @@ preview: "ЕЦП, криптографічні хеш-функції, SHA, за�
 │                                                                     │
 │   Вхід (будь-якої довжини)          Вихід (фіксована довжина)       │
 │                                                                     │
-│   "Hello" ─────────────────────►    2cf24dba5fb0a30e...            │
-│   (5 байт)          H()             (256 біт = 32 байт)            │
+│   "Hello" ─────────────────────►    2cf24dba5fb0a30e...             │
+│   (5 байт)          H()             (256 біт = 32 байт)             │
 │                                                                     │
-│   "Hello World" ───────────────►    a591a6d40bf420...              │
-│   (11 байт)         H()             (256 біт = 32 байт)            │
+│   "Hello World" ───────────────►    a591a6d40bf420...               │
+│   (11 байт)         H()             (256 біт = 32 байт)             │
 │                                                                     │
-│   Файл 1 ГБ ───────────────────►    7f83b1657ff1fc...              │
-│   (10⁹ байт)        H()             (256 біт = 32 байт)            │
+│   Файл 1 ГБ ───────────────────►    7f83b1657ff1fc...               │
+│   (10⁹ байт)        H()             (256 біт = 32 байт)             │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -105,51 +105,78 @@ preview: "ЕЦП, криптографічні хеш-функції, SHA, за�
 │                                                                     │
 │  1. ДЕТЕРМІНОВАНІСТЬ                                                │
 │     Той самий вхід → той самий хеш                                  │
-│     H("Hello") завжди = 2cf24dba5fb0a30e...                        │
+│     H("Hello") завжди = 2cf24dba5fb0a30e...                         │
 │                                                                     │
 │  2. ШВИДКІСТЬ                                                       │
-│     Обчислення H(M) має бути швидким                               │
+│     Обчислення H(M) має бути швидким                                │
 │                                                                     │
-│  3. СТІЙКІСТЬ ДО ПРООБРАЗУ (Preimage Resistance)                   │
-│     Маючи h, неможливо знайти M: H(M) = h                          │
+│  3. СТІЙКІСТЬ ДО ПРООБРАЗУ (Preimage Resistance)                    │
+│     Маючи h, неможливо знайти M: H(M) = h                           │
 │                                                                     │
-│  4. СТІЙКІСТЬ ДО ДРУГОГО ПРООБРАЗУ (Second Preimage)               │
-│     Маючи M₁, неможливо знайти M₂ ≠ M₁: H(M₁) = H(M₂)              │
+│  4. СТІЙКІСТЬ ДО ДРУГОГО ПРООБРАЗУ (Second Preimage)                │
+│     Маючи M₁, неможливо знайти M₂ ≠ M₁: H(M₁) = H(M₂)               │
 │                                                                     │
-│  5. СТІЙКІСТЬ ДО КОЛІЗІЙ (Collision Resistance)                    │
-│     Неможливо знайти будь-які M₁ ≠ M₂: H(M₁) = H(M₂)               │
+│  5. СТІЙКІСТЬ ДО КОЛІЗІЙ (Collision Resistance)                     │
+│     Неможливо знайти будь-які M₁ ≠ M₂: H(M₁) = H(M₂)                │
 │                                                                     │
 │  6. ЛАВИННИЙ ЕФЕКТ                                                  │
-│     Зміна 1 біта входу → зміна ~50% бітів виходу                   │
+│     Зміна 1 біта входу → зміна ~50% бітів виходу                    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Демонстрація лавинного ефекту
 
-```python
-import hashlib
+```cpp
+#include <iostream>
+#include <string>
+#include <bitset>
 
-text1 = "Hello World"
-text2 = "Hello Vorld"  # Одна літера змінена
+std::string sha256(const std::string& message);   // реалізація з лабораторної роботи №7
 
-hash1 = hashlib.sha256(text1.encode()).hexdigest()
-hash2 = hashlib.sha256(text2.encode()).hexdigest()
+// Кількість різних бітів двох шістнадцяткових хешів
+int countDifferentBits(const std::string& hex1, const std::string& hex2) {
+    auto value = [](char c) {
+        return (c >= '0' && c <= '9') ? c - '0'
+             : (c >= 'a' && c <= 'f') ? c - 'a' + 10
+                                      : c - 'A' + 10;
+    };
 
-print(f"'{text1}': {hash1}")
-print(f"'{text2}': {hash2}")
+    int diff = 0;
+    for (size_t i = 0; i < hex1.size(); ++i) {
+        diff += static_cast<int>(std::bitset<4>(value(hex1[i]) ^ value(hex2[i])).count());
+    }
+    return diff;
+}
 
-# Порахуємо різницю в бітах
-diff = bin(int(hash1, 16) ^ int(hash2, 16)).count('1')
-print(f"Різних бітів: {diff} з 256 ({diff/256*100:.1f}%)")
+int main() {
+    std::string text1 = "Hello World";
+    std::string text2 = "Hello Vorld";     // змінено одну літеру
+
+    std::string hash1 = sha256(text1);
+    std::string hash2 = sha256(text2);
+
+    std::cout << "'" << text1 << "': " << hash1 << "\n";
+    std::cout << "'" << text2 << "': " << hash2 << "\n";
+
+    int diff = countDifferentBits(hash1, hash2);
+    std::cout << "Різних бітів: " << diff << " з 256 ("
+              << (diff * 100.0 / 256) << "%)\n";
+    return 0;
+}
 ```
 
 Вивід:
 ```
 'Hello World': a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e
-'Hello Vorld': 6c98a7a7e9f0e8d7b5c9a3f2e1d0c4b5a6978899aabbccddeeff00112233445566
-Різних бітів: 128 з 256 (50.0%)
+'Hello Vorld': 1e0b908ac32a5e8abd5e1753c4750cd52391ed213602155f2c984dd4c2ec5782
+Різних бітів: 142 з 256 (55.4688%)
 ```
+
+Зміна однієї літери дала 142 різних біти. Очікуване значення — 128 (половина
+від 256); конкретний результат коливається навколо нього, бо кожен біт виходу
+змінюється незалежно з імовірністю 1/2. Відхилення в 14 бітів для 256 незалежних
+випробувань — звичайне, у межах двох стандартних відхилень (σ = 8).
 
 ## Сімейства хеш-функцій
 
@@ -157,7 +184,7 @@ print(f"Різних бітів: {diff} з 256 ({diff/256*100:.1f}%)")
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│                    СІМЕЙСТВО MD                                     │
+│                    СІМЕЙСТВО MD                                    │
 ├──────────┬──────────────┬──────────────────────────────────────────┤
 │ Алгоритм │ Розмір хешу  │ Статус                                   │
 ├──────────┼──────────────┼──────────────────────────────────────────┤
@@ -177,7 +204,7 @@ print(f"Різних бітів: {diff} з 256 ({diff/256*100:.1f}%)")
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│                    СІМЕЙСТВО SHA                                    │
+│                    СІМЕЙСТВО SHA                                   │
 ├───────────┬─────────────┬──────────┬───────────────────────────────┤
 │ Алгоритм  │ Розмір хешу │ Рік      │ Статус                        │
 ├───────────┼─────────────┼──────────┼───────────────────────────────┤
@@ -207,27 +234,27 @@ print(f"Різних бітів: {diff} з 256 ({diff/256*100:.1f}%)")
 │        │                                                            │
 │        ▼                                                            │
 │   ┌─────────────┐                                                   │
-│   │  Padding    │  Доповнення до кратного 512 біт                  │
+│   │  Padding    │  Доповнення до кратного 512 біт                   │
 │   └──────┬──────┘                                                   │
 │          │                                                          │
 │   ┌──────┴──────┐                                                   │
-│   │ M₁ M₂ ... Mₙ│  Блоки по 512 біт                                │
+│   │ M₁ M₂ ... Mₙ│  Блоки по 512 біт                                 │
 │   └──────┬──────┘                                                   │
 │          │                                                          │
 │   ╔══════╪══════╗                                                   │
 │   ║      ▼      ║                                                   │
-│   ║  ┌───────┐  ║  H₀ = ініціалізаційний вектор                    │
+│   ║  ┌───────┐  ║  H₀ = ініціалізаційний вектор                     │
 │   ║  │  Hᵢ   │  ║  (8 слів по 32 біт)                               │
 │   ║  └───┬───┘  ║                                                   │
 │   ║      │      ║                                                   │
 │   ║  ┌───┴───┐  ║                                                   │
 │   ║  │Compress│◄─── Mᵢ                                              │
-│   ║  └───┬───┘  ║  64 раунди                                       │
+│   ║  └───┬───┘  ║  64 раунди                                        │
 │   ║      │      ║                                                   │
 │   ║  ┌───┴───┐  ║                                                   │
 │   ║  │ Hᵢ₊₁  │  ║                                                   │
 │   ║  └───────┘  ║                                                   │
-│   ╚══════╪══════╝  повторюємо для всіх блоків                      │
+│   ╚══════╪══════╝  повторюємо для всіх блоків                       │
 │          │                                                          │
 │          ▼                                                          │
 │   256-бітний хеш                                                    │
@@ -235,31 +262,60 @@ print(f"Різних бітів: {diff} з 256 ({diff/256*100:.1f}%)")
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Використання в Python
+### Використання в C++
 
-```python
-import hashlib
+```cpp
+// Стандартної хеш-функції в C++ немає: беруть або власну реалізацію
+// (лабораторна робота №7), або бібліотеку OpenSSL.
+#include <openssl/evp.h>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <vector>
+#include <string>
 
-# SHA-256
-message = b"Hello, World!"
-hash_sha256 = hashlib.sha256(message).hexdigest()
-print(f"SHA-256: {hash_sha256}")
+// Хешування рядка вказаним алгоритмом: "SHA256", "SHA512", "SHA3-256"
+std::string hashString(const std::string& data, const char* algorithm) {
+    const EVP_MD* md = EVP_get_digestbyname(algorithm);
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
 
-# SHA-512
-hash_sha512 = hashlib.sha512(message).hexdigest()
-print(f"SHA-512: {hash_sha512}")
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int length = 0;
 
-# SHA-3
-hash_sha3_256 = hashlib.sha3_256(message).hexdigest()
-print(f"SHA3-256: {hash_sha3_256}")
+    EVP_DigestInit_ex(ctx, md, nullptr);
+    EVP_DigestUpdate(ctx, data.data(), data.size());
+    EVP_DigestFinal_ex(ctx, digest, &length);
+    EVP_MD_CTX_free(ctx);
 
-# Хешування файлу
-def hash_file(filepath: str) -> str:
-    sha256 = hashlib.sha256()
-    with open(filepath, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b''):
-            sha256.update(chunk)
-    return sha256.hexdigest()
+    std::ostringstream out;
+    for (unsigned int i = 0; i < length; ++i) {
+        out << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(digest[i]);
+    }
+    return out.str();
+}
+
+// Хешування файлу частинами: великий файл не завантажують у пам'ять цілком
+std::string hashFile(const std::string& path) {
+    std::ifstream file(path, std::ios::binary);
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(ctx, EVP_sha256(), nullptr);
+
+    std::vector<char> buffer(4096);
+    while (file.read(buffer.data(), buffer.size()) || file.gcount() > 0) {
+        EVP_DigestUpdate(ctx, buffer.data(), static_cast<size_t>(file.gcount()));
+    }
+
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int length = 0;
+    EVP_DigestFinal_ex(ctx, digest, &length);
+    EVP_MD_CTX_free(ctx);
+
+    std::ostringstream out;
+    for (unsigned int i = 0; i < length; ++i) {
+        out << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(digest[i]);
+    }
+    return out.str();
+}
 ```
 
 ## Цифровий підпис з хешем
@@ -274,12 +330,12 @@ def hash_file(filepath: str) -> str:
 │       │                                                             │
 │       ▼                                                             │
 │   ┌───────┐                                                         │
-│   │ Hash  │ ──► h = H(M)   (наприклад, 256 біт)                    │
+│   │ Hash  │ ──► h = H(M)   (наприклад, 256 біт)                     │
 │   └───────┘                                                         │
 │       │                                                             │
 │       ▼                                                             │
 │   ┌───────┐                                                         │
-│   │ Sign  │ ──► S = h^d mod n   (RSA з приватним ключем)           │
+│   │ Sign  │ ──► S = h^d mod n   (RSA з приватним ключем)            │
 │   └───────┘                                                         │
 │       │                                                             │
 │       ▼                                                             │
@@ -297,11 +353,11 @@ def hash_file(filepath: str) -> str:
 │   Крок 1: Обчислюємо хеш документа                                  │
 │           h₁ = H(M)                                                 │
 │                                                                     │
-│   Крок 2: "Розшифровуємо" підпис публічним ключем                  │
+│   Крок 2: "Розшифровуємо" підпис публічним ключем                   │
 │           h₂ = S^e mod n                                            │
 │                                                                     │
 │   Крок 3: Порівнюємо                                                │
-│           Якщо h₁ = h₂ → підпис ДІЙСНИЙ                            │
+│           Якщо h₁ = h₂ → підпис ДІЙСНИЙ                             │
 │           Інакше → підпис НЕДІЙСНИЙ                                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -309,59 +365,35 @@ def hash_file(filepath: str) -> str:
 
 ### Реалізація
 
-```python
-import hashlib
+```cpp
+#include <string>
 
+using u64 = unsigned long long;
 
-class RSASignature:
-    def __init__(self, n: int, e: int, d: int):
-        self.n = n
-        self.e = e
-        self.d = d
+std::string sha256(const std::string& message);          // лабораторна робота №7
+u64 hashToNumber(const std::string& message);            // перші 8 байтів хешу
+u64 fastPower(u64 base, u64 exp, u64 modulus);
 
-    def sign(self, message: bytes) -> int:
-        """Підписання повідомлення."""
-        # Хешуємо
-        h = hashlib.sha256(message).digest()
-        h_int = int.from_bytes(h, 'big')
+// Підпис RSA: хеш повідомлення підноситься до степеня d (закритий ключ)
+class RSASignature {
+public:
+    RSASignature(u64 n, u64 e, u64 d) : n_(n), e_(e), d_(d) {}
 
-        # Підписуємо приватним ключем
-        signature = pow(h_int, self.d, self.n)
-        return signature
+    u64 sign(const std::string& message) const {
+        u64 h = hashToNumber(message) % n_;
+        return fastPower(h, d_, n_);
+    }
 
-    def verify(self, message: bytes, signature: int) -> bool:
-        """Перевірка підпису."""
-        # Хешуємо повідомлення
-        h = hashlib.sha256(message).digest()
-        h_int = int.from_bytes(h, 'big')
+    // Перевірка: підпис підноситься до степеня e (відкритий ключ)
+    // і порівнюється з хешем повідомлення
+    bool verify(const std::string& message, u64 signature) const {
+        u64 expected = hashToNumber(message) % n_;
+        return fastPower(signature, e_, n_) == expected;
+    }
 
-        # "Розшифровуємо" підпис публічним ключем
-        h_from_sig = pow(signature, self.e, self.n)
-
-        # Порівнюємо
-        return h_int == h_from_sig
-
-
-# Приклад (з малими числами для демонстрації)
-# У реальності n має бути 2048+ біт
-n = 3233
-e = 17
-d = 2753
-
-signer = RSASignature(n, e, d)
-
-message = b"Transfer 1000 UAH to account 12345"
-signature = signer.sign(message)
-print(f"Підпис: {signature}")
-
-# Перевірка
-is_valid = signer.verify(message, signature)
-print(f"Підпис дійсний: {is_valid}")
-
-# Спроба підробки
-fake_message = b"Transfer 9999 UAH to account 12345"
-is_valid_fake = signer.verify(fake_message, signature)
-print(f"Підпис для зміненого повідомлення: {is_valid_fake}")
+private:
+    u64 n_, e_, d_;
+};
 ```
 
 ## Застосування хеш-функцій
@@ -384,33 +416,50 @@ sha256sum -c file.iso.sha256
 
 **НІКОЛИ** не зберігайте паролі у відкритому вигляді!
 
-```python
-import hashlib
-import os
+```cpp
+#include <string>
+#include <vector>
+#include <random>
 
+std::string sha256(const std::string& message);
 
-def hash_password(password: str) -> tuple:
-    """Хешування пароля з сіллю."""
-    salt = os.urandom(16)
-    # Використовуємо PBKDF2 або bcrypt, не просто SHA!
-    hash_bytes = hashlib.pbkdf2_hmac(
-        'sha256',
-        password.encode(),
-        salt,
-        100000  # ітерацій
-    )
-    return salt, hash_bytes
+// Пароль ніколи не зберігають у відкритому вигляді.
+// Сіль унікальна для кожного користувача, ітерації сповільнюють перебір.
+struct StoredPassword {
+    std::string salt;
+    std::string hash;
+};
 
+std::string randomSalt(int bytes = 16) {
+    std::random_device rd;
+    std::uniform_int_distribution<int> dist(0, 15);
 
-def verify_password(password: str, salt: bytes, hash_bytes: bytes) -> bool:
-    """Перевірка пароля."""
-    new_hash = hashlib.pbkdf2_hmac(
-        'sha256',
-        password.encode(),
-        salt,
-        100000
-    )
-    return new_hash == hash_bytes
+    std::string salt;
+    for (int i = 0; i < bytes * 2; ++i) {
+        salt += "0123456789abcdef"[dist(rd)];
+    }
+    return salt;
+}
+
+// Спрощений аналог PBKDF2: багаторазове хешування
+std::string derive(const std::string& password, const std::string& salt, int iterations = 100000) {
+    std::string digest = sha256(salt + password);
+    for (int i = 1; i < iterations; ++i) {
+        digest = sha256(digest);
+    }
+    return digest;
+}
+
+StoredPassword hashPassword(const std::string& password) {
+    StoredPassword stored;
+    stored.salt = randomSalt();
+    stored.hash = derive(password, stored.salt);
+    return stored;
+}
+
+bool verifyPassword(const std::string& password, const StoredPassword& stored) {
+    return derive(password, stored.salt) == stored.hash;
+}
 ```
 
 ### 4. Blockchain та Proof of Work
@@ -419,50 +468,66 @@ Bitcoin використовує SHA-256 для:
 - Хешування блоків
 - Proof of Work (знайти nonce, щоб хеш починався з N нулів)
 
-```python
-import hashlib
+```cpp
+#include <iostream>
+#include <string>
+#include <utility>
 
+std::string sha256(const std::string& message);
 
-def mine_block(data: str, difficulty: int) -> tuple:
-    """Простий приклад майнінгу."""
-    nonce = 0
-    prefix = '0' * difficulty
+// Proof of Work: шукаємо таке значення nonce, щоб хеш починався
+// із заданої кількості нулів. Складність зростає експоненційно.
+std::pair<unsigned long long, std::string> mineBlock(const std::string& data, int difficulty) {
+    std::string prefix(difficulty, '0');
 
-    while True:
-        text = f"{data}{nonce}"
-        hash_hex = hashlib.sha256(text.encode()).hexdigest()
+    for (unsigned long long nonce = 0; ; ++nonce) {
+        std::string hash = sha256(data + std::to_string(nonce));
+        if (hash.compare(0, prefix.size(), prefix) == 0) {
+            return { nonce, hash };
+        }
+    }
+}
 
-        if hash_hex.startswith(prefix):
-            return nonce, hash_hex
+int main() {
+    auto result = mineBlock("Hello, Blockchain!", 4);   // хеш із чотирма нулями
 
-        nonce += 1
-
-
-# Знайти хеш, що починається з 4 нулів
-nonce, hash_result = mine_block("Hello, Blockchain!", 4)
-print(f"Nonce: {nonce}")
-print(f"Hash: {hash_result}")
+    std::cout << "Nonce: " << result.first << "\n";
+    std::cout << "Hash:  " << result.second << "\n";
+    return 0;
+}
 ```
 
 ### 5. HMAC (Hash-based Message Authentication Code)
 
 Для автентифікації повідомлень з симетричним ключем:
 
-```python
-import hmac
-import hashlib
+```cpp
+#include <string>
+#include <vector>
 
-key = b"secret_key"
-message = b"Hello, World!"
+std::vector<unsigned char> sha256Raw(const std::string& message);
 
-# Створення HMAC
-mac = hmac.new(key, message, hashlib.sha256).hexdigest()
-print(f"HMAC: {mac}")
+using Bytes = std::vector<unsigned char>;
 
-# Перевірка
-def verify_hmac(key: bytes, message: bytes, mac: str) -> bool:
-    expected = hmac.new(key, message, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, mac)
+// HMAC за RFC 2104: hash((K ^ opad) || hash((K ^ ipad) || M))
+// Просте склеювання ключа з повідомленням вразливе до атаки продовження довжини
+Bytes hmacSha256(const Bytes& key, const std::string& message);
+
+// Порівняння за сталий час: час виконання не залежить від того,
+// на якому саме байті знайдено розбіжність
+bool constantTimeEquals(const Bytes& a, const Bytes& b) {
+    if (a.size() != b.size()) return false;
+
+    unsigned char diff = 0;
+    for (size_t i = 0; i < a.size(); ++i) {
+        diff |= static_cast<unsigned char>(a[i] ^ b[i]);
+    }
+    return diff == 0;
+}
+
+bool verifyHmac(const Bytes& key, const std::string& message, const Bytes& mac) {
+    return constantTimeEquals(hmacSha256(key, message), mac);
+}
 ```
 
 ## Практичні завдання
@@ -484,34 +549,34 @@ def verify_hmac(key: bytes, message: bytes, mac: str) -> bool:
 ### ЕЦП та хеші в індустрії
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    ЦИФРОВІ ПІДПИСИ У РЕАЛЬНОМУ СВІТІ                │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
+┌────────────────────────────────────────────────────────────────────┐
+│                    ЦИФРОВІ ПІДПИСИ У РЕАЛЬНОМУ СВІТІ               │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
 │  ЕЛЕКТРОННИЙ ДОКУМЕНТООБІГ (Україна):                              │
 │  ├── Дія — КЕП для громадян через смартфон                         │
 │  ├── АЦСК ПриватБанку — 15+ млн сертифікатів                       │
 │  ├── M.E.Doc — податкова звітність з ЕЦП                           │
 │  └── Prozorro — електронні тендери з обов'язковим ЕЦП              │
-│                                                                     │
-│  БАНКІВСЬКІ СИСТЕМИ:                                                │
+│                                                                    │
+│  БАНКІВСЬКІ СИСТЕМИ:                                               │
 │  ├── SWIFT — SHA-256 для цілісності повідомлень                    │
 │  ├── Міжбанківські перекази — RSA/ECDSA підписи                    │
 │  ├── Клієнт-банк — КЕП для авторизації платежів                    │
 │  └── HSM (Thales Luna, Utimaco) — зберігання ключів                │
-│                                                                     │
-│  SOFTWARE DISTRIBUTION:                                             │
+│                                                                    │
+│  SOFTWARE DISTRIBUTION:                                            │
 │  ├── Microsoft Authenticode — підпис .exe/.dll                     │
 │  ├── Apple Code Signing — обов'язково для App Store                │
 │  ├── Linux Package Signing — GPG підписи deb/rpm                   │
 │  └── Docker Content Trust — підписані образи                       │
-│                                                                     │
-│  BLOCKCHAIN:                                                        │
+│                                                                    │
+│  BLOCKCHAIN:                                                       │
 │  ├── Bitcoin — SHA-256 (double) для блоків                         │
 │  ├── Ethereum — Keccak-256 (SHA-3 варіант)                         │
 │  └── Кожна транзакція підписується ECDSA                           │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Приклад: Git та GitHub
@@ -520,13 +585,13 @@ def verify_hmac(key: bytes, message: bytes, mac: str) -> bool:
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    GIT INTEGRITY                                    │
 │                                                                     │
-│   Кожен коміт ідентифікується SHA-1 хешем:                         │
+│   Кожен коміт ідентифікується SHA-1 хешем:                          │
 │                                                                     │
 │   $ git log --oneline                                               │
-│   a1b2c3d feat: add user authentication                            │
+│   a1b2c3d feat: add user authentication                             │
 │   │                                                                 │
-│   └── Це SHA-1 хеш:                                                │
-│       • Метаданих коміту (автор, дата, повідомлення)               │
+│   └── Це SHA-1 хеш:                                                 │
+│       • Метаданих коміту (автор, дата, повідомлення)                │
 │       • Хешу дерева файлів                                          │
 │       • Хешу батьківського коміту                                   │
 │                                                                     │
@@ -534,13 +599,13 @@ def verify_hmac(key: bytes, message: bytes, mac: str) -> bool:
 │                                                                     │
 │   $ git commit -S -m "Signed commit"                                │
 │                                                                     │
-│   ┌─────────────────────────────────────────────┐                   │
+│   ┌──────────────────────────────────────────────┐                  │
 │   │ ✓ Verified                                   │                  │
 │   │ This commit was signed with a verified       │                  │
 │   │ signature and the email was verified.        │                  │
-│   └─────────────────────────────────────────────┘                   │
+│   └──────────────────────────────────────────────┘                  │
 │                                                                     │
-│   Git переходить на SHA-256 (SHA-1 collision знайдено 2017)        │
+│   Git переходить на SHA-256 (SHA-1 collision знайдено 2017)         │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -552,20 +617,20 @@ def verify_hmac(key: bytes, message: bytes, mac: str) -> bool:
 │                    SUPPLY CHAIN ATTACK                              │
 │                                                                     │
 │   Що сталося:                                                       │
-│   • Хакери зламали SolarWinds build system                         │
-│   • Впровадили malware в легітимне оновлення Orion                 │
-│   • Оновлення було підписане справжнім сертифікатом SolarWinds     │
-│   • 18,000 організацій встановили backdoor                         │
+│   • Хакери зламали SolarWinds build system                          │
+│   • Впровадили malware в легітимне оновлення Orion                  │
+│   • Оновлення було підписане справжнім сертифікатом SolarWinds      │
+│   • 18,000 організацій встановили backdoor                          │
 │                                                                     │
 │   Постраждали:                                                      │
-│   • Microsoft, Intel, Cisco                                        │
-│   • US Treasury, Department of Homeland Security                   │
-│   • FireEye (виявили атаку)                                        │
+│   • Microsoft, Intel, Cisco                                         │
+│   • US Treasury, Department of Homeland Security                    │
+│   • FireEye (виявили атаку)                                         │
 │                                                                     │
 │   Урок:                                                             │
-│   • Цифровий підпис гарантує автентичність, НЕ безпечність        │
-│   • Потрібен захист всього CI/CD pipeline                          │
-│   • SLSA framework для software supply chain security              │
+│   • Цифровий підпис гарантує автентичність, НЕ безпечність          │
+│   • Потрібен захист всього CI/CD pipeline                           │
+│   • SLSA framework для software supply chain security               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -577,43 +642,43 @@ def verify_hmac(key: bytes, message: bytes, mac: str) -> bool:
 ### Ролі, пов'язані з ЕЦП та хешуванням
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    КАР'ЄРНІ МОЖЛИВОСТІ                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  SECURITY ENGINEER (Code Signing)                                   │
+┌────────────────────────────────────────────────────────────────────┐
+│                    КАР'ЄРНІ МОЖЛИВОСТІ                             │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  SECURITY ENGINEER (Code Signing)                                  │
 │  ├── Зарплата: $130,000 - $180,000 (США)                           │
-│  ├── Завдання:                                                      │
+│  ├── Завдання:                                                     │
 │  │   • Налаштування Authenticode/Apple signing                     │
 │  │   • Керування сертифікатами та HSM                              │
 │  │   • Інтеграція підпису в CI/CD                                  │
 │  └── Компанії: Microsoft, Apple, Adobe, Autodesk                   │
-│                                                                     │
-│  BLOCKCHAIN DEVELOPER                                               │
+│                                                                    │
+│  BLOCKCHAIN DEVELOPER                                              │
 │  ├── Зарплата: $120,000 - $200,000 (США)                           │
-│  ├── Вимоги:                                                        │
+│  ├── Вимоги:                                                       │
 │  │   • Глибоке знання хеш-функцій та ЕЦП                           │
 │  │   • Solidity, Rust, Go                                          │
 │  │   • Криптографічні примітиви                                    │
 │  └── Компанії: Coinbase, Chainalysis, ConsenSys                    │
-│                                                                     │
-│  PKI ADMINISTRATOR                                                  │
+│                                                                    │
+│  PKI ADMINISTRATOR                                                 │
 │  ├── Зарплата: $90,000 - $140,000 (США)                            │
-│  ├── Завдання:                                                      │
+│  ├── Завдання:                                                     │
 │  │   • Керування Certificate Authority                             │
 │  │   • Видача та відкликання сертифікатів                          │
 │  │   • Compliance (PCI DSS, SOC 2)                                 │
 │  └── Компанії: Банки, страхові, урядові установи                   │
-│                                                                     │
-│  FORENSIC ANALYST                                                   │
+│                                                                    │
+│  FORENSIC ANALYST                                                  │
 │  ├── Зарплата: $80,000 - $130,000 (США)                            │
-│  ├── Завдання:                                                      │
+│  ├── Завдання:                                                     │
 │  │   • Верифікація цілісності цифрових доказів                     │
 │  │   • Аналіз хешів файлів                                         │
 │  │   • Експертиза ЕЦП в судових справах                            │
 │  └── Компанії: Правоохоронні органи, Deloitte, KPMG                │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -647,21 +712,21 @@ def verify_hmac(key: bytes, message: bytes, mac: str) -> bool:
 │                    HASH ALGORITHMS CHEAT SHEET                      │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  АЛГОРИТМ     │ РОЗМІР   │ СТАТУС      │ ВИКОРИСТАННЯ              │
+│  АЛГОРИТМ     │ РОЗМІР   │ СТАТУС      │ ВИКОРИСТАННЯ               │
 │  ─────────────┼──────────┼─────────────┼─────────────────────────── │
-│  MD5          │ 128 біт  │ ❌ ЗЛАМАНИЙ │ Тільки для checksum       │
-│  SHA-1        │ 160 біт  │ ❌ ЗЛАМАНИЙ │ Legacy, не для безпеки    │
-│  SHA-256      │ 256 біт  │ ✅ БЕЗПЕЧНИЙ│ Рекомендований            │
-│  SHA-384      │ 384 біт  │ ✅ БЕЗПЕЧНИЙ│ Підвищена безпека         │
-│  SHA-512      │ 512 біт  │ ✅ БЕЗПЕЧНИЙ│ Швидший на 64-bit CPU     │
-│  SHA-3-256    │ 256 біт  │ ✅ БЕЗПЕЧНИЙ│ Альтернатива SHA-2        │
-│  BLAKE2b      │ 512 біт  │ ✅ БЕЗПЕЧНИЙ│ Швидше за SHA-3           │
-│  BLAKE3       │ 256 біт  │ ✅ БЕЗПЕЧНИЙ│ Найшвидший сучасний       │
+│  MD5          │ 128 біт  │ ❌ ЗЛАМАНИЙ │ Тільки для checksum        │
+│  SHA-1        │ 160 біт  │ ❌ ЗЛАМАНИЙ │ Legacy, не для безпеки     │
+│  SHA-256      │ 256 біт  │ ✅ БЕЗПЕЧНИЙ│ Рекомендований             │
+│  SHA-384      │ 384 біт  │ ✅ БЕЗПЕЧНИЙ│ Підвищена безпека          │
+│  SHA-512      │ 512 біт  │ ✅ БЕЗПЕЧНИЙ│ Швидший на 64-bit CPU      │
+│  SHA-3-256    │ 256 біт  │ ✅ БЕЗПЕЧНИЙ│ Альтернатива SHA-2         │
+│  BLAKE2b      │ 512 біт  │ ✅ БЕЗПЕЧНИЙ│ Швидше за SHA-3            │
+│  BLAKE3       │ 256 біт  │ ✅ БЕЗПЕЧНИЙ│ Найшвидший сучасний        │
 │                                                                     │
-│  ДЛЯ ПАРОЛІВ (повільні):                                           │
-│  bcrypt       │ 184 біт  │ ✅          │ Класика для паролів       │
-│  Argon2id     │ варіює   │ ✅          │ Переможець PHC 2015       │
-│  scrypt       │ варіює   │ ✅          │ Memory-hard               │
+│  ДЛЯ ПАРОЛІВ (повільні):                                            │
+│  bcrypt       │ 184 біт  │ ✅          │ Класика для паролів        │
+│  Argon2id     │ варіює   │ ✅          │ Переможець PHC 2015        │
+│  scrypt       │ варіює   │ ✅          │ Memory-hard                │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -705,36 +770,29 @@ gpg --sign --armor file.txt
 gpg --verify file.txt.asc
 ```
 
-### Python
+### Стисла довідка C++
 
-```python
-import hashlib
-import hmac
+```cpp
+// Стисла довідка: що чим рахувати в C++
+#include <string>
+#include <vector>
 
-# Базові хеші
-sha256_hash = hashlib.sha256(b"data").hexdigest()
-sha512_hash = hashlib.sha512(b"data").hexdigest()
-sha3_hash = hashlib.sha3_256(b"data").hexdigest()
+// Власна реалізація SHA-256 — лабораторна робота №7
+std::string sha256(const std::string& data);
 
-# HMAC
-hmac_result = hmac.new(
-    key=b"secret",
-    msg=b"message",
-    digestmod=hashlib.sha256
-).hexdigest()
+// Бібліотека OpenSSL: SHA-256, SHA-512, SHA3-256
+std::string hashString(const std::string& data, const char* algorithm);
+// hashString(data, "SHA256"); hashString(data, "SHA512"); hashString(data, "SHA3-256");
 
-# Хешування файлу частинами
-def hash_file(path):
-    h = hashlib.sha256()
-    with open(path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b''):
-            h.update(chunk)
-    return h.hexdigest()
+// HMAC
+std::vector<unsigned char> hmacSha256(const std::vector<unsigned char>& key,
+                                      const std::string& message);
 
-# Хешування пароля (НІКОЛИ не використовуйте SHA для паролів!)
-import bcrypt
-hashed = bcrypt.hashpw(b"password", bcrypt.gensalt(rounds=12))
-bcrypt.checkpw(b"password", hashed)  # True
+// Хешування файлу частинами по 4 КБ
+std::string hashFile(const std::string& path);
+
+// Для паролів звичайний SHA не застосовують: потрібні сіль
+// і повільна функція (PBKDF2, bcrypt, Argon2) — див. розділ про зберігання паролів
 ```
 
 ---
@@ -855,122 +913,87 @@ echo "HACKED" >> file1.txt
 
 **Мета:** Створити систему для моніторингу змін у файлах (подібно до Tripwire або AIDE).
 
-**Частина 1: Базова реалізація (Python)**
+**Частина 1: Базова реалізація (C++)**
 
-```python
-"""
-Завдання: Реалізуйте File Integrity Monitor
+```cpp
+// Завдання: реалізуйте монітор цілісності файлів (File Integrity Monitor)
+//
+// Функціональність:
+//   1. Сканування каталогу й обчислення хешів усіх файлів
+//   2. Збереження базового стану (baseline) у файл
+//   3. Порівняння поточного стану з базовим
+//   4. Виявлення нових, видалених і змінених файлів
 
-Функціональність:
-1. Сканування директорії та обчислення хешів файлів
-2. Збереження базової лінії (baseline)
-3. Порівняння поточного стану з baseline
-4. Виявлення: нових файлів, видалених файлів, змінених файлів
-"""
+#include <string>
+#include <map>
+#include <vector>
 
-import hashlib
-import json
-import os
-from pathlib import Path
-from typing import Dict, Tuple
-from datetime import datetime
+struct FileRecord {
+    std::string hash;        // SHA-256 вмісту
+    unsigned long long size; // розмір у байтах
+    std::string modified;    // час останньої зміни
+};
 
+class FileIntegrityMonitor {
+public:
+    explicit FileIntegrityMonitor(const std::string& baselinePath = "baseline.txt");
 
-class FileIntegrityMonitor:
-    def __init__(self, baseline_path: str = "baseline.json"):
-        self.baseline_path = baseline_path
-        self.baseline: Dict[str, dict] = {}
+    // TODO: обчислити SHA-256 файлу, читаючи його частинами
+    std::string hashFile(const std::string& path) const;
 
-    def hash_file(self, filepath: str) -> Tuple[str, str]:
-        """
-        TODO: Обчисліть SHA-256 та SHA-512 хеші файлу.
-        Використовуйте читання частинами для великих файлів.
-        Поверніть (sha256_hash, sha512_hash)
-        """
-        pass
+    // TODO: обійти каталог рекурсивно (std::filesystem::recursive_directory_iterator)
+    // і скласти таблицю «шлях → запис»
+    std::map<std::string, FileRecord> scanDirectory(const std::string& path) const;
 
-    def scan_directory(self, directory: str) -> Dict[str, dict]:
-        """
-        TODO: Рекурсивно скануйте директорію.
-        Для кожного файлу збережіть:
-        - sha256
-        - sha512
-        - size
-        - mtime (modification time)
-        - permissions
-        """
-        pass
+    // TODO: зберегти й завантажити базовий стан
+    void saveBaseline(const std::map<std::string, FileRecord>& state);
+    void loadBaseline();
 
-    def create_baseline(self, directory: str):
-        """
-        TODO: Створіть baseline та збережіть у JSON.
-        Включіть timestamp створення baseline.
-        """
-        pass
+    // TODO: порівняти поточний стан із базовим і повернути три переліки:
+    // нові файли, видалені файли, змінені файли
+    struct Report {
+        std::vector<std::string> added;
+        std::vector<std::string> removed;
+        std::vector<std::string> modified;
+    };
+    Report verify(const std::string& path) const;
 
-    def verify(self, directory: str) -> dict:
-        """
-        TODO: Порівняйте поточний стан з baseline.
-        Поверніть словник з категоріями:
-        - added: список нових файлів
-        - removed: список видалених файлів
-        - modified: список змінених файлів (з деталями)
-        - unchanged: кількість незмінених файлів
-        """
-        pass
-
-    def generate_report(self, changes: dict) -> str:
-        """
-        TODO: Згенеруйте текстовий звіт про зміни.
-        """
-        pass
-
-
-# Використання
-if __name__ == "__main__":
-    fim = FileIntegrityMonitor()
-
-    # Створення baseline
-    fim.create_baseline("/path/to/monitor")
-
-    # Пізніше: перевірка
-    changes = fim.verify("/path/to/monitor")
-    print(fim.generate_report(changes))
+private:
+    std::string baselinePath_;
+    std::map<std::string, FileRecord> baseline_;
+};
 ```
 
 **Частина 2: Додавання HMAC підпису (захист baseline)**
 
-```python
-"""
-TODO: Захистіть baseline від модифікації.
+```cpp
+// TODO: захистіть базовий стан від підміни.
+//
+// Проблема: якщо зловмисник змінить і файли, і baseline,
+// монітор нічого не виявить.
+//
+// Розв'язання:
+//   1. Під час створення baseline обчислити HMAC-SHA256 від його вмісту
+//   2. Зберегти HMAC окремо від самого baseline
+//   3. Перед перевіркою звірити HMAC і лише тоді аналізувати дані
 
-Проблема: якщо атакуючий змінить і файли, і baseline,
-FIM не виявить атаку.
+#include <string>
+#include <vector>
 
-Рішення:
-1. При створенні baseline обчисліть HMAC-SHA256 від JSON
-2. Збережіть HMAC окремо або в зашифрованому вигляді
-3. При верифікації перевірте HMAC baseline перед аналізом
-"""
+class SecureFileIntegrityMonitor : public FileIntegrityMonitor {
+public:
+    SecureFileIntegrityMonitor(const std::vector<unsigned char>& secretKey,
+                               const std::string& baselinePath = "baseline.txt");
 
-import hmac
+    // TODO: підписати вміст baseline
+    std::string signBaseline(const std::string& content) const;
 
-class SecureFileIntegrityMonitor(FileIntegrityMonitor):
-    def __init__(self, secret_key: bytes, baseline_path: str = "baseline.json"):
-        super().__init__(baseline_path)
-        self.secret_key = secret_key
+    // TODO: перевірити підпис baseline перед аналізом
+    bool checkBaselineSignature() const;
 
-    def sign_baseline(self, baseline_json: str) -> str:
-        """
-        TODO: Створіть HMAC-SHA256 підпис baseline
-        """
-        pass
-
-    def verify_baseline_signature(self, baseline_json: str, signature: str) -> bool:
-        """
-        TODO: Перевірте HMAC підпис baseline
-        """
-        pass
+private:
+    std::vector<unsigned char> secretKey_;
+};
 ```
 
 **Частина 3: Інтеграція з OpenSSL**
@@ -1018,21 +1041,18 @@ verify_signature() {
 
 **Частина 4: Виявлення атак**
 
-```python
-"""
-Тестові сценарії для вашої системи:
+```cpp
+// Тестові сценарії для вашої системи:
+//   1. Зміна вмісту файлу
+//   2. Видалення файлу
+//   3. Додавання нового файлу
+//   4. Зміна лише часу модифікації (touch)
+//   5. Підміна самого baseline — має виявлятися через HMAC
+//   6. Повернення старої версії файлу (replay attack)
 
-1. Модифікація файлу
-2. Видалення файлу
-3. Додавання нового файлу
-4. Зміна тільки mtime (touch)
-5. Модифікація baseline (має виявитись через HMAC)
-6. Replay attack (стара версія файлу)
-"""
-
-def test_scenarios():
-    # TODO: Реалізуйте автоматичні тести для кожного сценарію
-    pass
+void testScenarios() {
+    // TODO: реалізуйте автоматичну перевірку кожного сценарію
+}
 ```
 
 **Критерії оцінювання:**

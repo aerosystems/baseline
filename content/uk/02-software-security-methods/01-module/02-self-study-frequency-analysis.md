@@ -105,17 +105,22 @@ VXFFHVVIXOOB DSSOLHG IUHTXHQFB DQDOBVLV.
 2. Виводить гістограму
 3. Обчислює індекс відповідності
 
-```python
-def frequency_analysis(text: str) -> dict:
-    """Аналіз частот літер у тексті."""
-    # Ваш код тут
-    pass
+```cpp
+#include <map>
+#include <string>
 
+// Аналіз частот літер у тексті: літера → відносна частота
+std::map<char, double> frequencyAnalysis(const std::string& text) {
+    // Ваш код тут
+    return {};
+}
 
-def index_of_coincidence(text: str) -> float:
-    """Обчислення індексу відповідності."""
-    # Ваш код тут
-    pass
+// Індекс відповідності: ймовірність того, що дві випадково взяті
+// літери тексту виявляться однаковими
+double indexOfCoincidence(const std::string& text) {
+    // Ваш код тут
+    return 0.0;
+}
 ```
 
 ### Завдання 3: Дослідження

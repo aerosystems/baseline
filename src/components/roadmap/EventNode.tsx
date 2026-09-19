@@ -17,7 +17,7 @@ export function EventNode({ lesson, onClick }: EventNodeProps) {
           top: '4px',
           backgroundColor: 'var(--red)',
         }}
-        aria-label={lesson.frontmatter.title}
+        aria-label={lesson.frontmatter.shortTitle || lesson.frontmatter.title}
       />
 
       {/* Content */}
@@ -27,7 +27,7 @@ export function EventNode({ lesson, onClick }: EventNodeProps) {
           className="text-left font-medium transition-colors hover:opacity-80"
           style={{ color: 'var(--ink)' }}
         >
-          {lesson.frontmatter.title}
+          {lesson.frontmatter.shortTitle || lesson.frontmatter.title}
         </button>
       </div>
     </div>

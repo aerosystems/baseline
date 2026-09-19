@@ -1,20 +1,21 @@
 ---
-title: "Ідентифікація та аутентифікація користувачів"
+title: "Реалізація алгоритму ідентифікації і аутентифікації користувачів в мережі. Блок-схема алгоритму"
+shortTitle: "Ідентифікація та аутентифікація користувачів"
 type: lab
 order: 9
 labNumber: 10
 subject: pmzi
-duration: "4 академічні години"
+duration: "2 академічні години"
 equipment:
-  - "ПК з встановленим Python 3.8+ або C++ компілятором"
-  - "Середовище розробки (VS Code, PyCharm, Visual Studio)"
+  - "ПК з встановленим C++ компілятором (MSVC, MinGW або GCC)"
+  - "Середовище розробки (Visual Studio, VS Code)"
   - "Доступ до Інтернету для перевірки TOTP"
 preview: "Реалізація системи ідентифікації та аутентифікації."
 ---
 
 **Мета:** вивчити принципи ідентифікації та аутентифікації користувачів. Реалізувати безпечну систему аутентифікації з хешуванням паролів, challenge-response протоколом та двофакторною аутентифікацією.
 
-**Обладнання:** ПК з встановленим Python 3.8+ або C++ компілятором; Середовище розробки (VS Code, PyCharm, Visual Studio); Доступ до Інтернету для перевірки TOTP.
+**Обладнання:** ПК з встановленим C++ компілятором (MSVC, MinGW або GCC); Середовище розробки (Visual Studio, VS Code); Доступ до Інтернету для перевірки TOTP.
 
 **Тривалість:** 4 академічні години.
 
@@ -24,7 +25,7 @@ preview: "Реалізація системи ідентифікації та а
 |--------|------|
 | **Знання** | Лекція 7: Ідентифікація та аутентифікація. Загрози безпеці |
 | **Навички** | Хеш-функції, робота з файлами |
-| **Середовище** | ПК з встановленим Python 3.8+ або C++ компілятором |
+| **Середовище** | ПК з встановленим C++ компілятором (MSVC, MinGW або GCC) |
 
 ## Теоретичні відомості
 
@@ -167,473 +168,469 @@ TOTP = HOTP(K, T) = Truncate(HMAC-SHA1(K, T)) mod 10^6
 ```
 ## Приклад виконання
 
-### Завдання 1: Реєстрація користувача (Python)
+### Завдання 1: Реєстрація користувача
 
-```python
-import hashlib
-import secrets
-import hmac
-from typing import Tuple, Optional
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <random>
+#include <sstream>
+#include <iomanip>
 
-class PasswordManager:
-    """Безпечне управління паролями з хешуванням і сіллю."""
+// Клас SHA256 узято з лабораторної роботи №7 — підключіть його файл до проєкту
+std::string sha256(const std::string& message);
 
-    SALT_LENGTH = 16  # 128 біт
-    ITERATIONS = 100000  # Для PBKDF2
+using Bytes = std::vector<unsigned char>;
 
-    @staticmethod
-    def generate_salt() -> bytes:
-        """Генерує криптографічно безпечну сіль."""
-        return secrets.token_bytes(PasswordManager.SALT_LENGTH)
+class PasswordManager {
+public:
+    static const size_t SALT_LENGTH = 16;   // 128 біт
+    static const int ITERATIONS = 100000;   // сповільнення перебору
 
-    @staticmethod
-    def hash_password(password: str, salt: bytes) -> bytes:
-        """
-        Хешує пароль з сіллю використовуючи PBKDF2.
-        PBKDF2 краще за простий SHA256 через ітерації.
-        """
-        return hashlib.pbkdf2_hmac(
-            'sha256',
-            password.encode('utf-8'),
-            salt,
-            PasswordManager.ITERATIONS
-        )
+    // Криптографічно стійка сіль: унікальна для кожного користувача
+    static Bytes generateSalt() {
+        std::random_device rd;                       // джерело ентропії ОС
+        std::uniform_int_distribution<int> dist(0, 255);
 
-    @staticmethod
-    def simple_hash(password: str, salt: bytes) -> bytes:
-        """
-        Простий хеш для демонстрації (salt + password).
-        У продакшені використовуйте PBKDF2, bcrypt або Argon2.
-        """
-        return hashlib.sha256(salt + password.encode('utf-8')).digest()
+        Bytes salt(SALT_LENGTH);
+        for (unsigned char& byte : salt) {
+            byte = static_cast<unsigned char>(dist(rd));
+        }
+        return salt;
+    }
 
-    def register_user(self, password: str) -> Tuple[bytes, bytes]:
-        """
-        Реєструє користувача: генерує сіль і хеш.
+    static std::string toHex(const Bytes& data) {
+        std::ostringstream out;
+        for (unsigned char byte : data) {
+            out << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
+        }
+        return out.str();
+    }
 
-        Returns:
-            (salt, hash) для збереження в БД
-        """
-        salt = self.generate_salt()
-        password_hash = self.hash_password(password, salt)
-        return (salt, password_hash)
+    // Спрощений аналог PBKDF2: багаторазове хешування пари «сіль + пароль».
+    // Ітерації роблять перевірку одного пароля повільною, тому перебір
+    // мільярдів варіантів стає непрактичним.
+    static std::string hashPassword(const std::string& password, const Bytes& salt) {
+        std::string digest = sha256(toHex(salt) + password);
 
-    def verify_password(self, password: str, salt: bytes, stored_hash: bytes) -> bool:
-        """
-        Перевіряє пароль.
-        Використовує constant-time порівняння для захисту від timing attacks.
-        """
-        computed_hash = self.hash_password(password, salt)
-        # hmac.compare_digest — безпечне порівняння (constant time)
-        return hmac.compare_digest(computed_hash, stored_hash)
+        for (int i = 1; i < ITERATIONS; ++i) {
+            digest = sha256(digest);
+        }
+        return digest;
+    }
 
-def demo_registration():
-    print("=" * 60)
-    print("ДЕМОНСТРАЦІЯ РЕЄСТРАЦІЇ ТА ПЕРЕВІРКИ ПАРОЛЯ")
-    print("=" * 60)
+    // Один прохід SHA-256 — лише для порівняння швидкості у звіті.
+    // У робочих системах так паролі не зберігають.
+    static std::string simpleHash(const std::string& password, const Bytes& salt) {
+        return sha256(toHex(salt) + password);
+    }
 
-    pm = PasswordManager()
+    struct Credentials {
+        Bytes salt;
+        std::string hash;
+    };
 
-    # Реєстрація користувача
-    password = "MySecurePassword123!"
-    salt, password_hash = pm.register_user(password)
+    // Реєстрація: у базі зберігаються лише сіль і хеш, самого пароля немає
+    static Credentials registerUser(const std::string& password) {
+        Credentials credentials;
+        credentials.salt = generateSalt();
+        credentials.hash = hashPassword(password, credentials.salt);
+        return credentials;
+    }
 
-    print(f"\nПароль: {password}")
-    print(f"Сіль (hex): {salt.hex()}")
-    print(f"Хеш (hex): {password_hash.hex()}")
+    // Перевірка: пароль хешується з тією самою сіллю й порівнюється з базою
+    static bool verifyPassword(const std::string& password, const Credentials& stored) {
+        return constantTimeEquals(hashPassword(password, stored.salt), stored.hash);
+    }
 
-    # Перевірка правильного пароля
-    print(f"\n--- Перевірка правильного пароля ---")
-    is_valid = pm.verify_password(password, salt, password_hash)
-    print(f"Результат: {'✓ Пароль правильний' if is_valid else '✗ Пароль неправильний'}")
+    // Порівняння за сталий час — див. завдання 2
+    static bool constantTimeEquals(const std::string& a, const std::string& b) {
+        if (a.size() != b.size()) return false;
 
-    # Перевірка неправильного пароля
-    print(f"\n--- Перевірка неправильного пароля ---")
-    wrong_password = "WrongPassword"
-    is_valid = pm.verify_password(wrong_password, salt, password_hash)
-    print(f"Результат: {'✓ Пароль правильний' if is_valid else '✗ Пароль неправильний'}")
+        unsigned char diff = 0;
+        for (size_t i = 0; i < a.size(); ++i) {
+            diff |= static_cast<unsigned char>(a[i] ^ b[i]);
+        }
+        return diff == 0;
+    }
+};
 
-    # Демонстрація унікальності хешів (різна сіль)
-    print(f"\n--- Демонстрація солі ---")
-    salt1, hash1 = pm.register_user("password")
-    salt2, hash2 = pm.register_user("password")
-    print(f"Пароль 'password' з сіллю 1: {hash1.hex()[:32]}...")
-    print(f"Пароль 'password' з сіллю 2: {hash2.hex()[:32]}...")
-    print(f"Хеші {'однакові' if hash1 == hash2 else 'різні'} (завдяки різній солі)")
+int main() {
+    std::string password = "S3cret!Pass";
 
-if __name__ == "__main__":
-    demo_registration()
+    PasswordManager::Credentials stored = PasswordManager::registerUser(password);
+    std::cout << "Сіль (hex): " << PasswordManager::toHex(stored.salt) << "\n";
+    std::cout << "Хеш:        " << stored.hash.substr(0, 32) << "...\n\n";
+
+    std::cout << "Правильний пароль: "
+              << (PasswordManager::verifyPassword(password, stored) ? "доступ надано" : "відмова") << "\n";
+    std::cout << "Хибний пароль:     "
+              << (PasswordManager::verifyPassword("wrong", stored) ? "доступ надано" : "відмова") << "\n";
+
+    // Та сама сіль двічі не повторюється, тому однакові паролі
+    // дають різні хеші — райдужні таблиці стають марними
+    PasswordManager::Credentials another = PasswordManager::registerUser(password);
+    std::cout << "\nТой самий пароль, інша сіль: хеші "
+              << (another.hash == stored.hash ? "збігаються" : "різні") << "\n";
+
+    return 0;
+}
 ```
+
+Результат роботи програми (сіль і хеш у кожного запуску свої):
+
+```
+Сіль (hex): a2fb3f4ec04865e6a78c4e569a90461b
+Хеш:        22fc81b09e78ac3352902d914964bb1e...
+
+Правильний пароль: доступ надано
+Хибний пароль:     відмова
+
+Той самий пароль, інша сіль: хеші різні
+```
+
 ### Завдання 2: Захист від timing attacks
 
-```python
-import time
+```cpp
+#include <iostream>
+#include <string>
+#include <chrono>
 
-def unsafe_compare(a: bytes, b: bytes) -> bool:
-    """
-    НЕБЕЗПЕЧНЕ порівняння — вразливе до timing attacks.
-    Час виконання залежить від кількості однакових байт на початку.
-    """
-    if len(a) != len(b):
-        return False
-    for x, y in zip(a, b):
-        if x != y:
-            return False  # Вихід при першій різниці
-    return True
+// НЕБЕЗПЕЧНЕ порівняння: виходить із циклу на першій розбіжності,
+// тому час виконання залежить від кількості правильних символів
+bool unsafeCompare(const std::string& a, const std::string& b) {
+    if (a.size() != b.size()) return false;
 
-def safe_compare(a: bytes, b: bytes) -> bool:
-    """
-    БЕЗПЕЧНЕ порівняння — constant time.
-    Завжди перевіряє всі байти.
-    """
-    return hmac.compare_digest(a, b)
+    for (size_t i = 0; i < a.size(); ++i) {
+        if (a[i] != b[i]) return false;   // ранній вихід — джерело витоку
+    }
+    return true;
+}
 
-def demo_timing_attack():
-    print("\n" + "=" * 60)
-    print("ДЕМОНСТРАЦІЯ TIMING ATTACK")
-    print("=" * 60)
+// БЕЗПЕЧНЕ порівняння: завжди обходить усі байти,
+// результат накопичується операцією XOR
+bool safeCompare(const std::string& a, const std::string& b) {
+    if (a.size() != b.size()) return false;
 
-    correct_hash = b"correcthashvalue1234567890123456"
+    unsigned char diff = 0;
+    for (size_t i = 0; i < a.size(); ++i) {
+        diff |= static_cast<unsigned char>(a[i] ^ b[i]);
+    }
+    return diff == 0;
+}
 
-    # Тестові значення з різною кількістю правильних байт
-    test_values = [
-        b"wrongggghashvalue1234567890123456",  # 0 правильних
-        b"correctghashvalue1234567890123456",  # 7 правильних
-        b"correcthashvalue12345678901234XX",   # 30 правильних
-    ]
+// Вимірює середній час одного порівняння
+template <typename Compare>
+double measure(Compare compare, const std::string& secret, const std::string& attempt) {
+    const int REPEATS = 200000;
+    auto start = std::chrono::high_resolution_clock::now();
 
-    print("\nНебезпечне порівняння (час залежить від співпадінь):")
-    for test in test_values:
-        start = time.perf_counter_ns()
-        for _ in range(10000):
-            unsafe_compare(correct_hash, test)
-        elapsed = time.perf_counter_ns() - start
-        matching = sum(a == b for a, b in zip(correct_hash, test))
-        print(f"  {matching} співпадінь → {elapsed / 1000:.2f} µs")
+    volatile bool sink = false;               // заважає оптимізатору прибрати виклик
+    for (int i = 0; i < REPEATS; ++i) {
+        sink = compare(secret, attempt);
+    }
 
-    print("\nБезпечне порівняння (constant time):")
-    for test in test_values:
-        start = time.perf_counter_ns()
-        for _ in range(10000):
-            safe_compare(correct_hash, test)
-        elapsed = time.perf_counter_ns() - start
-        matching = sum(a == b for a, b in zip(correct_hash, test))
-        print(f"  {matching} співпадінь → {elapsed / 1000:.2f} µs")
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    return std::chrono::duration<double, std::nano>(elapsed).count() / REPEATS;
+}
 
-    print("\n→ Безпечне порівняння має приблизно однаковий час")
+int main() {
+    const std::string secret = "correcthashvalue1234567890123456";
+
+    const std::string attempts[] = {
+        "wrongghashvalue1234567890123456X",   // розбіжність із першого символу
+        "correctghashvalue123456789012345",   // збігаються 7 символів
+        "correcthashvalue12345678901234XX"    // збігаються 30 символів
+    };
+
+    std::cout << "=== ДЕМОНСТРАЦІЯ TIMING ATTACK ===\n\n";
+    std::cout << "Небезпечне порівняння (час залежить від збігів):\n";
+    for (const std::string& attempt : attempts) {
+        std::cout << "  " << measure(unsafeCompare, secret, attempt) << " нс\n";
+    }
+
+    std::cout << "\nБезпечне порівняння (сталий час):\n";
+    for (const std::string& attempt : attempts) {
+        std::cout << "  " << measure(safeCompare, secret, attempt) << " нс\n";
+    }
+
+    std::cout << "\nЧим більше правильних символів на початку, тим довше працює\n"
+                 "небезпечний варіант — саме цей час і вимірює зловмисник.\n";
+    return 0;
+}
 ```
+
+Результат роботи програми (значення часу залежать від машини):
+
+```
+=== ДЕМОНСТРАЦІЯ TIMING ATTACK ===
+
+Небезпечне порівняння (час залежить від збігів):
+  42.0044 нс
+  174.284 нс
+  325.618 нс
+
+Безпечне порівняння (сталий час):
+  302.902 нс
+  304.912 нс
+  305.376 нс
+
+Чим більше правильних символів на початку, тим довше працює
+небезпечний варіант — саме цей час і вимірює зловмисник.
+```
+
 ### Завдання 3: Challenge-Response протокол
 
-```python
-import secrets
-import hmac
-import hashlib
-from typing import Dict, Optional
+```cpp
+#include <iostream>
+#include <string>
+#include <map>
+#include <random>
+#include <sstream>
+#include <iomanip>
 
-class ChallengeResponseAuth:
-    """Реалізація challenge-response аутентифікації."""
+std::string sha256(const std::string& message);   // з лабораторної роботи №7
 
-    def __init__(self):
-        # Імітація бази даних користувачів
-        self.users: Dict[str, bytes] = {}
-        # Активні виклики (challenge)
-        self.challenges: Dict[str, bytes] = {}
+// Challenge-response: пароль мережею не передається.
+// Сервер надсилає випадкове число, клієнт доводить знання пароля,
+// повертаючи хеш від пари «виклик + хеш пароля».
+class ChallengeResponseAuth {
+public:
+    void registerUser(const std::string& username, const std::string& password) {
+        users_[username] = sha256(password);      // у робочій системі — сіль і PBKDF2
+        std::cout << "[SERVER] Користувача '" << username << "' зареєстровано\n";
+    }
 
-    def register(self, username: str, password: str):
-        """Реєстрація користувача (зберігаємо хеш пароля)."""
-        # У реальній системі — сіль + PBKDF2
-        password_hash = hashlib.sha256(password.encode()).digest()
-        self.users[username] = password_hash
-        print(f"[SERVER] Користувач '{username}' зареєстрований")
+    // Крок 1: клієнт запитує вхід, сервер видає одноразовий виклик
+    std::string requestLogin(const std::string& username) {
+        if (users_.find(username) == users_.end()) {
+            std::cout << "[SERVER] Користувача '" << username << "' не знайдено\n";
+            return "";
+        }
 
-    def request_login(self, username: str) -> Optional[bytes]:
-        """
-        Крок 1: Клієнт запитує вхід.
-        Сервер повертає challenge (випадкове число).
-        """
-        if username not in self.users:
-            print(f"[SERVER] Користувач '{username}' не знайдений")
-            return None
+        std::string challenge = randomHex(32);
+        challenges_[username] = challenge;
+        std::cout << "[SERVER] Виклик для '" << username << "': "
+                  << challenge.substr(0, 16) << "...\n";
+        return challenge;
+    }
 
-        # Генеруємо випадковий challenge (nonce)
-        challenge = secrets.token_bytes(32)
-        self.challenges[username] = challenge
+    // Крок 3: сервер обчислює очікувану відповідь і порівнює
+    bool verifyResponse(const std::string& username, const std::string& response) {
+        auto challenge = challenges_.find(username);
+        if (challenge == challenges_.end()) {
+            std::cout << "[SERVER] Немає активного виклику\n";
+            return false;
+        }
 
-        print(f"[SERVER] Challenge для '{username}': {challenge.hex()[:16]}...")
-        return challenge
+        std::string expected = sha256(challenge->second + users_[username]);
+        challenges_.erase(challenge);             // виклик одноразовий
 
-    def verify_response(self, username: str, response: bytes) -> bool:
-        """
-        Крок 2: Сервер перевіряє response від клієнта.
-        """
-        if username not in self.challenges:
-            print(f"[SERVER] Немає активного challenge для '{username}'")
-            return False
+        bool ok = (expected == response);
+        std::cout << "[SERVER] Перевірка: " << (ok ? "успіх" : "відмова") << "\n";
+        return ok;
+    }
 
-        challenge = self.challenges.pop(username)  # Одноразовий challenge
-        password_hash = self.users[username]
+    // Крок 2: дія клієнта — обчислення відповіді на виклик
+    static std::string computeResponse(const std::string& challenge, const std::string& password) {
+        return sha256(challenge + sha256(password));
+    }
 
-        # Обчислюємо очікувану відповідь
-        expected_response = hmac.new(
-            password_hash,
-            challenge,
-            hashlib.sha256
-        ).digest()
+private:
+    static std::string randomHex(int bytes) {
+        std::random_device rd;
+        std::uniform_int_distribution<int> dist(0, 255);
 
-        # Безпечне порівняння
-        is_valid = hmac.compare_digest(response, expected_response)
+        std::ostringstream out;
+        for (int i = 0; i < bytes; ++i) {
+            out << std::hex << std::setw(2) << std::setfill('0') << dist(rd);
+        }
+        return out.str();
+    }
 
-        if is_valid:
-            print(f"[SERVER] Аутентифікація '{username}' успішна")
-        else:
-            print(f"[SERVER] Аутентифікація '{username}' невдала")
+    std::map<std::string, std::string> users_;       // ім'я → хеш пароля
+    std::map<std::string, std::string> challenges_;  // ім'я → активний виклик
+};
 
-        return is_valid
+int main() {
+    ChallengeResponseAuth server;
+    server.registerUser("student", "S3cret!Pass");
 
-    @staticmethod
-    def compute_response(password: str, challenge: bytes) -> bytes:
-        """
-        Клієнтська сторона: обчислення response.
-        """
-        password_hash = hashlib.sha256(password.encode()).digest()
-        response = hmac.new(
-            password_hash,
-            challenge,
-            hashlib.sha256
-        ).digest()
-        return response
+    std::cout << "\n=== Успішна автентифікація ===\n";
+    std::string challenge = server.requestLogin("student");
+    std::string response = ChallengeResponseAuth::computeResponse(challenge, "S3cret!Pass");
+    std::cout << "[CLIENT] Відповідь: " << response.substr(0, 16) << "...\n";
+    server.verifyResponse("student", response);
 
-def demo_challenge_response():
-    print("\n" + "=" * 60)
-    print("ДЕМОНСТРАЦІЯ CHALLENGE-RESPONSE")
-    print("=" * 60)
+    std::cout << "\n=== Атака повтором (replay) ===\n";
+    std::cout << "[ATTACKER] Повторно надсилає перехоплену відповідь\n";
+    server.verifyResponse("student", response);
 
-    auth = ChallengeResponseAuth()
+    std::cout << "\n=== Хибний пароль ===\n";
+    challenge = server.requestLogin("student");
+    server.verifyResponse("student", ChallengeResponseAuth::computeResponse(challenge, "wrong"));
 
-    # Реєстрація
-    auth.register("alice", "secret123")
-
-    # Успішна аутентифікація
-    print("\n--- Успішна аутентифікація ---")
-    print("[CLIENT] Запит на вхід як 'alice'")
-    challenge = auth.request_login("alice")
-
-    if challenge:
-        print(f"[CLIENT] Отримано challenge, обчислюю response...")
-        response = ChallengeResponseAuth.compute_response("secret123", challenge)
-        print(f"[CLIENT] Response: {response.hex()[:16]}...")
-
-        auth.verify_response("alice", response)
-
-    # Невдала аутентифікація (неправильний пароль)
-    print("\n--- Невдала аутентифікація (неправильний пароль) ---")
-    print("[CLIENT] Запит на вхід як 'alice'")
-    challenge = auth.request_login("alice")
-
-    if challenge:
-        print(f"[CLIENT] Обчислюю response з НЕПРАВИЛЬНИМ паролем...")
-        response = ChallengeResponseAuth.compute_response("wrongpassword", challenge)
-        auth.verify_response("alice", response)
-
-    # Replay attack (використання старого response)
-    print("\n--- Спроба replay attack ---")
-    challenge1 = auth.request_login("alice")
-    response1 = ChallengeResponseAuth.compute_response("secret123", challenge1)
-
-    # Імітація перехоплення і повторного використання
-    print("[ATTACKER] Перехопив response, спробую ще раз...")
-    challenge2 = auth.request_login("alice")  # Новий challenge
-
-    # Старий response не підійде до нового challenge
-    auth.verify_response("alice", response1)
-    print("→ Replay attack заблокована: кожен challenge унікальний")
+    return 0;
+}
 ```
+
+Результат роботи програми:
+
+```
+[SERVER] Користувача 'student' зареєстровано
+
+=== Успішна автентифікація ===
+[SERVER] Виклик для 'student': 78abdd86de9d92b9...
+[CLIENT] Відповідь: e7986c853d0e7791...
+[SERVER] Перевірка: успіх
+
+=== Атака повтором (replay) ===
+[ATTACKER] Повторно надсилає перехоплену відповідь
+[SERVER] Немає активного виклику
+
+=== Хибний пароль ===
+[SERVER] Виклик для 'student': a1acd6111957660f...
+[SERVER] Перевірка: відмова
+```
+
 ### Завдання 4: Двофакторна аутентифікація (TOTP)
 
-```python
-import hmac
-import hashlib
-import struct
-import time
-import base64
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <ctime>
+#include <cstdint>
+#include <iomanip>
+#include <sstream>
 
-class TOTP:
-    """Реалізація Time-based One-Time Password (RFC 6238)."""
+// Хеш-функція з лабораторної роботи №7. TOTP за RFC 6238 припускає
+// SHA-1, SHA-256 або SHA-512; тут використано SHA-256.
+std::string sha256(const std::string& message);
+std::vector<unsigned char> sha256Raw(const std::string& message);
 
-    def __init__(self, secret: bytes, digits: int = 6, interval: int = 30):
-        """
-        Args:
-            secret: Секретний ключ (мінімум 128 біт)
-            digits: Кількість цифр у коді (6 або 8)
-            interval: Інтервал зміни коду в секундах
-        """
-        self.secret = secret
-        self.digits = digits
-        self.interval = interval
+using Bytes = std::vector<unsigned char>;
 
-    @classmethod
-    def generate_secret(cls, length: int = 20) -> bytes:
-        """Генерує випадковий секретний ключ."""
-        return secrets.token_bytes(length)
+// HMAC за RFC 2104: hash((key ^ opad) + hash((key ^ ipad) + message))
+Bytes hmacSha256(const Bytes& key, const Bytes& message) {
+    const size_t BLOCK = 64;
+    Bytes paddedKey = key;
 
-    @staticmethod
-    def get_secret_base32(secret: bytes) -> str:
-        """Конвертує секрет у Base32 для QR-коду."""
-        return base64.b32encode(secret).decode('utf-8')
+    if (paddedKey.size() > BLOCK) {
+        std::string raw(paddedKey.begin(), paddedKey.end());
+        paddedKey = sha256Raw(raw);
+    }
+    paddedKey.resize(BLOCK, 0x00);
 
-    def _get_counter(self, timestamp: Optional[float] = None) -> int:
-        """Обчислює лічильник для поточного часу."""
-        if timestamp is None:
-            timestamp = time.time()
-        return int(timestamp) // self.interval
+    Bytes inner(BLOCK), outer(BLOCK);
+    for (size_t i = 0; i < BLOCK; ++i) {
+        inner[i] = static_cast<unsigned char>(paddedKey[i] ^ 0x36);
+        outer[i] = static_cast<unsigned char>(paddedKey[i] ^ 0x5c);
+    }
 
-    def generate(self, timestamp: Optional[float] = None) -> str:
-        """
-        Генерує TOTP-код для вказаного часу.
-        """
-        counter = self._get_counter(timestamp)
+    inner.insert(inner.end(), message.begin(), message.end());
+    Bytes innerHash = sha256Raw(std::string(inner.begin(), inner.end()));
 
-        # Конвертуємо лічильник у 8 байт (big-endian)
-        counter_bytes = struct.pack('>Q', counter)
+    outer.insert(outer.end(), innerHash.begin(), innerHash.end());
+    return sha256Raw(std::string(outer.begin(), outer.end()));
+}
 
-        # HMAC-SHA1
-        hmac_hash = hmac.new(self.secret, counter_bytes, hashlib.sha1).digest()
+class TOTP {
+public:
+    TOTP(const Bytes& secret, int digits = 6, int interval = 30)
+        : secret_(secret), digits_(digits), interval_(interval) {}
 
-        # Dynamic truncation
-        offset = hmac_hash[-1] & 0x0F
-        binary = struct.unpack('>I', hmac_hash[offset:offset+4])[0]
-        binary &= 0x7FFFFFFF  # Забираємо знаковий біт
+    // Код залежить від номера часового інтервалу, а не від точного часу,
+    // тому клієнт і сервер отримують однакове значення протягом 30 секунд
+    std::string generate(std::time_t timestamp = std::time(nullptr)) const {
+        uint64_t counter = static_cast<uint64_t>(timestamp) / interval_;
 
-        # Модуль для отримання потрібної кількості цифр
-        otp = binary % (10 ** self.digits)
+        Bytes message(8);
+        for (int i = 7; i >= 0; --i) {           // лічильник у big-endian
+            message[i] = static_cast<unsigned char>(counter & 0xFF);
+            counter >>= 8;
+        }
 
-        return str(otp).zfill(self.digits)
+        Bytes mac = hmacSha256(secret_, message);
 
-    def verify(self, code: str, window: int = 1) -> bool:
-        """
-        Перевіряє TOTP-код з вікном допуску.
+        // Динамічне обрізання (dynamic truncation) за RFC 4226
+        int offset = mac.back() & 0x0F;
+        uint32_t binary =
+            (static_cast<uint32_t>(mac[offset]     & 0x7F) << 24) |
+            (static_cast<uint32_t>(mac[offset + 1] & 0xFF) << 16) |
+            (static_cast<uint32_t>(mac[offset + 2] & 0xFF) << 8)  |
+            (static_cast<uint32_t>(mac[offset + 3] & 0xFF));
 
-        Args:
-            code: Код від користувача
-            window: Кількість інтервалів до/після (для синхронізації часу)
-        """
-        current_counter = self._get_counter()
+        uint32_t modulus = 1;
+        for (int i = 0; i < digits_; ++i) modulus *= 10;
 
-        for offset in range(-window, window + 1):
-            test_time = (current_counter + offset) * self.interval
-            if self.generate(test_time) == code:
-                return True
+        std::ostringstream out;
+        out << std::setw(digits_) << std::setfill('0') << (binary % modulus);
+        return out.str();
+    }
 
-        return False
+    // Допуск у window інтервалів компенсує розбіжність годинників
+    bool verify(const std::string& code, int window = 1) const {
+        std::time_t now = std::time(nullptr);
+        for (int shift = -window; shift <= window; ++shift) {
+            if (generate(now + shift * interval_) == code) return true;
+        }
+        return false;
+    }
 
-def demo_totp():
-    print("\n" + "=" * 60)
-    print("ДЕМОНСТРАЦІЯ TOTP (TIME-BASED ONE-TIME PASSWORD)")
-    print("=" * 60)
+    int secondsLeft() const {
+        return interval_ - static_cast<int>(std::time(nullptr) % interval_);
+    }
 
-    # Генеруємо секрет
-    secret = TOTP.generate_secret()
-    totp = TOTP(secret)
+private:
+    Bytes secret_;
+    int digits_;
+    int interval_;
+};
 
-    print(f"\nСекретний ключ (Base32): {TOTP.get_secret_base32(secret)}")
-    print(f"(Цей ключ вводиться в Google Authenticator)")
+int main() {
+    Bytes secret = { 'S','t','u','d','e','n','t','S','e','c','r','e','t','K','e','y','1','2','3','4' };
+    TOTP totp(secret);
 
-    # Генеруємо код
-    current_code = totp.generate()
-    print(f"\nПоточний TOTP-код: {current_code}")
-    print(f"Поточний час: {time.strftime('%H:%M:%S')}")
+    std::string code = totp.generate();
+    std::cout << "=== Двофакторна автентифікація (TOTP) ===\n";
+    std::cout << "Поточний код:     " << code << "\n";
+    std::cout << "Дійсний ще:       " << totp.secondsLeft() << " с\n\n";
 
-    # Перевіряємо код
-    print("\n--- Перевірка коду ---")
-    is_valid = totp.verify(current_code)
-    print(f"Код {current_code}: {'✓ Дійсний' if is_valid else '✗ Недійсний'}")
+    std::cout << "Перевірка коду:   " << (totp.verify(code) ? "прийнято" : "відхилено") << "\n";
+    std::cout << "Перевірка \"000000\": " << (totp.verify("000000") ? "прийнято" : "відхилено") << "\n\n";
 
-    # Неправильний код
-    wrong_code = "000000"
-    is_valid = totp.verify(wrong_code)
-    print(f"Код {wrong_code}: {'✓ Дійсний' if is_valid else '✗ Недійсний'}")
+    std::cout << "Код для сусідніх інтервалів (демонстрація вікна допуску):\n";
+    std::time_t now = std::time(nullptr);
+    for (int shift = -1; shift <= 1; ++shift) {
+        std::cout << "  зсув " << std::showpos << shift << std::noshowpos
+                  << " інтервал: " << totp.generate(now + shift * 30) << "\n";
+    }
 
-    # Показуємо зміну коду з часом
-    print("\n--- Зміна коду з часом ---")
-    for i in range(3):
-        code = totp.generate()
-        remaining = totp.interval - (int(time.time()) % totp.interval)
-        print(f"Код: {code} (діє ще {remaining} сек)")
-        time.sleep(2)
-
-    # Повна демонстрація 2FA
-    print("\n--- Повна демонстрація 2FA ---")
-    pm = PasswordManager()
-
-    # "Реєстрація" з 2FA
-    password = "MyPassword123"
-    salt, password_hash = pm.register_user(password)
-    user_totp_secret = TOTP.generate_secret()
-    user_totp = TOTP(user_totp_secret)
-
-    print(f"Користувач зареєстрований з 2FA")
-    print(f"TOTP-секрет (для Authenticator): {TOTP.get_secret_base32(user_totp_secret)}")
-
-    # "Вхід" з 2FA
-    print("\n--- Вхід з 2FA ---")
-    input_password = "MyPassword123"
-    input_totp = user_totp.generate()
-
-    # Крок 1: перевірка пароля
-    password_ok = pm.verify_password(input_password, salt, password_hash)
-    print(f"Крок 1 - Пароль: {'✓' if password_ok else '✗'}")
-
-    # Крок 2: перевірка TOTP
-    totp_ok = user_totp.verify(input_totp)
-    print(f"Крок 2 - TOTP ({input_totp}): {'✓' if totp_ok else '✗'}")
-
-    if password_ok and totp_ok:
-        print("\n✓ ВХІД УСПІШНИЙ (обидва фактори пройдено)")
-    else:
-        print("\n✗ ВХІД НЕВДАЛИЙ")
-
-if __name__ == "__main__":
-    demo_registration()
-    demo_timing_attack()
-    demo_challenge_response()
-    demo_totp()
+    return 0;
+}
 ```
-**Очікуваний результат:**
+Результат роботи програми:
 
 ```
-============================================================
-ДЕМОНСТРАЦІЯ РЕЄСТРАЦІЇ ТА ПЕРЕВІРКИ ПАРОЛЯ
-============================================================
+=== Двофакторна автентифікація (TOTP) ===
+Поточний код:     724161
+Дійсний ще:       14 с
 
-Пароль: MySecurePassword123!
-Сіль (hex): a1b2c3d4e5f6...
-Хеш (hex): 9f8e7d6c5b4a...
+Перевірка коду:   прийнято
+Перевірка "000000": відхилено
 
---- Перевірка правильного пароля ---
-Результат: ✓ Пароль правильний
-
---- Перевірка неправильного пароля ---
-Результат: ✗ Пароль неправильний
-
---- Демонстрація солі ---
-Пароль 'password' з сіллю 1: 8f7e6d5c...
-Пароль 'password' з сіллю 2: 1a2b3c4d...
-Хеші різні (завдяки різній солі)
-
-============================================================
-ДЕМОНСТРАЦІЯ TOTP (TIME-BASED ONE-TIME PASSWORD)
-============================================================
-
-Секретний ключ (Base32): JBSWY3DPEHPK3PXP
-(Цей ключ вводиться в Google Authenticator)
-
-Поточний TOTP-код: 284756
-Поточний час: 14:32:15
-
---- Перевірка коду ---
-Код 284756: ✓ Дійсний
-Код 000000: ✗ Недійсний
+Код для сусідніх інтервалів (демонстрація вікна допуску):
+  зсув -1 інтервал: 557715
+  зсув +0 інтервал: 724161
+  зсув +1 інтервал: 112200
 ```
+
+Самі коди в кожного будуть свої: вони залежать від поточного часу, тому
+однаковими в усіх студентів будуть лише секрет і структура виводу. Зате
+перевірити реалізацію просто — той самий секрет `JBSWY3DPEHPK3PXP` можна
+додати в Google Authenticator і звірити коди на екрані телефона.
 ## Порядок виконання роботи
 
 1. Отримати в викладача номер індивідуального варіанта.
@@ -715,16 +712,36 @@ if __name__ == "__main__":
 
 ## Контрольні запитання
 
-1. Чому не можна зберігати паролі у відкритому вигляді?
-2. Що таке сіль (salt) і навіщо вона потрібна?
-3. Чим PBKDF2 кращий за простий SHA-256 для паролів?
-4. Що таке timing attack і як від неї захиститися?
-5. Як працює challenge-response протокол?
-6. Чому challenge повинен бути унікальним кожного разу?
-7. Що таке MFA і які фактори аутентифікації існують?
-8. Як працює TOTP? Чому код змінюється кожні 30 секунд?
-9. Що робити, якщо користувач втратив доступ до 2FA?
-10. Чим аутентифікація відрізняється від авторизації?
+Запитання згруповано за рівнями навчальних досягнень. Для позитивної оцінки студент має відповісти на запитання середнього рівня, оцінка «добре» потребує відповідей достатнього рівня, оцінка «відмінно» — високого.
+
+### Середній рівень (репродуктивний)
+
+1. Чим ідентифікація відрізняється від аутентифікації?
+2. Чим аутентифікація відрізняється від авторизації?
+3. Чому не можна зберігати паролі у відкритому вигляді?
+4. Що таке сіль (salt)?
+5. Які фактори аутентифікації існують? Наведіть приклад кожного.
+6. Що таке MFA?
+7. Як працює challenge-response протокол?
+8. Як працює TOTP і чому код змінюється кожні 30 секунд?
+
+### Достатній рівень (конструктивно-варіативний)
+
+1. Чим PBKDF2 кращий за простий SHA-256 для зберігання паролів?
+2. Що саме унеможливлює сіль і чому вона має бути унікальною для кожного користувача?
+3. Що таке timing attack і як від неї захиститися під час порівняння хешів?
+4. Чому challenge має бути унікальним щоразу? Яка атака стає можливою без цього?
+5. Чому пароль не передають мережею навіть у хешованому вигляді?
+6. Що робити, якщо користувач втратив доступ до другого фактора? Які ризики має процедура відновлення?
+7. Чим апаратний ключ безпечніший за код із SMS?
+8. Як перевірити стійкість власної схеми зберігання паролів?
+
+### Високий рівень (творчий)
+
+1. Спроєктуйте схему аутентифікації для навчального порталу: які фактори, як зберігаються паролі, як відбувається відновлення доступу. Обґрунтуйте кожне рішення.
+2. Базу хешів паролів викрадено. Опишіть порядок дій адміністратора та поясніть, від чого саме захистили сіль і повільна функція.
+3. Оцініть, чому збільшення вимог до складності пароля має межу корисності, і запропонуйте, чим його доцільніше замінити.
+4. Сформулюйте, чому багатофакторність підвищує безпеку не вдвічі, а на порядок, і за яких умов цей виграш зникає.
 
 ## Критерії оцінювання
 

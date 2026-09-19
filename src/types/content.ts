@@ -3,11 +3,14 @@ export type LessonType = 'lecture' | 'lab' | 'seminar' | 'test' | 'final' | 'gra
 export type Subject = 'os' | 'pmzi';
 
 export interface LessonFrontmatter {
-  title: string;
+  title: string;           // офіційне формулювання з РНП — заголовок .docx
+  shortTitle?: string;     // коротка назва для роадмапи та імені .docx
   type: LessonType;
   order: number;
   preview: string;
 }
+
+export type Audience = 'pz' | 'kmp';
 
 export interface LabFrontmatter extends LessonFrontmatter {
   type: 'lab';
@@ -15,6 +18,7 @@ export interface LabFrontmatter extends LessonFrontmatter {
   duration?: string;
   equipment?: string[];
   subject?: Subject;
+  audience?: Audience[];  // Робота лише для окремих програм (напр. тільки КМП)
 }
 
 export interface Lesson {

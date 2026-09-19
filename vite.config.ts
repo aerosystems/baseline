@@ -16,10 +16,16 @@ function docxMimeType(): Plugin {
     next()
   }
 
+  // Значення, повернуте з configureServer, Vite викликає як post-hook,
+  // тому обидва хуки мають нічого не повертати
   return {
     name: 'docx-mime-type',
-    configureServer: (server) => server.middlewares.use(setDocxType),
-    configurePreviewServer: (server) => server.middlewares.use(setDocxType),
+    configureServer(server) {
+      server.middlewares.use(setDocxType)
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(setDocxType)
+    },
   }
 }
 

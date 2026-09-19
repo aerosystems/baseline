@@ -67,86 +67,95 @@ O → (3,4) → "34"
 
     1   2   3   4   5
   ┌───┬───┬───┬───┬───┐
-1 │ C │ R │ Y │ P │ T │  ← Ключ (без повторів)
+1 │ C │ R │ Y │ P │ T │  ← Ключ без повторів
   ├───┼───┼───┼───┼───┤
-2 │ O │ A │ B │ D │ E │  ← Решта алфавіту
+2 │ O │ A │ B │ D │ E │  ← Далі решта абетки за порядком,
+  ├───┼───┼───┼───┼───┤     пропускаючи вже використані
+3 │ F │ G │ H │ I/J│ K │     літери C, R, Y, P, T, O
   ├───┼───┼───┼───┼───┤
-3 │ F │ G │ H │ I/J│ K │
+4 │ L │ M │ N │ Q │ S │
   ├───┼───┼───┼───┼───┤
-4 │ L │ M │ N │ O │ P │  (О вже є, пропускаємо)
-  ├───┼───┼───┼───┼───┤
-5 │ Q │ S │ U │ V │ W │
+5 │ U │ V │ W │ X │ Z │
   └───┴───┴───┴───┴───┘
+
+Перевірка: у квадраті рівно 25 різних літер, J об'єднано з I.
+
+"HELLO" за цим квадратом → H(33) E(25) L(41) L(41) O(21) → "33 25 41 41 21"
 ```
 
 ### Реалізація
 
-```python
-def create_polybius_square(keyword: str = "") -> dict:
-    """Створює квадрат Полібія з ключовим словом."""
-    # Формуємо алфавіт
-    alphabet = ""
-    seen = set()
+```cpp
+#include <iostream>
+#include <string>
+#include <map>
+#include <cctype>
 
-    # Спочатку ключове слово
-    for char in keyword.upper():
-        if char.isalpha() and char not in seen:
-            if char == 'J':
-                char = 'I'
-            seen.add(char)
-            alphabet += char
+// Квадрат Полібія: кожна літера подається парою «рядок-стовпець»
+class PolybiusSquare {
+public:
+    explicit PolybiusSquare(const std::string& keyword = "") {
+        bool used[26] = { false };
 
-    # Потім решта
-    for char in "ABCDEFGHIKLMNOPQRSTUVWXYZ":  # без J
-        if char not in seen:
-            alphabet += char
+        for (char c : keyword) {                       // спершу літери ключа
+            char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+            if (up == 'J') up = 'I';                   // J і I займають одну клітинку
+            if (up >= 'A' && up <= 'Z' && !used[up - 'A']) {
+                used[up - 'A'] = true;
+                alphabet_ += up;
+            }
+        }
+        for (char c : std::string("ABCDEFGHIKLMNOPQRSTUVWXYZ")) {   // далі решта
+            if (!used[c - 'A']) {
+                used[c - 'A'] = true;
+                alphabet_ += c;
+            }
+        }
 
-    # Створюємо таблицю
-    encode = {}
-    decode = {}
-    for i, char in enumerate(alphabet):
-        row = i // 5 + 1
-        col = i % 5 + 1
-        encode[char] = f"{row}{col}"
-        decode[f"{row}{col}"] = char
+        for (size_t i = 0; i < alphabet_.size(); ++i) {
+            std::string code = std::to_string(i / 5 + 1) + std::to_string(i % 5 + 1);
+            encode_[alphabet_[i]] = code;
+            decode_[code] = alphabet_[i];
+        }
+    }
 
-    return {'encode': encode, 'decode': decode, 'grid': alphabet}
+    std::string encrypt(const std::string& text) const {
+        std::string result;
+        for (char c : text) {
+            char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+            if (up == 'J') up = 'I';
+            auto it = encode_.find(up);
+            if (it != encode_.end()) result += it->second;
+        }
+        return result;
+    }
 
+    std::string decrypt(const std::string& digits) const {
+        std::string result;
+        for (size_t i = 0; i + 1 < digits.size(); i += 2) {
+            auto it = decode_.find(digits.substr(i, 2));
+            if (it != decode_.end()) result += it->second;
+        }
+        return result;
+    }
 
-def polybius_encrypt(plaintext: str, keyword: str = "") -> str:
-    """Шифрування квадратом Полібія."""
-    square = create_polybius_square(keyword)
-    result = []
+    const std::string& grid() const { return alphabet_; }
 
-    for char in plaintext.upper():
-        if char == 'J':
-            char = 'I'
-        if char in square['encode']:
-            result.append(square['encode'][char])
+private:
+    std::string alphabet_;
+    std::map<char, std::string> encode_;
+    std::map<std::string, char> decode_;
+};
 
-    return ' '.join(result)
+int main() {
+    PolybiusSquare square("CRYPTO");
 
-
-def polybius_decrypt(ciphertext: str, keyword: str = "") -> str:
-    """Дешифрування квадратом Полібія."""
-    square = create_polybius_square(keyword)
-    pairs = ciphertext.split()
-    result = []
-
-    for pair in pairs:
-        if pair in square['decode']:
-            result.append(square['decode'][pair])
-
-    return ''.join(result)
-
-
-# Приклад
-message = "HELLO"
-encrypted = polybius_encrypt(message)
-print(f"Зашифровано: {encrypted}")  # 23 15 31 31 34
-
-decrypted = polybius_decrypt(encrypted)
-print(f"Розшифровано: {decrypted}")  # HELLO
+    std::string encrypted = square.encrypt("ATTACK");
+    std::cout << "Квадрат:      " << square.grid() << "\n";
+    std::cout << "Зашифровано:  " << encrypted << "\n";
+    std::cout << "Розшифровано: " << square.decrypt(encrypted) << "\n";
+    return 0;
+}
 ```
 
 ## Шифр Плейфера
@@ -227,18 +236,22 @@ N U → U P (цикл!)
 
 **Правило 3: Прямокутник**
 
-Беремо літери з протилежних кутів того ж рядка.
+Кожна літера замінюється тією, що стоїть у **її власному рядку**, але в стовпці другої літери.
 
 ```
-┌───┬───┬───┬───┬───┐
-│ P │ L │ A │ Y │ F │  H-D утворюють прямокутник
-├───┼───┼───┼───┼───┤
-│ I │ R │ B │ C │[D]│
-├───┼───┼───┼───┼───┤
-│ E │ G │[H]│ K │ M │
-└───┴───┴───┴───┴───┘
+        1   2   3   4   5
+      ┌───┬───┬───┬───┬───┐
+    1 │ P │ L │ A │ Y │ F │
+      ├───┼───┼───┼───┼───┤
+    2 │ I │ R │ B │ C │[D]│  D — рядок 2, стовпець 5
+      ├───┼───┼───┼───┼───┤
+    3 │ E │ G │[H]│ K │[M]│  H — рядок 3, стовпець 3
+      └───┴───┴───┴───┴───┘
 
-H D → K B (протилежні кути)
+H (рядок 3) бере стовпець D (5) → M
+D (рядок 2) бере стовпець H (3) → B
+
+H D → M B
 ```
 
 ### Приклад шифрування
@@ -262,123 +275,146 @@ H D → K B (протилежні кути)
 
 Розбиваємо: HE LX LO WO RL DX
 
-HE → (прямокутник) → KG
-LX → (прямокутник) → AW
-LO → (прямокутник) → AV
-WO → (один стовпець) → XV
-RL → (один рядок) → BR
-DX → (прямокутник) → MU
+HE → (один рядок 3)      → KG
+LX → (прямокутник)       → YV
+LO → (один стовпець 2)   → RV
+WO → (прямокутник)       → VQ
+RL → (один стовпець 2)   → GR
+DX → (прямокутник)       → CZ
 
-Шифротекст: KG AW AV XV BR MU
+Шифротекст: KG YV RV VQ GR CZ
 ```
 
-### Реалізація на Python
+Розберімо дві біграми докладно:
 
-```python
-class PlayfairCipher:
-    def __init__(self, keyword: str):
-        self.matrix = self._build_matrix(keyword)
-        self.positions = self._build_positions()
+```
+LX: L — рядок 1, стовпець 2;  X — рядок 5, стовпець 4
+    різні рядки й стовпці → прямокутник
+    L бере стовпець X (4) у своєму рядку 1 → Y
+    X бере стовпець L (2) у своєму рядку 5 → V
+    LX → YV
 
-    def _build_matrix(self, keyword: str) -> list:
-        """Будує матрицю 5×5."""
-        alphabet = ""
-        seen = set()
+RL: R — рядок 2, стовпець 2;  L — рядок 1, стовпець 2
+    однаковий стовпець → зсув униз із циклом
+    R (рядок 2) → рядок 3 → G
+    L (рядок 1) → рядок 2 → R
+    RL → GR
+```
 
-        for char in keyword.upper():
-            if char.isalpha() and char not in seen:
-                char = 'I' if char == 'J' else char
-                seen.add(char)
-                alphabet += char
+### Реалізація мовою C++
 
-        for char in "ABCDEFGHIKLMNOPQRSTUVWXYZ":
-            if char not in seen:
-                alphabet += char
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cctype>
 
-        return [list(alphabet[i*5:(i+1)*5]) for i in range(5)]
+class PlayfairCipher {
+public:
+    explicit PlayfairCipher(const std::string& keyword) {
+        buildMatrix(keyword);
+    }
 
-    def _build_positions(self) -> dict:
-        """Створює словник позицій."""
-        positions = {}
-        for row in range(5):
-            for col in range(5):
-                char = self.matrix[row][col]
-                positions[char] = (row, col)
-        return positions
+    std::string encrypt(const std::string& text) const {
+        return process(prepare(text), +1);
+    }
 
-    def _prepare_text(self, text: str) -> list:
-        """Готує текст: заміна J, розбиття на біграми."""
-        text = text.upper().replace('J', 'I')
-        text = ''.join(c for c in text if c.isalpha())
+    std::string decrypt(const std::string& text) const {
+        return process(text, -1);
+    }
 
-        bigrams = []
-        i = 0
-        while i < len(text):
-            if i + 1 < len(text):
-                if text[i] == text[i + 1]:
-                    bigrams.append(text[i] + 'X')
-                    i += 1
-                else:
-                    bigrams.append(text[i] + text[i + 1])
-                    i += 2
-            else:
-                bigrams.append(text[i] + 'X')
-                i += 1
+    void print() const {
+        for (const std::string& row : matrix_) {
+            for (char c : row) std::cout << c << ' ';
+            std::cout << "\n";
+        }
+    }
 
-        return bigrams
+private:
+    void buildMatrix(const std::string& keyword) {
+        bool used[26] = { false };
+        std::string chars;
 
-    def _encrypt_bigram(self, bigram: str) -> str:
-        """Шифрує одну біграму."""
-        r1, c1 = self.positions[bigram[0]]
-        r2, c2 = self.positions[bigram[1]]
+        for (char c : keyword) {
+            char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+            if (up == 'J') up = 'I';
+            if (up >= 'A' && up <= 'Z' && !used[up - 'A']) {
+                used[up - 'A'] = true;
+                chars += up;
+            }
+        }
+        for (char c : std::string("ABCDEFGHIKLMNOPQRSTUVWXYZ")) {
+            if (!used[c - 'A']) { used[c - 'A'] = true; chars += c; }
+        }
 
-        if r1 == r2:  # Один рядок
-            return self.matrix[r1][(c1+1)%5] + self.matrix[r2][(c2+1)%5]
-        elif c1 == c2:  # Один стовпець
-            return self.matrix[(r1+1)%5][c1] + self.matrix[(r2+1)%5][c2]
-        else:  # Прямокутник
-            return self.matrix[r1][c2] + self.matrix[r2][c1]
+        matrix_.resize(5);
+        for (int row = 0; row < 5; ++row) matrix_[row] = chars.substr(row * 5, 5);
+    }
 
-    def _decrypt_bigram(self, bigram: str) -> str:
-        """Дешифрує одну біграму."""
-        r1, c1 = self.positions[bigram[0]]
-        r2, c2 = self.positions[bigram[1]]
+    // Текст розбивається на біграми; однакові літери розділяються літерою X
+    std::string prepare(const std::string& text) const {
+        std::string clean;
+        for (char c : text) {
+            if (std::isalpha(static_cast<unsigned char>(c))) {
+                char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+                clean += (up == 'J') ? 'I' : up;
+            }
+        }
 
-        if r1 == r2:  # Один рядок — ліворуч
-            return self.matrix[r1][(c1-1)%5] + self.matrix[r2][(c2-1)%5]
-        elif c1 == c2:  # Один стовпець — вгору
-            return self.matrix[(r1-1)%5][c1] + self.matrix[(r2-1)%5][c2]
-        else:  # Прямокутник — так само
-            return self.matrix[r1][c2] + self.matrix[r2][c1]
+        std::string result;
+        for (size_t i = 0; i < clean.size(); ++i) {
+            result += clean[i];
+            if (result.size() % 2 == 1 && i + 1 < clean.size() && clean[i] == clean[i + 1]) {
+                result += 'X';
+            }
+        }
+        if (result.size() % 2 == 1) result += 'X';
+        return result;
+    }
 
-    def encrypt(self, plaintext: str) -> str:
-        """Шифрування."""
-        bigrams = self._prepare_text(plaintext)
-        return ' '.join(self._encrypt_bigram(bg) for bg in bigrams)
+    void findPosition(char c, int& row, int& col) const {
+        for (row = 0; row < 5; ++row) {
+            for (col = 0; col < 5; ++col) {
+                if (matrix_[row][col] == c) return;
+            }
+        }
+    }
 
-    def decrypt(self, ciphertext: str) -> str:
-        """Дешифрування."""
-        bigrams = ciphertext.replace(' ', '')
-        bigrams = [bigrams[i:i+2] for i in range(0, len(bigrams), 2)]
-        return ''.join(self._decrypt_bigram(bg) for bg in bigrams)
+    // shift = +1 для зашифрування, -1 для розшифрування
+    std::string process(const std::string& text, int shift) const {
+        std::string result;
 
-    def print_matrix(self):
-        """Виводить матрицю."""
-        for row in self.matrix:
-            print(' '.join(row))
+        for (size_t i = 0; i + 1 < text.size(); i += 2) {
+            int r1, c1, r2, c2;
+            findPosition(text[i], r1, c1);
+            findPosition(text[i + 1], r2, c2);
 
+            if (r1 == r2) {                       // один рядок
+                result += matrix_[r1][(c1 + shift + 5) % 5];
+                result += matrix_[r2][(c2 + shift + 5) % 5];
+            } else if (c1 == c2) {                // один стовпець
+                result += matrix_[(r1 + shift + 5) % 5][c1];
+                result += matrix_[(r2 + shift + 5) % 5][c2];
+            } else {                              // прямокутник
+                result += matrix_[r1][c2];
+                result += matrix_[r2][c1];
+            }
+        }
+        return result;
+    }
 
-# Приклад
-cipher = PlayfairCipher("MONARCHY")
-cipher.print_matrix()
+    std::vector<std::string> matrix_;
+};
 
-message = "INSTRUMENTS"
-encrypted = cipher.encrypt(message)
-print(f"Відкритий текст: {message}")
-print(f"Шифротекст: {encrypted}")
+int main() {
+    PlayfairCipher cipher("MONARCHY");
+    cipher.print();
 
-decrypted = cipher.decrypt(encrypted)
-print(f"Розшифровано: {decrypted}")
+    std::string encrypted = cipher.encrypt("HELLO WORLD");
+    std::cout << "\nЗашифровано:  " << encrypted << "\n";
+    std::cout << "Розшифровано: " << cipher.decrypt(encrypted) << "\n";
+    return 0;
+}
 ```
 
 ## Подвійний квадрат Уітстона
@@ -405,105 +441,123 @@ print(f"Розшифровано: {decrypted}")
 
 ### Правила шифрування
 
-1. Перша літера біграми — в лівому квадраті
-2. Друга літера — в правому квадраті
-3. Формуємо прямокутник і беремо протилежні кути
+1. Перша літера біграми шукається в **лівому** квадраті, друга — в **правому**
+2. Обидві літери задають прямокутник, що лежить на двох квадратах
+3. Перша літера шифротексту — у **лівому** квадраті: рядок першої літери, стовпець другої
+4. Друга літера шифротексту — у **правому** квадраті: рядок другої літери, стовпець першої
 
 ```
-Біграма: HE
+Біграма: AT
 
-H у лівому квадраті: рядок 2, стовпець 1
-E у правому квадраті: рядок 0, стовпець 1
+A у лівому квадраті:  рядок 0, стовпець 2
+T у правому квадраті: рядок 4, стовпець 0
 
-     Л                     П
-┌───┬───┬───┬───┬───┐ ┌───┬───┬───┬───┬───┐
-│ E │ X │ A │ M │ P │ │ K │[E]│ Y │ W │ O │  ← рядок 0
-├───┼───┼───┼───┼───┤ ├───┼───┼───┼───┼───┤
-│ L │ B │ C │ D │ F │ │ R │ D │ A │ B │ C │
-├───┼───┼───┼───┼───┤ ├───┼───┼───┼───┼───┤
-│ G │[H]│ I │ K │ N │ │ F │ G │ H │ I │ L │  ← рядок 2
-└───┴───┴───┴───┴───┘ └───┴───┴───┴───┴───┘
+     ЛІВИЙ                  ПРАВИЙ
+      0   1   2   3   4      0   1   2   3   4
+    ┌───┬───┬───┬───┬───┐  ┌───┬───┬───┬───┬───┐
+  0 │[E]│ X │[A]│ M │ P │  │ K │ E │ Y │ W │ O │
+    ├───┼───┼───┼───┼───┤  ├───┼───┼───┼───┼───┤
+  1 │ L │ B │ C │ D │ F │  │ R │ D │ A │ B │ C │
+    ├───┼───┼───┼───┼───┤  ├───┼───┼───┼───┼───┤
+  2 │ G │ H │ I │ K │ N │  │ F │ G │ H │ I │ L │
+    ├───┼───┼───┼───┼───┤  ├───┼───┼───┼───┼───┤
+  3 │ O │ Q │ R │ S │ T │  │ M │ N │ P │ Q │ S │
+    ├───┼───┼───┼───┼───┤  ├───┼───┼───┼───┼───┤
+  4 │ U │ V │ W │ Y │ Z │  │[T]│ U │[V]│ X │ Z │
+    └───┴───┴───┴───┴───┘  └───┴───┴───┴───┴───┘
 
-Шифр: [X, G] (протилежні кути)
-HE → XG
+Ліворуч беремо рядок A (0) і стовпець T (0) → E
+Праворуч беремо рядок T (4) і стовпець A (2) → V
+
+AT → EV
 ```
+
+**Вироджений випадок.** Якщо обидві літери стоять в однаковому стовпці своїх квадратів,
+прямокутник вироджується у вертикальну лінію і біграма лишається без змін: `HE → HE`,
+`SI → SI`. Це відома слабкість подвійного квадрата — приблизно кожна п'ята біграма
+проходить крізь шифр незміненою. Саме тому подвійний квадрат ніколи не застосовували
+самостійно, а лише разом з іншими перетвореннями.
 
 ### Переваги подвійного квадрата
 
 1. **Більший простір ключів**: два незалежних ключових слова
 2. **Стійкіший до частотного аналізу**: біграми розподіляються рівномірніше
-3. **Немає проблеми однакових літер**: правила працюють для будь-яких пар
+3. **Немає потреби розділяти однакові літери**: пара LL обробляється звичайним чином,
+   вставляти X не доводиться
 
 ### Реалізація
 
-```python
-class TwoSquareCipher:
-    def __init__(self, keyword1: str, keyword2: str):
-        self.left = self._build_matrix(keyword1)
-        self.right = self._build_matrix(keyword2)
-        self.left_pos = self._positions(self.left)
-        self.right_pos = self._positions(self.right)
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
 
-    def _build_matrix(self, keyword: str) -> list:
-        """Будує матрицю 5×5."""
-        alphabet = ""
-        seen = set()
+// Подвійний квадрат Уітстона: перша літера біграми шукається в лівому
+// квадраті, друга — у правому, результат беруть із протилежних кутів
+class TwoSquareCipher {
+public:
+    TwoSquareCipher(const std::string& keyword1, const std::string& keyword2)
+        : left_(buildMatrix(keyword1)), right_(buildMatrix(keyword2)) {}
 
-        for char in keyword.upper():
-            if char.isalpha() and char not in seen:
-                char = 'I' if char == 'J' else char
-                seen.add(char)
-                alphabet += char
+    std::string process(const std::string& text) const {
+        std::string result;
 
-        for char in "ABCDEFGHIKLMNOPQRSTUVWXYZ":
-            if char not in seen:
-                alphabet += char
+        for (size_t i = 0; i + 1 < text.size(); i += 2) {
+            int r1, c1, r2, c2;
+            findPosition(left_, text[i], r1, c1);
+            findPosition(right_, text[i + 1], r2, c2);
 
-        return [list(alphabet[i*5:(i+1)*5]) for i in range(5)]
+            result += left_[r1][c2];
+            result += right_[r2][c1];
+        }
+        return result;
+    }
 
-    def _positions(self, matrix: list) -> dict:
-        """Створює словник позицій."""
-        pos = {}
-        for row in range(5):
-            for col in range(5):
-                pos[matrix[row][col]] = (row, col)
-        return pos
+    // Перетворення симетричне: повторне застосування повертає вихідний текст
+    std::string encrypt(const std::string& text) const { return process(text); }
+    std::string decrypt(const std::string& text) const { return process(text); }
 
-    def encrypt(self, plaintext: str) -> str:
-        """Шифрування подвійним квадратом."""
-        text = plaintext.upper().replace('J', 'I')
-        text = ''.join(c for c in text if c.isalpha())
-        if len(text) % 2:
-            text += 'X'
+private:
+    static std::vector<std::string> buildMatrix(const std::string& keyword) {
+        bool used[26] = { false };
+        std::string chars;
 
-        result = []
-        for i in range(0, len(text), 2):
-            a, b = text[i], text[i+1]
+        for (char c : keyword) {
+            char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+            if (up == 'J') up = 'I';
+            if (up >= 'A' && up <= 'Z' && !used[up - 'A']) {
+                used[up - 'A'] = true;
+                chars += up;
+            }
+        }
+        for (char c : std::string("ABCDEFGHIKLMNOPQRSTUVWXYZ")) {
+            if (!used[c - 'A']) { used[c - 'A'] = true; chars += c; }
+        }
 
-            r1, c1 = self.left_pos[a]   # Перша літера в лівому
-            r2, c2 = self.right_pos[b]  # Друга в правому
+        std::vector<std::string> matrix(5);
+        for (int row = 0; row < 5; ++row) matrix[row] = chars.substr(row * 5, 5);
+        return matrix;
+    }
 
-            # Беремо протилежні кути
-            new_a = self.left[r2][c1]   # Ліва матриця, рядок другої
-            new_b = self.right[r1][c2]  # Права матриця, рядок першої
+    static void findPosition(const std::vector<std::string>& matrix, char c, int& row, int& col) {
+        for (row = 0; row < 5; ++row) {
+            for (col = 0; col < 5; ++col) {
+                if (matrix[row][col] == c) return;
+            }
+        }
+    }
 
-            result.append(new_a + new_b)
+    std::vector<std::string> left_, right_;
+};
 
-        return ' '.join(result)
+int main() {
+    TwoSquareCipher cipher("EXAMPLE", "KEYWORD");
 
-    def decrypt(self, ciphertext: str) -> str:
-        """Дешифрування — та сама операція."""
-        return self.encrypt(ciphertext.replace(' ', ''))
-
-
-# Приклад
-cipher = TwoSquareCipher("EXAMPLE", "KEYWORD")
-message = "HELLO WORLD"
-encrypted = cipher.encrypt(message)
-print(f"Шифротекст: {encrypted}")
-
-decrypted = cipher.decrypt(encrypted)
-print(f"Розшифровано: {decrypted}")
+    std::string encrypted = cipher.encrypt("HELLOWORLD");
+    std::cout << "Зашифровано:  " << encrypted << "\n";
+    std::cout << "Розшифровано: " << cipher.decrypt(encrypted) << "\n";
+    return 0;
+}
 ```
 
 ## Порівняння поліграмних шифрів
@@ -694,22 +748,22 @@ ND  1.35%  ███████
 ### Інструменти для практики
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    ОНЛАЙН ІНСТРУМЕНТИ                               │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  dCode.fr/playfair-cipher     - Шифрування/дешифрування Playfair    │
-│  dCode.fr/polybius-cipher     - Квадрат Полібія онлайн              │
-│  boxentriq.com/code-breaking  - Автоматичний криптоаналіз          │
-│  practicalcryptography.com    - Частотні таблиці, інструменти       │
-│  quipqiup.com                 - Розв'язувач криптограм              │
-│                                                                     │
-│  Python бібліотеки:                                                 │
-│  - pycipher                   - Реалізація класичних шифрів         │
-│  - secretpy                   - Ще одна бібліотека шифрів           │
-│  - collections.Counter        - Для частотного аналізу              │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                    ОНЛАЙН ІНСТРУМЕНТИ                                  │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  dCode.fr/playfair-cipher     - Шифрування/дешифрування Playfair       │
+│  dCode.fr/polybius-cipher     - Квадрат Полібія онлайн                 │
+│  boxentriq.com/code-breaking  - Автоматичний криптоаналіз              │
+│  practicalcryptography.com    - Частотні таблиці, інструменти          │
+│  quipqiup.com                 - Розв'язувач криптограм                 │
+│                                                                        │
+│  Засоби C++:                                                           │
+│  - std::map, std::array       - Таблиці замін і частот                 │
+│  - std::stable_sort           - Упорядкування стовпців за ключем       │
+│  - Crypto++ (cryptopp)        - Бібліотека класичних і сучасних шифрів │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -730,13 +784,13 @@ ND  1.35%  ███████
 │  4. Якщо непарна кількість: додати X в кінці                        │
 │                                                                     │
 │  ШИФРУВАННЯ БІГРАМ:                                                 │
-│  ┌─────────────────────────────────────────────────────────┐        │
-│  │ Ситуація          │ Правило                            │        │
-│  ├────────────────────┼────────────────────────────────────┤        │
-│  │ Один рядок         │ Літери ПРАВОРУЧ (з циклом)        │        │
-│  │ Один стовпець      │ Літери ЗНИЗУ (з циклом)           │        │
-│  │ Прямокутник        │ Протилежні кути (той самий рядок) │        │
-│  └─────────────────────────────────────────────────────────┘        │
+│  ┌────────────────────────────────────────────────────────┐         │
+│  │ Ситуація          │ Правило                            │         │
+│  ├────────────────────┼───────────────────────────────────┤         │
+│  │ Один рядок         │ Літери ПРАВОРУЧ (з циклом)        │         │
+│  │ Один стовпець      │ Літери ЗНИЗУ (з циклом)           │         │
+│  │ Прямокутник        │ Протилежні кути (той самий рядок) │         │
+│  └────────────────────────────────────────────────────────┘         │
 │                                                                     │
 │  ДЕШИФРУВАННЯ: ті самі правила, але                                 │
 │  - Один рядок: ЛІВОРУЧ                                              │
@@ -762,23 +816,31 @@ ND  1.35%  ███████
 A = 11, H = 23, Z = 55      C = 11, R = 12, ...
 ```
 
-### Швидкий Python код
+### Стислий код мовою C++
 
-```python
-# Створення матриці Плейфера
-def create_playfair_matrix(keyword):
-    alphabet = ""
-    for c in keyword.upper() + "ABCDEFGHIKLMNOPQRSTUVWXYZ":
-        if c not in alphabet and c != 'J':
-            alphabet += c
-    return [list(alphabet[i*5:(i+1)*5]) for i in range(5)]
+```cpp
+// Стисле створення матриці Плейфера
+std::vector<std::string> createPlayfairMatrix(const std::string& keyword) {
+    std::string chars;
+    for (char c : keyword + "ABCDEFGHIKLMNOPQRSTUVWXYZ") {
+        char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        if (up == 'J') up = 'I';
+        if (up >= 'A' && up <= 'Z' && chars.find(up) == std::string::npos) chars += up;
+    }
 
-# Знаходження позиції в матриці
-def find_position(matrix, char):
-    for r, row in enumerate(matrix):
-        if char in row:
-            return r, row.index(char)
-    return None
+    std::vector<std::string> matrix(5);
+    for (int row = 0; row < 5; ++row) matrix[row] = chars.substr(row * 5, 5);
+    return matrix;
+}
+
+// Пошук позиції літери в матриці
+bool findPosition(const std::vector<std::string>& matrix, char c, int& row, int& col) {
+    for (row = 0; row < 5; ++row) {
+        col = static_cast<int>(matrix[row].find(c));
+        if (col >= 0) return true;
+    }
+    return false;
+}
 ```
 
 ---
@@ -818,62 +880,83 @@ BMODZ BXDNA KLDMQ VMWNN QFNVB SGTNR OZBFK L
 **Кроки:**
 
 1. **Побудуйте таблицю Playfair:**
-```python
-def build_playfair_table(keyword):
-    keyword = keyword.upper().replace('J', 'I')
-    seen = set()
-    key_chars = []
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
 
-    for char in keyword:
-        if char.isalpha() and char not in seen:
-            seen.add(char)
-            key_chars.append(char)
+std::vector<std::string> buildPlayfairTable(const std::string& keyword) {
+    bool used[26] = { false };
+    std::string chars;
 
-    for char in 'ABCDEFGHIKLMNOPQRSTUVWXYZ':  # без J
-        if char not in seen:
-            key_chars.append(char)
+    for (char c : keyword) {
+        char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        if (up == 'J') up = 'I';
+        if (up >= 'A' && up <= 'Z' && !used[up - 'A']) {
+            used[up - 'A'] = true;
+            chars += up;
+        }
+    }
+    for (char c : std::string("ABCDEFGHIKLMNOPQRSTUVWXYZ")) {   // без J
+        if (!used[c - 'A']) { used[c - 'A'] = true; chars += c; }
+    }
 
-    return [key_chars[i:i+5] for i in range(0, 25, 5)]
+    std::vector<std::string> table(5);
+    for (int row = 0; row < 5; ++row) table[row] = chars.substr(row * 5, 5);
+    return table;
+}
 
-# Спробуйте ключ "VICTORIA"
-table = build_playfair_table("VICTORIA")
-for row in table:
-    print(row)
+int main() {
+    // Спробуйте ключ "VICTORIA"
+    for (const std::string& row : buildPlayfairTable("VICTORIA")) {
+        std::cout << row << "\n";
+    }
+    return 0;
+}
 ```
 
 2. **Реалізуйте дешифрування пар:**
-```python
-def find_position(table, char):
-    char = char.upper().replace('J', 'I')
-    for row in range(5):
-        for col in range(5):
-            if table[row][col] == char:
-                return row, col
-    return None
+```cpp
+#include <string>
+#include <vector>
 
-def decrypt_pair(table, c1, c2):
-    r1, c1_pos = find_position(table, c1)
-    r2, c2_pos = find_position(table, c2)
+bool findPosition(const std::vector<std::string>& table, char c, int& row, int& col);
 
-    if r1 == r2:  # Той самий рядок - вліво
-        return table[r1][(c1_pos-1)%5] + table[r2][(c2_pos-1)%5]
-    elif c1_pos == c2_pos:  # Той самий стовпець - вгору
-        return table[(r1-1)%5][c1_pos] + table[(r2-1)%5][c2_pos]
-    else:  # Прямокутник
-        return table[r1][c2_pos] + table[r2][c1_pos]
+// Розшифрування біграми: зсув ліворуч/вгору, для прямокутника — протилежні кути
+std::string decryptPair(const std::vector<std::string>& table, char a, char b) {
+    int r1, c1, r2, c2;
+    findPosition(table, a, r1, c1);
+    findPosition(table, b, r2, c2);
 
-# Розшифруйте по парах
-ciphertext = "BMODZBXDNAKLDMQVMWNNQFNVBSGTNROZBFKL"
+    std::string result;
+    if (r1 == r2) {                               // той самий рядок — ліворуч
+        result += table[r1][(c1 + 4) % 5];
+        result += table[r2][(c2 + 4) % 5];
+    } else if (c1 == c2) {                        // той самий стовпець — вгору
+        result += table[(r1 + 4) % 5][c1];
+        result += table[(r2 + 4) % 5][c2];
+    } else {                                      // прямокутник
+        result += table[r1][c2];
+        result += table[r2][c1];
+    }
+    return result;
+}
+
+// Розшифруйте шифротекст по парах літер
+const std::string ciphertext = "BMODZBXDNAKLDMQVMWNNQFNVBSGTNROZBFKL";
 ```
 
 3. **Спробуйте різні ключові слова:**
-```python
-keywords = ["VICTORIA", "MONARCHY", "QUEENVIC", "WINDSOR", "ENGLAND"]
+```cpp
+const std::vector<std::string> keywords = {
+    "VICTORIA", "MONARCHY", "QUEENVIC", "WINDSOR", "ENGLAND"
+};
 
-for keyword in keywords:
-    table = build_playfair_table(keyword)
-    # Дешифруйте та виведіть результат
-    # Шукайте осмислений текст!
+for (const std::string& keyword : keywords) {
+    std::vector<std::string> table = buildPlayfairTable(keyword);
+    // Розшифруйте текст і виведіть результат.
+    // Шукайте варіант, у якому з'являється осмислений текст.
+}
 ```
 
 **Очікуваний результат:**

@@ -15,19 +15,19 @@ preview: "Асиметричні алгоритми RSA та Ель-Гамаля
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    ХРОНОЛОГІЯ                                       │
 │                                                                     │
-│  1976: Diffie-Hellman — ідея асиметричної криптографії             │
+│  1976: Diffie-Hellman — ідея асиметричної криптографії              │
 │    │                                                                │
 │    ▼                                                                │
 │  1977: RSA — перша реалізація                                       │
 │    │                                                                │
 │    ▼                                                                │
-│  1985: ElGamal — альтернатива на дискретному логарифмі             │
+│  1985: ElGamal — альтернатива на дискретному логарифмі              │
 │    │                                                                │
 │    ▼                                                                │
-│  1985: ECC — еліптичні криві (Miller, Koblitz)                     │
+│  1985: ECC — еліптичні криві (Miller, Koblitz)                      │
 │    │                                                                │
 │    ▼                                                                │
-│  2000+: RSA-2048 стає стандартом                                   │
+│  2000+: RSA-2048 стає стандартом                                    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -54,7 +54,7 @@ RSA базується на складності **факторизації** в
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    ГЕНЕРАЦІЯ КЛЮЧІВ RSA                             │
 │                                                                     │
-│  Крок 1: Обираємо два великих простих числа p та q                 │
+│  Крок 1: Обираємо два великих простих числа p та q                  │
 │          (типово 1024+ біт кожне)                                   │
 │                                                                     │
 │  Крок 2: Обчислюємо n = p × q                                       │
@@ -138,133 +138,141 @@ M = 855²⁷⁵³ mod 3233 = 123 ✓
 
 Для великих показників використовують **бінарне піднесення** (square-and-multiply):
 
-```python
-def fast_power(base: int, exp: int, mod: int) -> int:
-    """Швидке піднесення до степеня за модулем."""
-    result = 1
-    base = base % mod
+```cpp
+#include <cstdint>
 
-    while exp > 0:
-        # Якщо exp непарне — множимо на base
-        if exp % 2 == 1:
-            result = (result * base) % mod
+using u64 = unsigned long long;
 
-        # exp = exp // 2
-        exp = exp >> 1
-        # base = base²
-        base = (base * base) % mod
+// Швидке піднесення до степеня за модулем: base^exp mod modulus
+// Метод "піднести до квадрата й помножити" — O(log exp) множень
+u64 fastPower(u64 base, u64 exp, u64 modulus) {
+    u64 result = 1;
+    base %= modulus;
 
-    return result
+    while (exp > 0) {
+        if (exp & 1ULL) {                  // непарний показник — множимо на base
+            result = (result * base) % modulus;
+        }
+        exp >>= 1;                         // exp = exp / 2
+        base = (base * base) % modulus;    // base = base^2
+    }
+    return result;
+}
 
-
-# Приклад: 123¹⁷ mod 3233
-# 17 = 10001₂
-# 123¹⁷ = 123¹⁶ × 123¹ = (123⁸)² × 123
+// Приклад: 123^17 mod 3233
+// 17 = 10001 у двійковій системі
+// 123^17 = 123^16 * 123^1 = ((123^8)^2) * 123
 ```
 
-### Реалізація RSA на Python
+### Реалізація RSA мовою C++
 
-```python
-import random
-from math import gcd
+```cpp
+#include <iostream>
+#include <random>
+#include <stdexcept>
 
+using u64 = unsigned long long;
 
-def is_prime(n: int, k: int = 10) -> bool:
-    """Тест Міллера-Рабіна на простоту."""
-    if n < 2:
-        return False
-    if n == 2 or n == 3:
-        return True
-    if n % 2 == 0:
-        return False
+u64 fastPower(u64 base, u64 exp, u64 modulus);   // з попереднього прикладу
 
-    # n - 1 = 2^r × d
-    r, d = 0, n - 1
-    while d % 2 == 0:
-        r += 1
-        d //= 2
+// Тест простоти Міллера-Рабіна: ймовірнісний, але за 10 раундів
+// похибка менша за 4^-10
+bool isPrime(u64 n, int rounds = 10) {
+    if (n < 2) return false;
+    if (n == 2 || n == 3) return true;
+    if (n % 2 == 0) return false;
 
-    # k раундів тестування
-    for _ in range(k):
-        a = random.randrange(2, n - 1)
-        x = pow(a, d, n)
+    u64 d = n - 1;
+    int r = 0;
+    while (d % 2 == 0) { d /= 2; ++r; }    // n - 1 = 2^r * d
 
-        if x == 1 or x == n - 1:
-            continue
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<u64> dist(2, n - 2);
 
-        for _ in range(r - 1):
-            x = pow(x, 2, n)
-            if x == n - 1:
-                break
-        else:
-            return False
+    for (int i = 0; i < rounds; ++i) {
+        u64 x = fastPower(dist(gen), d, n);
+        if (x == 1 || x == n - 1) continue;
 
-    return True
+        bool composite = true;
+        for (int j = 0; j < r - 1; ++j) {
+            x = fastPower(x, 2, n);
+            if (x == n - 1) { composite = false; break; }
+        }
+        if (composite) return false;
+    }
+    return true;
+}
 
+// Випадкове просте число заданої розрядності
+u64 generatePrime(int bits) {
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<u64> dist(1ULL << (bits - 1), (1ULL << bits) - 1);
 
-def generate_prime(bits: int) -> int:
-    """Генерує випадкове просте число заданої бітової довжини."""
-    while True:
-        p = random.getrandbits(bits) | (1 << bits - 1) | 1
-        if is_prime(p):
-            return p
+    while (true) {
+        u64 candidate = dist(gen) | 1ULL;   // число має бути непарним
+        if (isPrime(candidate)) return candidate;
+    }
+}
 
+// Обернений елемент e^-1 mod phi, розширений алгоритм Евкліда
+u64 modInverse(u64 e, u64 phi) {
+    long long oldR = static_cast<long long>(e), r = static_cast<long long>(phi);
+    long long oldS = 1, s = 0;
 
-def mod_inverse(e: int, phi: int) -> int:
-    """Обчислює e⁻¹ mod phi (розширений алгоритм Евкліда)."""
-    def extended_gcd(a, b):
-        if a == 0:
-            return b, 0, 1
-        gcd, x1, y1 = extended_gcd(b % a, a)
-        x = y1 - (b // a) * x1
-        y = x1
-        return gcd, x, y
+    while (r != 0) {
+        long long q = oldR / r;
+        long long tmp = oldR - q * r;  oldR = r;  r = tmp;
+        tmp = oldS - q * s;            oldS = s;  s = tmp;
+    }
 
-    _, x, _ = extended_gcd(e % phi, phi)
-    return (x % phi + phi) % phi
+    if (oldR != 1) throw std::runtime_error("Оберненого елемента не існує");
 
+    long long mod = static_cast<long long>(phi);
+    return static_cast<u64>(((oldS % mod) + mod) % mod);
+}
 
-class RSA:
-    def __init__(self, bits: int = 1024):
-        # Генеруємо два простих числа
-        p = generate_prime(bits // 2)
-        q = generate_prime(bits // 2)
+class RSA {
+public:
+    RSA(u64 p, u64 q) {
+        n_ = p * q;
+        u64 phi = (p - 1) * (q - 1);
 
-        self.n = p * q
-        phi = (p - 1) * (q - 1)
+        e_ = 65537;
+        if (e_ >= phi) e_ = 17;                        // для малих навчальних ключів
+        while (gcd(e_, phi) != 1) e_ += 2;
 
-        # Публічна експонента
-        self.e = 65537
+        d_ = modInverse(e_, phi);
+    }
 
-        # Приватна експонента
-        self.d = mod_inverse(self.e, phi)
+    u64 encrypt(u64 message) const { return fastPower(message, e_, n_); }
+    u64 decrypt(u64 cipher) const  { return fastPower(cipher, d_, n_); }
 
-    def encrypt(self, m: int) -> int:
-        """Шифрування."""
-        return pow(m, self.e, self.n)
+    u64 modulus() const { return n_; }
+    u64 e() const { return e_; }
+    u64 d() const { return d_; }
 
-    def decrypt(self, c: int) -> int:
-        """Дешифрування."""
-        return pow(c, self.d, self.n)
+private:
+    static u64 gcd(u64 a, u64 b) {
+        while (b != 0) { u64 t = a % b; a = b; b = t; }
+        return a;
+    }
 
-    def public_key(self) -> tuple:
-        return (self.n, self.e)
+    u64 n_ = 0, e_ = 0, d_ = 0;
+};
 
-    def private_key(self) -> tuple:
-        return (self.n, self.d)
+int main() {
+    RSA rsa(61, 53);
 
+    std::cout << "n = " << rsa.modulus() << ", e = " << rsa.e() << ", d = " << rsa.d() << "\n";
 
-# Приклад використання
-rsa = RSA(bits=512)  # Для демонстрації, у продакшені 2048+
-print(f"Публічний ключ: n має {rsa.n.bit_length()} біт")
-
-message = 42
-encrypted = rsa.encrypt(message)
-decrypted = rsa.decrypt(encrypted)
-
-print(f"Повідомлення: {message}")
-print(f"Зашифровано: {encrypted}")
-print(f"Розшифровано: {decrypted}")
+    u64 message = 65;
+    u64 cipher = rsa.encrypt(message);
+    std::cout << "M = " << message << " → C = " << cipher
+              << " → M' = " << rsa.decrypt(cipher) << "\n";
+    return 0;
+}
 ```
 
 ### Безпека RSA
@@ -302,7 +310,7 @@ print(f"Розшифровано: {decrypted}")
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    ГЕНЕРАЦІЯ КЛЮЧІВ ЕЛЬ-ГАМАЛЯ                      │
 │                                                                     │
-│  Крок 1: Обираємо велике просте p та генератор g групи Z*_p        │
+│  Крок 1: Обираємо велике просте p та генератор g групи Z*_p         │
 │          (g — примітивний корінь за модулем p)                      │
 │                                                                     │
 │  Крок 2: Обираємо випадкове x, де 1 < x < p-1                       │
@@ -335,7 +343,7 @@ print(f"Розшифровано: {decrypted}")
 │                                                                     │
 │  Шифротекст: (a, b)                                                 │
 │                                                                     │
-│  Зверніть увагу: шифротекст удвічі більший за відкритий текст!     │
+│  Зверніть увагу: шифротекст удвічі більший за відкритий текст!      │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -391,48 +399,67 @@ print(f"Розшифровано: {decrypted}")
 
 ### Реалізація Ель-Гамаля
 
-```python
-import random
+```cpp
+#include <iostream>
+#include <random>
+#include <utility>
 
+using u64 = unsigned long long;
 
-class ElGamal:
-    def __init__(self, p: int, g: int):
-        self.p = p
-        self.g = g
-        # Приватний ключ
-        self.x = random.randint(2, p - 2)
-        # Публічний ключ
-        self.y = pow(g, self.x, p)
+u64 fastPower(u64 base, u64 exp, u64 modulus);   // див. вище
 
-    def public_key(self) -> tuple:
-        return (self.p, self.g, self.y)
+// Криптосистема Ель-Гамаля будується на складності дискретного логарифма
+class ElGamal {
+public:
+    ElGamal(u64 p, u64 g) : p_(p), g_(g) {
+        std::random_device rd;
+        std::mt19937_64 gen(rd());
+        std::uniform_int_distribution<u64> dist(2, p_ - 2);
 
-    def encrypt(self, m: int) -> tuple:
-        """Шифрування."""
-        k = random.randint(2, self.p - 2)
-        a = pow(self.g, k, self.p)
-        b = (m * pow(self.y, k, self.p)) % self.p
-        return (a, b)
+        x_ = dist(gen);                  // закритий ключ
+        y_ = fastPower(g_, x_, p_);      // відкритий ключ y = g^x mod p
+    }
 
-    def decrypt(self, a: int, b: int) -> int:
-        """Дешифрування."""
-        # a^(-x) = (a^x)^(-1)
-        s = pow(a, self.x, self.p)
-        s_inv = pow(s, self.p - 2, self.p)  # Мала теорема Ферма
-        m = (b * s_inv) % self.p
-        return m
+    // Зашифрування дає пару (a, b); для кожного повідомлення
+    // береться новий випадковий сеансовий ключ k
+    std::pair<u64, u64> encrypt(u64 message) const {
+        std::random_device rd;
+        std::mt19937_64 gen(rd());
+        std::uniform_int_distribution<u64> dist(2, p_ - 2);
 
+        u64 k = dist(gen);
+        u64 a = fastPower(g_, k, p_);
+        u64 b = (message % p_) * fastPower(y_, k, p_) % p_;
+        return { a, b };
+    }
 
-# Приклад (малі числа для демонстрації)
-elgamal = ElGamal(p=467, g=2)
-print(f"Публічний ключ: {elgamal.public_key()}")
+    // Розшифрування: m = b * (a^x)^-1 mod p,
+    // обернений елемент знаходимо за малою теоремою Ферма
+    u64 decrypt(u64 a, u64 b) const {
+        u64 s = fastPower(a, x_, p_);
+        u64 sInv = fastPower(s, p_ - 2, p_);
+        return (b * sInv) % p_;
+    }
 
-message = 123
-a, b = elgamal.encrypt(message)
-print(f"Шифротекст: ({a}, {b})")
+    void printPublicKey() const {
+        std::cout << "Відкритий ключ: (p=" << p_ << ", g=" << g_ << ", y=" << y_ << ")\n";
+    }
 
-decrypted = elgamal.decrypt(a, b)
-print(f"Розшифровано: {decrypted}")
+private:
+    u64 p_, g_, x_, y_;
+};
+
+int main() {
+    ElGamal elgamal(467, 2);            // малі числа для демонстрації
+    elgamal.printPublicKey();
+
+    u64 message = 123;
+    std::pair<u64, u64> cipher = elgamal.encrypt(message);
+
+    std::cout << "Шифротекст:   (" << cipher.first << ", " << cipher.second << ")\n";
+    std::cout << "Розшифровано: " << elgamal.decrypt(cipher.first, cipher.second) << "\n";
+    return 0;
+}
 ```
 
 ## Порівняння RSA та Ель-Гамаля
@@ -478,31 +505,31 @@ print(f"Розшифровано: {decrypted}")
 ### RSA у реальному світі
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    RSA В ІНДУСТРІЇ                                  │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
+┌────────────────────────────────────────────────────────────────────┐
+│                    RSA В ІНДУСТРІЇ                                 │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
 │  TLS/HTTPS (Let's Encrypt, DigiCert, Comodo):                      │
 │  • 90%+ сертифікатів використовують RSA-2048                       │
 │  • Перехід на RSA-3072 та RSA-4096 для критичних систем            │
 │  • Let's Encrypt видав 3+ мільярди сертифікатів                    │
-│                                                                     │
+│                                                                    │
 │  Банківська індустрія (ПриватБанк, monobank, SWIFT):               │
 │  • HSM (Hardware Security Modules) зберігають RSA ключі            │
 │  • Thales, Gemalto, Utimaco — виробники банківських HSM            │
 │  • Ключі RSA-4096 для міжбанківських транзакцій                    │
-│                                                                     │
-│  Certificate Authorities:                                           │
+│                                                                    │
+│  Certificate Authorities:                                          │
 │  • DigiCert, GlobalSign, Sectigo — комерційні CA                   │
 │  • АЦСК ПриватБанку, ІІТ — українські CA                           │
 │  • Root CA використовують RSA-4096 з терміном 20+ років            │
-│                                                                     │
-│  Cloud Providers (AWS, Azure, GCP):                                 │
+│                                                                    │
+│  Cloud Providers (AWS, Azure, GCP):                                │
 │  • AWS KMS підтримує RSA-2048, RSA-3072, RSA-4096                  │
 │  • Azure Key Vault зберігає RSA ключі в FIPS 140-2 HSM             │
 │  • GCP Cloud KMS — автоматична ротація ключів                      │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Приклад: DocuSign
@@ -517,16 +544,16 @@ DocuSign обробляє 1+ мільйон договорів на день:
 │       │                                                             │
 │       │ 1. Завантажує документ                                      │
 │       ▼                                                             │
-│   ┌─────────────┐    2. Генерує хеш документа                      │
+│   ┌─────────────┐    2. Генерує хеш документа                       │
 │   │  DocuSign   │───────────────────────────────────────────────►   │
 │   │   Server    │                                                   │
-│   └──────┬──────┘    3. Підписує RSA приватним ключем              │
+│   └──────┬──────┘    3. Підписує RSA приватним ключем               │
 │          │                                                          │
-│          │ 4. Зберігає підписаний PDF                              │
+│          │ 4. Зберігає підписаний PDF                               │
 │          ▼                                                          │
 │   ┌─────────────┐                                                   │
-│   │    HSM      │  RSA-4096 ключі в апаратному модулі              │
-│   │  (Thales)   │  FIPS 140-2 Level 3 сертифікація                 │
+│   │    HSM      │  RSA-4096 ключі в апаратному модулі               │
+│   │  (Thales)   │  FIPS 140-2 Level 3 сертифікація                  │
 │   └─────────────┘                                                   │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -539,46 +566,46 @@ DocuSign обробляє 1+ мільйон договорів на день:
 ### Ролі у криптографії та PKI
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    КРИПТОГРАФІЧНІ РОЛІ                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  CRYPTOGRAPHY ENGINEER                                              │
+┌────────────────────────────────────────────────────────────────────┐
+│                    КРИПТОГРАФІЧНІ РОЛІ                             │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  CRYPTOGRAPHY ENGINEER                                             │
 │  ├── Зарплата: $140,000 - $200,000 (США)                           │
 │  ├── Зарплата: €80,000 - €130,000 (Європа)                         │
-│  ├── Вимоги:                                                        │
+│  ├── Вимоги:                                                       │
 │  │   • Глибоке знання RSA, ECC, post-quantum криптографії          │
 │  │   • Досвід з OpenSSL, BoringSSL, libsodium                      │
 │  │   • Математична освіта (теорія чисел, алгебра)                  │
 │  └── Компанії: Google, Apple, Signal, Cloudflare                   │
-│                                                                     │
-│  PKI ENGINEER                                                       │
+│                                                                    │
+│  PKI ENGINEER                                                      │
 │  ├── Зарплата: $120,000 - $170,000 (США)                           │
 │  ├── Зарплата: €70,000 - €110,000 (Європа)                         │
-│  ├── Вимоги:                                                        │
+│  ├── Вимоги:                                                       │
 │  │   • Досвід з X.509, Certificate Authorities                     │
 │  │   • Знання EJBCA, Microsoft AD CS, HashiCorp Vault              │
 │  │   • Розуміння HSM (Thales, Gemalto)                             │
 │  └── Компанії: DigiCert, Sectigo, банки, уряди                     │
-│                                                                     │
-│  SECURITY ARCHITECT                                                 │
+│                                                                    │
+│  SECURITY ARCHITECT                                                │
 │  ├── Зарплата: $150,000 - $220,000 (США)                           │
 │  ├── Зарплата: €90,000 - €150,000 (Європа)                         │
-│  ├── Вимоги:                                                        │
+│  ├── Вимоги:                                                       │
 │  │   • 10+ років у безпеці                                         │
 │  │   • Сертифікації: CISSP, CISM, CCSP                             │
 │  │   • Архітектурний досвід (AWS, Azure, GCP)                      │
 │  └── Компанії: Fortune 500, Big Tech, консалтинг                   │
-│                                                                     │
-│  HSM SPECIALIST                                                     │
+│                                                                    │
+│  HSM SPECIALIST                                                    │
 │  ├── Зарплата: $130,000 - $180,000 (США)                           │
-│  ├── Вимоги:                                                        │
+│  ├── Вимоги:                                                       │
 │  │   • Сертифікації Thales, Utimaco, nCipher                       │
 │  │   • Досвід PKCS#11, CNG                                         │
 │  │   • Знання FIPS 140-2/140-3                                     │
 │  └── Компанії: Банки, платіжні системи, CA                         │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -612,10 +639,10 @@ DocuSign обробляє 1+ мільйон договорів на день:
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  ГЕНЕРАЦІЯ КЛЮЧІВ:                                                  │
-│  1. p, q — великі прості числа (1024+ біт кожне)                   │
+│  1. p, q — великі прості числа (1024+ біт кожне)                    │
 │  2. n = p × q                                                       │
 │  3. φ(n) = (p-1)(q-1)                                               │
-│  4. e = 65537 (стандартна публічна експонента)                     │
+│  4. e = 65537 (стандартна публічна експонента)                      │
 │  5. d = e⁻¹ mod φ(n)                                                │
 │                                                                     │
 │  ШИФРУВАННЯ:   C = Mᵉ mod n                                         │
@@ -654,38 +681,40 @@ openssl dgst -sha256 -verify public.pem -signature signature.bin document.txt
 openssl genrsa -out private_4096.pem 4096
 ```
 
-### Python cryptography library
+### Готові бібліотеки: OpenSSL
 
-```python
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import hashes
+```cpp
+// У промислових застосунках власну реалізацію RSA не пишуть:
+// беруть перевірену бібліотеку. Для C++ це, наприклад, OpenSSL.
+// Нижче — шифрування з доповненням OAEP (RSA без доповнення небезпечний).
+#include <openssl/evp.h>
+#include <openssl/rsa.h>
+#include <vector>
+#include <string>
 
-# Генерація ключів
-private_key = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048
-)
-public_key = private_key.public_key()
+std::vector<unsigned char> rsaEncrypt(EVP_PKEY* publicKey, const std::string& message) {
+    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new(publicKey, nullptr);
+    EVP_PKEY_encrypt_init(ctx);
 
-# Шифрування з OAEP padding
-ciphertext = public_key.encrypt(
-    b"Secret message",
-    padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None
-    )
-)
+    // Доповнення OAEP з хешуванням SHA-256
+    EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_OAEP_PADDING);
+    EVP_PKEY_CTX_set_rsa_oaep_md(ctx, EVP_sha256());
 
-# Дешифрування
-plaintext = private_key.decrypt(
-    ciphertext,
-    padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None
-    )
-)
+    size_t outLen = 0;
+    EVP_PKEY_encrypt(ctx, nullptr, &outLen,
+                     reinterpret_cast<const unsigned char*>(message.data()), message.size());
+
+    std::vector<unsigned char> ciphertext(outLen);
+    EVP_PKEY_encrypt(ctx, ciphertext.data(), &outLen,
+                     reinterpret_cast<const unsigned char*>(message.data()), message.size());
+    ciphertext.resize(outLen);
+
+    EVP_PKEY_CTX_free(ctx);
+    return ciphertext;
+}
+
+// Ключ генерують окремо: EVP_RSA_gen(2048) або утилітою
+// openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048
 ```
 
 ---
@@ -776,96 +805,48 @@ openssl dgst -sha256 -verify my_public.pem -signature document.sig document.txt
 
 **Мета:** Глибше зрозуміти RSA через реалізацію та порівняння з промисловим стандартом.
 
-**Частина 1: Власна реалізація RSA (Python)**
+**Частина 1: Власна реалізація RSA (C++)**
 
-```python
-"""
-Завдання: Реалізуйте повноцінну RSA криптосистему з:
-1. Генерацією ключів (використовуйте тест Міллера-Рабіна)
-2. Шифруванням/дешифруванням
-3. Цифровим підписом
-4. Експортом ключів у PEM формат
-"""
+```cpp
+// Завдання: реалізуйте повноцінну криптосистему RSA, яка містить:
+//   1) генерацію ключів із перевіркою простоти за Міллером-Рабіном;
+//   2) зашифрування та розшифрування;
+//   3) формування й перевірку цифрового підпису;
+//   4) збереження ключів у файл.
 
-import random
-import hashlib
-import base64
+#include <string>
+#include <vector>
 
-class RSACrypto:
-    def __init__(self, bits: int = 1024):
-        """
-        TODO: Реалізуйте генерацію ключів:
-        1. Згенеруйте два прості числа p та q
-        2. Обчисліть n = p * q
-        3. Обчисліть φ(n) = (p-1)(q-1)
-        4. Виберіть e = 65537
-        5. Обчисліть d = e⁻¹ mod φ(n)
-        """
-        pass
+class RSACrypto {
+public:
+    // TODO: генерація ключів
+    //   1. Згенерувати два прості числа p і q
+    //   2. Обчислити n = p * q
+    //   3. Обчислити phi(n) = (p-1)(q-1)
+    //   4. Вибрати e = 65537
+    //   5. Обчислити d = e^-1 mod phi(n)
+    explicit RSACrypto(int bits = 30);
 
-    def encrypt(self, message: bytes) -> bytes:
-        """
-        TODO: Реалізуйте шифрування:
-        1. Конвертуйте bytes в int
-        2. Обчисліть C = M^e mod n
-        3. Поверніть результат як bytes
-        """
-        pass
+    // TODO: зашифрування
+    //   1. Перетворити повідомлення на число
+    //   2. Обчислити C = M^e mod n
+    std::vector<unsigned long long> encrypt(const std::string& message) const;
 
-    def decrypt(self, ciphertext: bytes) -> bytes:
-        """
-        TODO: Реалізуйте дешифрування:
-        1. Конвертуйте bytes в int
-        2. Обчисліть M = C^d mod n
-        3. Поверніть результат як bytes
-        """
-        pass
+    // TODO: розшифрування
+    //   1. Обчислити M = C^d mod n
+    //   2. Перетворити число назад на текст
+    std::string decrypt(const std::vector<unsigned long long>& ciphertext) const;
 
-    def sign(self, message: bytes) -> bytes:
-        """
-        TODO: Реалізуйте підпис:
-        1. Обчисліть хеш SHA-256 повідомлення
-        2. Підпишіть хеш приватним ключем: S = H(M)^d mod n
-        """
-        pass
+    // TODO: підпис — хеш повідомлення, піднесений до степеня d
+    unsigned long long sign(const std::string& message) const;
 
-    def verify(self, message: bytes, signature: bytes) -> bool:
-        """
-        TODO: Реалізуйте перевірку підпису:
-        1. Обчисліть хеш повідомлення
-        2. "Розшифруйте" підпис публічним ключем: H' = S^e mod n
-        3. Порівняйте H' з H(M)
-        """
-        pass
+    // TODO: перевірка підпису відкритим ключем
+    bool verify(const std::string& message, unsigned long long signature) const;
 
-    def export_public_key_pem(self) -> str:
-        """
-        TODO: Експортуйте публічний ключ у PEM форматі
-        Формат: -----BEGIN PUBLIC KEY-----
-                base64(DER encoded key)
-                -----END PUBLIC KEY-----
-        """
-        pass
-
-
-# Тести
-if __name__ == "__main__":
-    # Тест 1: Шифрування/дешифрування
-    rsa = RSACrypto(bits=1024)
-    message = b"Hello, RSA!"
-    encrypted = rsa.encrypt(message)
-    decrypted = rsa.decrypt(encrypted)
-    assert decrypted == message, "Encryption/Decryption failed!"
-
-    # Тест 2: Підпис
-    signature = rsa.sign(message)
-    assert rsa.verify(message, signature), "Signature verification failed!"
-
-    # Тест 3: Невірний підпис
-    fake_message = b"Fake message"
-    assert not rsa.verify(fake_message, signature), "Should reject invalid signature!"
-
-    print("All tests passed!")
+    // TODO: збереження та завантаження ключів
+    void saveKeys(const std::string& path) const;
+    void loadKeys(const std::string& path);
+};
 ```
 
 **Частина 2: Порівняння з OpenSSL**
@@ -886,35 +867,28 @@ openssl rsautl -encrypt -pubin -inkey openssl_public.pem -in test.txt -out encry
 
 **Частина 3: Аналіз безпеки**
 
-```python
-"""
-Завдання: Проаналізуйте вразливості RSA
+```cpp
+// Завдання: дослідіть вразливості RSA
+//   1. Атака на малий відкритий показник (e = 3)
+//   2. Атака спільного модуля
+//   3. Вимірювання часу операцій і аналіз витоку через час
 
-1. Реалізуйте атаку на малий публічний показник (e=3)
-2. Продемонструйте атаку спільного модуля
-3. Виміряйте час виконання операцій та проаналізуйте timing attacks
-"""
+#include <cstdint>
 
-def attack_small_exponent(ciphertext: int, e: int = 3) -> int:
-    """
-    TODO: Якщо e=3 і M^3 < n, то C = M^3 (без mod n)
-    Атака: M = C^(1/3)
-    """
-    pass
+using u64 = unsigned long long;
 
-def common_modulus_attack(c1: int, c2: int, e1: int, e2: int, n: int) -> int:
-    """
-    TODO: Якщо одне повідомлення зашифроване двома різними
-    публічними ключами з однаковим n, можна відновити M
-    """
-    pass
+// TODO: якщо e = 3 і M^3 < n, то C = M^3 без зведення за модулем,
+// тому повідомлення відновлюється звичайним кубічним коренем
+u64 attackSmallExponent(u64 ciphertext, int e = 3);
 
-def timing_attack_demo():
-    """
-    TODO: Виміряйте час дешифрування для різних шифротекстів
-    та продемонструйте витік інформації
-    """
-    pass
+// TODO: якщо одне повідомлення зашифроване двома відкритими ключами
+// з однаковим модулем n і взаємно простими e1 та e2,
+// то M відновлюється через розширений алгоритм Евкліда
+u64 commonModulusAttack(u64 c1, u64 c2, u64 e1, u64 e2, u64 n);
+
+// TODO: виміряйте час розшифрування для різних шифротекстів
+// і покажіть, що він залежить від значення закритого показника
+void timingAttackDemo();
 ```
 
 **Критерії оцінювання:**

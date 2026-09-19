@@ -41,7 +41,7 @@ function generateDocxPath(lesson: Lesson, courseSlug?: string): string | undefin
   const labFm = lesson.frontmatter as LabFrontmatter;
   // Use labNumber if specified, otherwise fall back to order
   const labNum = labFm.labNumber || lesson.frontmatter.order;
-  const title = lesson.frontmatter.title
+  const title = (lesson.frontmatter.shortTitle || lesson.frontmatter.title)
     .replace(/[^\wа-яіїєґА-ЯІЇЄҐ\s-]/g, '')
     .replace(/\s+/g, '_')
     .substring(0, 50);

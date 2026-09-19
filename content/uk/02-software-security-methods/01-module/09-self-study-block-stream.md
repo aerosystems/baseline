@@ -132,11 +132,16 @@ Nonce + Counter₂ ─→ [E] ─→ Keystream₂ ⊕ P₂ = C₂
 
 Реалізуйте простий потоковий шифр на основі XOR з ключем.
 
-```python
-def xor_cipher(data: bytes, key: bytes) -> bytes:
-    """Шифрування XOR з повторюваним ключем."""
-    # Ваш код тут
-    pass
+```cpp
+#include <string>
+#include <vector>
+
+// Потоковий шифр XOR із повторюваним ключем
+std::vector<unsigned char> xorCipher(const std::vector<unsigned char>& data,
+                                     const std::string& key) {
+    // Ваш код тут
+    return {};
+}
 ```
 
 ### Завдання 3: Padding

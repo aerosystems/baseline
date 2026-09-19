@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { Lesson } from '@/types/content';
+import type { Lesson, LabFrontmatter } from '@/types/content';
 
 interface LabNodeProps {
   lesson: Lesson;
@@ -8,6 +8,10 @@ interface LabNodeProps {
 
 export function LabNode({ lesson, onClick }: LabNodeProps) {
   const { t } = useTranslation();
+
+  const title = lesson.frontmatter.shortTitle || lesson.frontmatter.title;
+  // Роботи, передбачені лише окремими програмами, позначаються в роадмапі
+  const audience = (lesson.frontmatter as LabFrontmatter).audience;
 
   return (
     <div className="relative flex items-center">
@@ -30,7 +34,7 @@ export function LabNode({ lesson, onClick }: LabNodeProps) {
           borderColor: 'var(--faint)',
           backgroundColor: 'var(--bg)',
         }}
-        aria-label={lesson.frontmatter.title}
+        aria-label={title}
       />
 
       {/* Content */}
@@ -40,8 +44,21 @@ export function LabNode({ lesson, onClick }: LabNodeProps) {
           className="text-left text-sm transition-colors hover:opacity-80"
           style={{ color: 'var(--muted)' }}
         >
-          {lesson.frontmatter.title}
+          {title}
         </button>
+        {audience?.map(program => (
+          <span
+            key={program}
+            className="text-xs ml-2 px-1.5 py-0.5 rounded uppercase tracking-wide"
+            style={{
+              color: 'var(--muted)',
+              backgroundColor: 'var(--card)',
+              border: '1px solid var(--border)',
+            }}
+          >
+            {program}
+          </span>
+        ))}
         {!lesson.isStub && (
           <span
             className="text-xs ml-2"

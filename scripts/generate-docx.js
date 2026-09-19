@@ -132,12 +132,15 @@ function parseFrontmatter(content) {
 
 /**
  * Generates output filename in Ukrainian format
+ *
+ * The file is named after the short title; the official title from the
+ * curriculum goes into the document itself.
  */
 function generateOutputName(frontmatter, subject) {
   const subjectName = SUBJECT_NAMES[subject] || subject.toUpperCase();
   // Use labNumber if specified, otherwise fall back to order
   const labNum = frontmatter.labNumber || frontmatter.order || 1;
-  const title = frontmatter.title || 'Untitled';
+  const title = frontmatter.shortTitle || frontmatter.title || 'Untitled';
 
   // Sanitize title for filename
   const cleanTitle = title
@@ -376,11 +379,11 @@ function generateDocx(lab) {
     });
 
     console.log(`[ok] ${subject}/${outputName}.docx`);
-    return true;
+    return outputPath;
   } catch (error) {
     console.error(`[error] ${outputName}.docx`);
     console.error(`        ${error.message}`);
-    return false;
+    return null;
   }
 }
 
@@ -388,6 +391,8 @@ function generateDocx(lab) {
  * Generates grading criteria documents for each course
  */
 function generateGradingDocs() {
+  const written = [];
+
   const langDirs = readdirSync(CONTENT_DIR).filter(d =>
     statSync(join(CONTENT_DIR, d)).isDirectory()
   );
@@ -416,16 +421,42 @@ function generateGradingDocs() {
       const outputName = `Критерії_оцінювання_${subjectName}`;
       const frontmatter = parseFrontmatter(readFileSync(gradingPath, 'utf8'));
 
+      const outputPath = join(outputSubDir, `${outputName}.docx`);
+
       try {
-        convert(gradingPath, join(outputSubDir, `${outputName}.docx`), {
+        convert(gradingPath, outputPath, {
           title: frontmatter.title || 'Критерії оцінювання',
           subtitle: ''
         });
 
+        written.push(outputPath);
         console.log(`[ok] ${subject}/${outputName}.docx`);
       } catch (error) {
         console.error(`[error] ${outputName}.docx: ${error.message}`);
       }
+    }
+  }
+
+  return written;
+}
+
+/**
+ * Removes .docx files left over from earlier runs — renamed labs and changed
+ * titles would otherwise pile up in public/labs as orphans.
+ */
+function removeStaleDocs(written) {
+  const keep = new Set(written);
+
+  for (const subject of Object.values(SUBJECT_MAP)) {
+    const dir = join(OUTPUT_DIR, subject);
+    if (!existsSync(dir)) continue;
+
+    for (const name of readdirSync(dir)) {
+      const path = join(dir, name);
+      if (!name.endsWith('.docx') || keep.has(path)) continue;
+
+      rmSync(path);
+      console.log(`[rm] ${subject}/${name}`);
     }
   }
 }
@@ -456,12 +487,13 @@ function main() {
 
   console.log(`Found ${labs.length} lab files\n`);
 
-  let success = 0;
+  const written = [];
   let failed = 0;
 
   for (const lab of labs) {
-    if (generateDocx(lab)) {
-      success++;
+    const outputPath = generateDocx(lab);
+    if (outputPath) {
+      written.push(outputPath);
     } else {
       failed++;
     }
@@ -469,10 +501,13 @@ function main() {
 
   console.log('');
   console.log('Generating grading criteria...');
-  generateGradingDocs();
+  written.push(...generateGradingDocs());
 
   console.log('');
-  console.log(`Done: ${success} generated` + (failed > 0 ? `, ${failed} failed` : ''));
+  removeStaleDocs(written);
+
+  console.log('');
+  console.log(`Done: ${written.length} generated` + (failed > 0 ? `, ${failed} failed` : ''));
   console.log(`Output: ${OUTPUT_DIR}`);
 }
 
