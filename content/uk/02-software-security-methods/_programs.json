@@ -1,0 +1,179 @@
+{
+  "_source": "Побудовано з робочої навчальної програми data/РНП_ПМЗІ_ПЗ-23-1-9_Костенко.docx",
+  "programs": [
+    {
+      "id": "pz-23",
+      "title": "ПЗ-23-1/9",
+      "semester": 7,
+      "students": 20
+    }
+  ],
+  "groups": [
+    {
+      "id": "pz-23-1-9",
+      "title": "ПЗ-23-1/9",
+      "program": "pz-23",
+      "students": 20
+    }
+  ],
+  "lessons": {
+    "01-module/01-lecture-cryptography-intro": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.1"
+      }
+    },
+    "01-module/02-self-study-frequency-analysis": {
+      "pz-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "1.2"
+      }
+    },
+    "01-module/03-lab-caesar-frequency": {
+      "pz-23": {
+        "labNumber": 1,
+        "hours": 4
+      }
+    },
+    "01-module/04-lecture-affine-cipher": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.3"
+      }
+    },
+    "01-module/05-lab-caesar-keyword": {
+      "pz-23": {
+        "labNumber": 2,
+        "hours": 2
+      }
+    },
+    "01-module/06-self-study-substitution": {
+      "pz-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.4"
+      }
+    },
+    "01-module/07-lecture-transposition-tables": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.5"
+      }
+    },
+    "01-module/08-lab-transposition": {
+      "pz-23": {
+        "labNumber": 3,
+        "hours": 2
+      }
+    },
+    "01-module/09-self-study-block-stream": {
+      "pz-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "1.6"
+      }
+    },
+    "01-module/10-lecture-polybius-playfair": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.7"
+      }
+    },
+    "01-module/11-lab-playfair": {
+      "pz-23": {
+        "labNumber": 4,
+        "hours": 2
+      }
+    },
+    "02-module/01-self-study-classic-symmetric": {
+      "pz-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.1"
+      }
+    },
+    "02-module/02-lecture-des": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.2"
+      }
+    },
+    "02-module/03-lab-des": {
+      "pz-23": {
+        "labNumber": 5,
+        "hours": 6
+      }
+    },
+    "02-module/04-self-study-idea-asymmetric": {
+      "pz-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.3"
+      }
+    },
+    "03-module/01-lecture-rsa-elgamal": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.1"
+      }
+    },
+    "03-module/02-lab-rsa": {
+      "pz-23": {
+        "labNumber": 6,
+        "hours": 2
+      }
+    },
+    "03-module/03-lecture-digital-signature-hash": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.2"
+      }
+    },
+    "03-module/04-lab-sha": {
+      "pz-23": {
+        "labNumber": 7,
+        "hours": 2
+      }
+    },
+    "03-module/05-lecture-signature-algorithms": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.3"
+      }
+    },
+    "03-module/06-lab-digital-signature": {
+      "pz-23": {
+        "labNumber": 8,
+        "hours": 4
+      }
+    },
+    "03-module/07-lecture-authentication-threats": {
+      "pz-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.4"
+      }
+    },
+    "03-module/08-lab-network-security": {
+      "pz-23": {
+        "labNumber": 9,
+        "hours": 2
+      }
+    },
+    "03-module/09-lab-authentication": {
+      "pz-23": {
+        "labNumber": 10,
+        "hours": 2
+      }
+    }
+  }
+}

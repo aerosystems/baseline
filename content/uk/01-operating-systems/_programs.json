@@ -26,6 +26,38 @@
       "students": 56
     }
   ],
+  "groups": [
+    {
+      "id": "pz-24-1-9",
+      "title": "ПЗ-24-1/9",
+      "program": "pz-24",
+      "students": 26
+    },
+    {
+      "id": "pz-25-1-9",
+      "title": "ПЗ-25-1/9",
+      "program": "pz-25",
+      "students": 29
+    },
+    {
+      "id": "kmp-23-1-9",
+      "title": "КМП-23-1/9",
+      "program": "kmp-23",
+      "students": 24
+    },
+    {
+      "id": "kmp-24-2-9",
+      "title": "КМП-24-2/9",
+      "program": "kmp-24",
+      "students": 25
+    },
+    {
+      "id": "kmp-24-3-9",
+      "title": "КМП-24-3/9",
+      "program": "kmp-24",
+      "students": 31
+    }
+  ],
   "lessons": {
     "01-module/01-lecture-intro": {
       "pz-24": {
