@@ -1,19 +1,20 @@
 ---
-title: "Шифр Цезаря з ключовим словом. Афінний шифр"
+title: "Використання шифру Цезаря з ключовим словом, Афінної системи підстановки Цезаря при розв'язанні задачі захисту інформації. Програмна реалізація"
+shortTitle: "Шифр Цезаря з ключовим словом. Афінний шифр"
 type: lab
 order: 5
 labNumber: 2
 subject: pmzi
 duration: "2 академічні години"
 equipment:
-  - "ПК з встановленим C++ компілятором або Python 3"
+  - "ПК з встановленим C++ компілятором (MSVC, MinGW або GCC)"
   - "Середовище розробки (Visual Studio, VS Code)"
 preview: "Реалізація афінної системи та шифру з ключовим словом."
 ---
 
 **Мета:** вивчити принципи шифрування методом Цезаря з ключовим словом та афінної системи підстановки. Реалізувати алгоритми програмно.
 
-**Обладнання:** ПК з встановленим C++ компілятором або Python 3; Середовище розробки (Visual Studio, VS Code).
+**Обладнання:** ПК з встановленим C++ компілятором (MSVC, MinGW або GCC); Середовище розробки (Visual Studio, VS Code).
 
 **Тривалість:** 2 академічні години.
 
@@ -23,7 +24,7 @@ preview: "Реалізація афінної системи та шифру з 
 |--------|------|
 | **Знання** | Лекція 3: Афінна система підстановок. Шифр Цезаря з ключовим словом |
 | **Навички** | Модульна арифметика, обернений елемент за модулем |
-| **Середовище** | ПК з встановленим C++ компілятором або Python 3 |
+| **Середовище** | ПК з встановленим C++ компілятором (MSVC, MinGW або GCC) |
 
 ## Теоретичні відомості
 
@@ -72,7 +73,7 @@ P = a⁻¹·(C - b) mod n
 │                    ДОПУСТИМІ ЗНАЧЕННЯ a (mod 26)                      │
 ├───────────────────────────────────────────────────────────────────────┤
 │                                                                       │
-│  gcd(a, 26) = 1 для: 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25       │
+│  gcd(a, 26) = 1 для: 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25        │
 │                                                                       │
 │  Всього: 12 допустимих значень (φ(26) = 12)                           │
 │  Загальна кількість ключів: 12 × 26 = 312                             │
@@ -93,161 +94,206 @@ a⁻¹ mod n — це таке x, що a·x ≡ 1 (mod n)
 ```
 ## Приклад виконання
 
-### Крок 1. Шифр з ключовим словом (Python)
+### Крок 1. Шифр з ключовим словом
 
-```python
-def create_keyword_alphabet(keyword: str) -> str:
-    """Створює алфавіт з ключовим словом."""
-    # Видаляємо повтори з ключа
-    seen = set()
-    key_chars = []
-    for c in keyword.upper():
-        if c.isalpha() and c not in seen:
-            seen.add(c)
-            key_chars.append(c)
+```cpp
+#include <iostream>
+#include <string>
+#include <cctype>
 
-    # Додаємо решту літер
-    for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
-        if c not in seen:
-            key_chars.append(c)
+const std::string ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    return ''.join(key_chars)
+// Формує шифрувальний алфавіт: спершу літери ключа без повторів, далі решта
+std::string createKeywordAlphabet(const std::string& keyword) {
+    bool used[26] = { false };
+    std::string cipherAlphabet;
 
-def keyword_cipher_encrypt(plaintext: str, keyword: str) -> str:
-    """Шифрування шифром з ключовим словом."""
-    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    cipher_alphabet = create_keyword_alphabet(keyword)
+    for (char c : keyword) {
+        char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        if (up >= 'A' && up <= 'Z' && !used[up - 'A']) {
+            used[up - 'A'] = true;
+            cipherAlphabet += up;
+        }
+    }
 
-    result = []
-    for c in plaintext.upper():
-        if c.isalpha():
-            idx = alphabet.index(c)
-            result.append(cipher_alphabet[idx])
-        else:
-            result.append(c)
+    for (char c : ALPHABET) {
+        if (!used[c - 'A']) {
+            cipherAlphabet += c;
+        }
+    }
 
-    return ''.join(result)
+    return cipherAlphabet;
+}
 
-def keyword_cipher_decrypt(ciphertext: str, keyword: str) -> str:
-    """Дешифрування шифром з ключовим словом."""
-    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    cipher_alphabet = create_keyword_alphabet(keyword)
+// Зашифрування: літера відкритого тексту замінюється літерою з тієї самої позиції
+std::string keywordEncrypt(const std::string& text, const std::string& keyword) {
+    std::string cipherAlphabet = createKeywordAlphabet(keyword);
+    std::string result;
 
-    result = []
-    for c in ciphertext.upper():
-        if c.isalpha():
-            idx = cipher_alphabet.index(c)
-            result.append(alphabet[idx])
-        else:
-            result.append(c)
+    for (char c : text) {
+        char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        if (up >= 'A' && up <= 'Z') {
+            result += cipherAlphabet[up - 'A'];
+        } else {
+            result += c;
+        }
+    }
 
-    return ''.join(result)
+    return result;
+}
 
-# Демонстрація
-keyword = "CIPHER"
-plaintext = "HELLO WORLD"
+// Розшифрування: зворотний пошук позиції літери в шифрувальному алфавіті
+std::string keywordDecrypt(const std::string& text, const std::string& keyword) {
+    std::string cipherAlphabet = createKeywordAlphabet(keyword);
+    std::string result;
 
-print(f"Ключове слово: {keyword}")
-print(f"Алфавіт: {create_keyword_alphabet(keyword)}")
-print(f"Відкритий текст: {plaintext}")
+    for (char c : text) {
+        char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        size_t pos = cipherAlphabet.find(up);
+        if (pos != std::string::npos) {
+            result += ALPHABET[pos];
+        } else {
+            result += c;
+        }
+    }
 
-ciphertext = keyword_cipher_encrypt(plaintext, keyword)
-print(f"Шифротекст: {ciphertext}")
+    return result;
+}
 
-decrypted = keyword_cipher_decrypt(ciphertext, keyword)
-print(f"Розшифровано: {decrypted}")
+int main() {
+    std::string keyword = "CIPHER";
+    std::string plaintext = "HELLO WORLD";
+
+    std::cout << "Ключове слово:    " << keyword << "\n";
+    std::cout << "Алфавіт:          " << createKeywordAlphabet(keyword) << "\n";
+    std::cout << "Відкритий текст:  " << plaintext << "\n";
+
+    std::string ciphertext = keywordEncrypt(plaintext, keyword);
+    std::cout << "Шифротекст:       " << ciphertext << "\n";
+    std::cout << "Розшифровано:     " << keywordDecrypt(ciphertext, keyword) << "\n";
+
+    return 0;
+}
 ```
+
+Результат роботи програми:
+
+```
+Ключове слово:    CIPHER
+Алфавіт:          CIPHERABDFGJKLMNOQSTUVWXYZ
+Відкритий текст:  HELLO WORLD
+Шифротекст:       BEJJM WMQJH
+Розшифровано:     HELLO WORLD
+```
+
 ### Крок 2. Афінний шифр
 
-```python
-def gcd(a: int, b: int) -> int:
-    """НСД (алгоритм Евкліда)."""
-    while b:
-        a, b = b, a % b
-    return a
+```cpp
+#include <iostream>
+#include <string>
+#include <stdexcept>
+#include <cctype>
 
-def mod_inverse(a: int, n: int) -> int:
-    """Обернений елемент a⁻¹ mod n."""
-    # Розширений алгоритм Евкліда
-    old_r, r = a, n
-    old_s, s = 1, 0
+const int N = 26;  // потужність англійської абетки
 
-    while r != 0:
-        q = old_r // r
-        old_r, r = r, old_r - q * r
-        old_s, s = s, old_s - q * s
+// Найбільший спільний дільник, алгоритм Евкліда
+int gcd(int a, int b) {
+    while (b != 0) {
+        int t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
-    if old_r != 1:
-        raise ValueError(f"Обернений не існує: gcd({a}, {n}) = {old_r}")
+// Обернений елемент a^-1 mod n, розширений алгоритм Евкліда
+int modInverse(int a, int n) {
+    int oldR = a, r = n;
+    int oldS = 1, s = 0;
 
-    return old_s % n
+    while (r != 0) {
+        int q = oldR / r;
+        int tmp = oldR - q * r;  oldR = r;  r = tmp;
+        tmp = oldS - q * s;      oldS = s;  s = tmp;
+    }
 
-def affine_encrypt(plaintext: str, a: int, b: int) -> str:
-    """Шифрування афінним шифром: C = (a·P + b) mod 26."""
-    n = 26
-    if gcd(a, n) != 1:
-        raise ValueError(f"a={a} не взаємно просте з {n}")
+    if (oldR != 1) {
+        throw std::runtime_error("Оберненого елемента не існує: gcd != 1");
+    }
 
-    result = []
-    for c in plaintext.upper():
-        if c.isalpha():
-            p = ord(c) - ord('A')
-            cipher = (a * p + b) % n
-            result.append(chr(cipher + ord('A')))
-        else:
-            result.append(c)
+    return ((oldS % n) + n) % n;  // нормалізація до діапазону [0, n)
+}
 
-    return ''.join(result)
+// Зашифрування: C = (a*P + b) mod N
+std::string affineEncrypt(const std::string& text, int a, int b) {
+    if (gcd(a, N) != 1) {
+        throw std::runtime_error("Параметр a не взаємно простий з N");
+    }
 
-def affine_decrypt(ciphertext: str, a: int, b: int) -> str:
-    """Дешифрування: P = a⁻¹·(C - b) mod 26."""
-    n = 26
-    a_inv = mod_inverse(a, n)
+    std::string result;
+    for (char c : text) {
+        char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        if (up >= 'A' && up <= 'Z') {
+            int p = up - 'A';
+            result += static_cast<char>((a * p + b) % N + 'A');
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
 
-    result = []
-    for c in ciphertext.upper():
-        if c.isalpha():
-            cipher = ord(c) - ord('A')
-            p = (a_inv * (cipher - b)) % n
-            result.append(chr(p + ord('A')))
-        else:
-            result.append(c)
+// Розшифрування: P = a^-1 * (C - b) mod N
+std::string affineDecrypt(const std::string& text, int a, int b) {
+    int aInv = modInverse(a, N);
 
-    return ''.join(result)
+    std::string result;
+    for (char c : text) {
+        char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        if (up >= 'A' && up <= 'Z') {
+            int cipher = up - 'A';
+            int p = (aInv * ((cipher - b) % N + N)) % N;
+            result += static_cast<char>(p + 'A');
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
 
-# Демонстрація
-a, b = 5, 8
-plaintext = "AFFINE CIPHER"
+int main() {
+    int a = 5, b = 8;
+    std::string plaintext = "AFFINE CIPHER";
 
-print(f"\nАфінний шифр: a={a}, b={b}")
-print(f"Перевірка: gcd({a}, 26) = {gcd(a, 26)}")
-print(f"Обернений: {a}⁻¹ mod 26 = {mod_inverse(a, 26)}")
+    std::cout << "Афінний шифр: a=" << a << ", b=" << b << "\n";
+    std::cout << "Перевірка:    gcd(" << a << ", " << N << ") = " << gcd(a, N) << "\n";
+    std::cout << "Обернений:    " << a << "^-1 mod " << N << " = " << modInverse(a, N) << "\n\n";
 
-print(f"\nВідкритий текст: {plaintext}")
+    std::cout << "Відкритий текст:  " << plaintext << "\n";
 
-ciphertext = affine_encrypt(plaintext, a, b)
-print(f"Шифротекст: {ciphertext}")
+    std::string ciphertext = affineEncrypt(plaintext, a, b);
+    std::cout << "Шифротекст:       " << ciphertext << "\n";
+    std::cout << "Розшифровано:     " << affineDecrypt(ciphertext, a, b) << "\n";
 
-decrypted = affine_decrypt(ciphertext, a, b)
-print(f"Розшифровано: {decrypted}")
+    return 0;
+}
 ```
-**Очікуваний результат:**
+Результат роботи програми:
 
 ```
-Ключове слово: CIPHER
-Алфавіт: CIPHERABDFGJKLMNOQSTUVWXYZ
-Відкритий текст: HELLO WORLD
-Шифротекст: BEJJM WMQJH
-Розшифровано: HELLO WORLD
-
 Афінний шифр: a=5, b=8
-Перевірка: gcd(5, 26) = 1
-Обернений: 5⁻¹ mod 26 = 21
+Перевірка:    gcd(5, 26) = 1
+Обернений:    5^-1 mod 26 = 21
 
-Відкритий текст: AFFINE CIPHER
-Шифротекст: IRRWVC SWFRCP
-Розшифровано: AFFINE CIPHER
+Відкритий текст:  AFFINE CIPHER
+Шифротекст:       IHHWVC SWFRCP
+Розшифровано:     AFFINE CIPHER
 ```
+
+Перші дві літери шифротексту варто перевірити вручну: A має номер 0, тож
+5·0 + 8 = 8, а це I; F має номер 5, тож 5·5 + 8 = 33, а 33 mod 26 = 7, тобто H.
+Дві однакові літери FF дають однакові IH — афінний шифр лишається шифром
+простої заміни з усіма його слабкостями.
 ## Порядок виконання роботи
 
 1. Отримати в викладача номер індивідуального варіанта.
@@ -304,13 +350,36 @@ print(f"Розшифровано: {decrypted}")
 
 ## Контрольні запитання
 
-1. Як формується алфавіт з ключовим словом?
-2. Які вимоги до параметра a в афінному шифрі?
-3. Як знайти обернений елемент за модулем?
-4. Скільки існує ключів для афінного шифру з алфавітом 26 літер?
-5. Чому a=2 не підходить для афінного шифру?
-6. Що таке функція Ейлера φ(n)?
-7. Як перевірити правильність дешифрування?
+Запитання згруповано за рівнями навчальних досягнень. Для позитивної оцінки студент має відповісти на запитання середнього рівня, оцінка «добре» потребує відповідей достатнього рівня, оцінка «відмінно» — високого.
+
+### Середній рівень (репродуктивний)
+
+1. Як формується шифрувальний алфавіт з ключовим словом?
+2. Запишіть формулу зашифрування афінного шифру.
+3. Які вимоги висуваються до параметра a в афінному шифрі?
+4. Що таке обернений елемент за модулем?
+5. Що таке функція Ейлера φ(n)?
+6. Скільки існує ключів для афінного шифру з алфавітом 26 літер?
+7. Що відбувається з повторюваними літерами ключового слова?
+8. Як перевірити правильність дешифрування отриманого тексту?
+
+### Достатній рівень (конструктивно-варіативний)
+
+1. Чому значення a = 2 не підходить для афінного шифру з алфавітом із 26 літер?
+2. Як знайти обернений елемент за модулем розширеним алгоритмом Евкліда?
+3. Чому кількість ключів афінного шифру дорівнює φ(n)·n, а не n²?
+4. Чим шифр Цезаря є окремим випадком афінного шифру? Які значення параметрів йому відповідають?
+5. Як зміниться ключовий простір, якщо перейти на українську абетку з 33 літер?
+6. Запишіть формулу розшифрування афінного шифру й поясніть роль оберненого елемента.
+7. Чому шифр з ключовим словом складніше зламати повним перебором, ніж шифр Цезаря?
+8. Як частотний аналіз застосовують до афінного шифру?
+
+### Високий рівень (творчий)
+
+1. Поясніть, чому обидва розглянуті шифри лишаються моноалфавітними, і які наслідки це має для їхньої стійкості.
+2. Запропонуйте спосіб автоматично визначити параметри a і b афінного шифру за шифротекстом достатньої довжини.
+3. Оцініть, наскільки зросте стійкість, якщо застосувати афінний шифр двічі з різними ключами. Обґрунтуйте відповідь.
+4. Сформулюйте вимоги до вибору ключового слова, за яких шифр з ключовим словом дає найбільший ефект.
 
 ## Критерії оцінювання
 

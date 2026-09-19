@@ -15,27 +15,27 @@ Linux завжди має консольний режим, навіть без �
 ┌─────────────────────────────────────────────────────────────────┐
 │                    ВІРТУАЛЬНІ ТЕРМІНАЛИ                         │
 │                                                                 │
-│   ┌─────────────────────────────────────────────────────────┐  │
-│   │                    Linux System                          │  │
-│   │                                                          │  │
-│   │   TTY1 ─── Графічний сервер (X11/Wayland)               │  │
-│   │            Login Screen (GDM/SDDM)                       │  │
-│   │                                                          │  │
-│   │   TTY2 ─── Консоль (Ctrl+Alt+F2)                        │  │
-│   │   TTY3 ─── Консоль (Ctrl+Alt+F3)                        │  │
-│   │   TTY4 ─── Консоль (Ctrl+Alt+F4)                        │  │
-│   │   TTY5 ─── Консоль (Ctrl+Alt+F5)                        │  │
-│   │   TTY6 ─── Консоль (Ctrl+Alt+F6)                        │  │
-│   │                                                          │  │
-│   │   Перемикання: Ctrl+Alt+F1...F6 (або F7)                │  │
-│   │   Назад у графіку: Ctrl+Alt+F1 (або F2)                 │  │
-│   │                                                          │  │
-│   └─────────────────────────────────────────────────────────┘  │
+│   ┌─────────────────────────────────────────────────────────┐   │
+│   │                    Linux System                         │   │
+│   │                                                         │   │
+│   │   TTY1 ─── Графічний сервер (X11/Wayland)               │   │
+│   │            Login Screen (GDM/SDDM)                      │   │
+│   │                                                         │   │
+│   │   TTY2 ─── Консоль (Ctrl+Alt+F2)                        │   │
+│   │   TTY3 ─── Консоль (Ctrl+Alt+F3)                        │   │
+│   │   TTY4 ─── Консоль (Ctrl+Alt+F4)                        │   │
+│   │   TTY5 ─── Консоль (Ctrl+Alt+F5)                        │   │
+│   │   TTY6 ─── Консоль (Ctrl+Alt+F6)                        │   │
+│   │                                                         │   │
+│   │   Перемикання: Ctrl+Alt+F1...F6 (або F7)                │   │
+│   │   Назад у графіку: Ctrl+Alt+F1 (або F2)                 │   │
+│   │                                                         │   │
+│   └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
-│   Використання:                                                │
-│   • TTY1: графічний режим (за замовчуванням)                  │
-│   • TTY2-6: текстові консолі (якщо графіка зависла)          │
-│   • Деякі дистрибутиви: TTY7 для графіки                      │
+│   Використання:                                                 │
+│   • TTY1: графічний режим (за замовчуванням)                    │
+│   • TTY2-6: текстові консолі (якщо графіка зависла)             │
+│   • Деякі дистрибутиви: TTY7 для графіки                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -84,24 +84,24 @@ sudo openvt -c 3 htop  # Запустити htop на tty3
 ┌─────────────────────────────────────────────────────────────────┐
 │                    ТЕРМІНАЛЬНІ ЕМУЛЯТОРИ                        │
 │                                                                 │
-│   ┌─ gnome-terminal ───────────────────────────────────────┐   │
-│   │ File  Edit  View  Search  Terminal  Help               │   │
-│   ├─────────────────────────────────────────────────────────┤   │
-│   │ user@hostname:~$ ls -la                                 │   │
-│   │ total 48                                                │   │
-│   │ drwxr-xr-x 12 user user 4096 Jan 15 10:30 .            │   │
-│   │ drwxr-xr-x  3 root root 4096 Jan 01 00:00 ..           │   │
-│   │ -rw-r--r--  1 user user  220 Jan 01 00:00 .bashrc      │   │
-│   │ drwxr-xr-x  2 user user 4096 Jan 15 09:00 Documents    │   │
-│   │ user@hostname:~$ _                                      │   │
-│   └─────────────────────────────────────────────────────────┘   │
+│   ┌─ gnome-terminal ───────────────────────────────────────┐    │
+│   │ File  Edit  View  Search  Terminal  Help               │    │
+│   ├────────────────────────────────────────────────────────┤    │
+│   │ user@hostname:~$ ls -la                                │    │
+│   │ total 48                                               │    │
+│   │ drwxr-xr-x 12 user user 4096 Jan 15 10:30 .            │    │
+│   │ drwxr-xr-x  3 root root 4096 Jan 01 00:00 ..           │    │
+│   │ -rw-r--r--  1 user user  220 Jan 01 00:00 .bashrc      │    │
+│   │ drwxr-xr-x  2 user user 4096 Jan 15 09:00 Documents    │    │
+│   │ user@hostname:~$ _                                     │    │
+│   └────────────────────────────────────────────────────────┘    │
 │                                                                 │
-│   Особливості:                                                 │
-│   • Вкладки (tabs)                                             │
-│   • Split panes (деякі)                                        │
-│   • Кольорові схеми                                            │
-│   • Прозорість                                                 │
-│   • Шрифти та розмір                                           │
+│   Особливості:                                                  │
+│   • Вкладки (tabs)                                              │
+│   • Split panes (деякі)                                         │
+│   • Кольорові схеми                                             │
+│   • Прозорість                                                  │
+│   • Шрифти та розмір                                            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -164,26 +164,26 @@ nano ~/.config/kitty/kitty.conf
 **Shell** — командний інтерпретатор, програма, яка читає команди та виконує їх. **Bash** (Bourne Again Shell) — найпоширеніший shell у Linux.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    ПОПУЛЯРНІ SHELLS                             │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    ПОПУЛЯРНІ SHELLS                            │
+│                                                                │
 │   Shell    Опис                    Конфігурація                │
 │   ─────    ─────                   ───────────                 │
 │   bash     Bourne Again Shell      ~/.bashrc                   │
 │            GNU, default в Linux    ~/.bash_profile             │
-│                                                                 │
+│                                                                │
 │   zsh      Z Shell                 ~/.zshrc                    │
 │            Потужний, Oh My Zsh     Default в macOS             │
-│                                                                 │
+│                                                                │
 │   fish     Friendly Interactive    ~/.config/fish/config.fish  │
 │            Shell                   Автодоповнення, кольори     │
-│                                                                 │
+│                                                                │
 │   sh       Bourne Shell            Базовий, POSIX              │
 │            /bin/sh (symlink)                                   │
-│                                                                 │
+│                                                                │
 │   dash     Debian Ash              Швидший за bash             │
 │            /bin/sh на Debian       Для скриптів                │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ```bash
@@ -210,26 +210,26 @@ bash --version
 ### Конфігураційні файли Bash
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    BASH CONFIGURATION FILES                     │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    BASH CONFIGURATION FILES                    │
+│                                                                │
 │   Login shell (ssh, tty):                                      │
 │   1. /etc/profile                                              │
 │   2. ~/.bash_profile або ~/.bash_login або ~/.profile          │
 │   3. При виході: ~/.bash_logout                                │
-│                                                                 │
+│                                                                │
 │   Non-login interactive (terminal in GUI):                     │
 │   1. /etc/bash.bashrc                                          │
 │   2. ~/.bashrc                                                 │
-│                                                                 │
+│                                                                │
 │   Типова практика:                                             │
 │   ~/.bash_profile:                                             │
 │       if [ -f ~/.bashrc ]; then                                │
 │           . ~/.bashrc                                          │
 │       fi                                                       │
-│                                                                 │
+│                                                                │
 │   Всі налаштування в ~/.bashrc                                 │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ```bash
@@ -306,16 +306,16 @@ whoami             # Поточний користувач
 ### Гарячі клавіші Bash (Readline)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    BASH KEYBOARD SHORTCUTS                      │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    BASH KEYBOARD SHORTCUTS                     │
+│                                                                │
 │   Навігація:                                                   │
 │   Ctrl+A         Початок рядка                                 │
 │   Ctrl+E         Кінець рядка                                  │
 │   Alt+F          Вперед на слово                               │
 │   Alt+B          Назад на слово                                │
 │   Ctrl+←/→       Вперед/назад на слово (деякі термінали)       │
-│                                                                 │
+│                                                                │
 │   Редагування:                                                 │
 │   Ctrl+U         Видалити все до початку                       │
 │   Ctrl+K         Видалити все до кінця                         │
@@ -323,7 +323,7 @@ whoami             # Поточний користувач
 │   Alt+D          Видалити слово після курсора                  │
 │   Ctrl+Y         Вставити останнє видалене (yank)              │
 │   Ctrl+_         Undo                                          │
-│                                                                 │
+│                                                                │
 │   Історія:                                                     │
 │   Ctrl+R         Пошук в історії (reverse-i-search)            │
 │   Ctrl+G         Вийти з пошуку                                │
@@ -332,7 +332,7 @@ whoami             # Поточний користувач
 │   !$             Останній аргумент попередньої команди         │
 │   !n             Команда номер n з історії                     │
 │   history        Показати історію                              │
-│                                                                 │
+│                                                                │
 │   Контроль:                                                    │
 │   Ctrl+C         Перервати виконання                           │
 │   Ctrl+D         EOF / вийти з shell                           │
@@ -340,7 +340,7 @@ whoami             # Поточний користувач
 │   Ctrl+L         Очистити екран (як clear)                     │
 │   Tab            Автодоповнення                                │
 │   Tab Tab        Показати всі варіанти                         │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Корисні налаштування .bashrc
@@ -402,18 +402,18 @@ extract() {
 **Midnight Commander (mc)** — двопанельний файловий менеджер для консолі. Аналог Norton Commander / Total Commander.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    MIDNIGHT COMMANDER                           │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    MIDNIGHT COMMANDER                          │
+│                                                                │
 │   ┌─ Left ──────────────────┬─ Right ─────────────────┐        │
 │   │ /home/user/Documents    │ /home/user/Downloads    │        │
 │   ├─────────────────────────┼─────────────────────────┤        │
 │   │ /..                     │ /..                     │        │
-│   │ /folder1               │  file1.pdf             │        │
-│   │ /folder2               │  file2.zip             │        │
-│   │  document.txt          │ /temp                  │        │
-│   │  image.png             │                         │        │
-│   │  script.sh             │                         │        │
+│   │ /folder1               │  file1.pdf               │        │
+│   │ /folder2               │  file2.zip               │        │
+│   │  document.txt          │ /temp                    │        │
+│   │  image.png             │                          │        │
+│   │  script.sh             │                          │        │
 │   │                         │                         │        │
 │   │                         │                         │        │
 │   └─────────────────────────┴─────────────────────────┘        │
@@ -421,11 +421,11 @@ extract() {
 │   ┌─────────────────────────────────────────────────────────┐  │
 │   │ 1Help 2Menu 3View 4Edit 5Copy 6Move 7Mkdir 8Del 9Menu 0Quit│
 │   └─────────────────────────────────────────────────────────┘  │
-│                                                                 │
+│                                                                │
 │   Дві панелі: ліва та права                                    │
 │   F-клавіші внизу для швидких операцій                         │
 │   Tab — переключення між панелями                              │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Встановлення та запуск
@@ -556,9 +556,9 @@ nnn
 **Terminal multiplexer** — програма, що дозволяє мати кілька терміналів в одному вікні та зберігати сесії після відключення.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    TMUX SESSION                                 │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    TMUX SESSION                                │
+│                                                                │
 │   ┌─────────────────────────────────────────────────────────┐  │
 │   │ 0:bash │ 1:vim │ 2:htop*│                               │  │
 │   ├─────────────────────────┬───────────────────────────────┤  │
@@ -574,13 +574,13 @@ nnn
 │   │                                                         │  │
 │   └─────────────────────────────────────────────────────────┘  │
 │   [session-name] 0:bash 1:vim 2:htop          "hostname" 14:30 │
-│                                                                 │
+│                                                                │
 │   Можливості:                                                  │
-│   • Windows (вкладки): Ctrl+B, c — нове, n/p — навігація      │
-│   • Panes (split): Ctrl+B, % — vertical, " — horizontal       │
-│   • Detach: Ctrl+B, d — відключитися (сесія живе)             │
+│   • Windows (вкладки): Ctrl+B, c — нове, n/p — навігація       │
+│   • Panes (split): Ctrl+B, % — vertical, " — horizontal        │
+│   • Detach: Ctrl+B, d — відключитися (сесія живе)              │
 │   • Attach: tmux attach — повернутися                          │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### tmux команди
@@ -693,34 +693,34 @@ cat /etc/os-release
 ## 🏢 Real World: Console у Production
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 CONSOLE MODE В ENTERPRISE                       │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                 CONSOLE MODE В ENTERPRISE                      │
+│                                                                │
 │   ☁️ CLOUD PROVIDERS (AWS, Google Cloud, Azure)                │
 │   • SSH доступ до EC2/GCE/VM instances                         │
 │   • tmux сесії для довготривалих операцій                      │
 │   • Headless servers без GUI                                   │
-│                                                                 │
+│                                                                │
 │   🐳 DEVOPS & SRE (Netflix, Spotify, Uber)                     │
 │   • Kubernetes troubleshooting через kubectl exec              │
 │   • Docker containers = console-only                           │
 │   • tmux для multi-pane debugging                              │
-│                                                                 │
+│                                                                │
 │   🔒 SECURITY (Penetration Testing, SOC)                       │
 │   • Kali Linux в console mode                                  │
 │   • tmux для parallel scans                                    │
 │   • mc для filesystem analysis                                 │
-│                                                                 │
+│                                                                │
 │   📊 DATA SCIENCE (Facebook, LinkedIn)                         │
 │   • SSH to GPU clusters                                        │
 │   • tmux для Jupyter notebooks в background                    │
 │   • ranger для dataset navigation                              │
-│                                                                 │
+│                                                                │
 │   🖥️ SERVER ADMINISTRATION                                     │
 │   • Recovery mode troubleshooting                              │
 │   • Remote server management                                   │
 │   • Automation scripts                                         │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Production сценарії
@@ -736,34 +736,34 @@ cat /etc/os-release
 ## 💼 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 КАР'ЄРНІ МОЖЛИВОСТІ                             │
-│                                                                 │
-│   Linux System Administrator                                    │
+┌───────────────────────────────────────────────────────────────┐
+│                 КАР'ЄРНІ МОЖЛИВОСТІ                           │
+│                                                               │
+│   Linux System Administrator                                  │
 │   ├── Зарплата: $60,000 - $100,000/рік                        │
 │   ├── Навички: bash, ssh, tmux, troubleshooting               │
 │   └── Компанії: будь-яка tech компанія                        │
-│                                                                 │
-│   DevOps Engineer                                               │
+│                                                               │
+│   DevOps Engineer                                             │
 │   ├── Зарплата: $90,000 - $160,000/рік                        │
 │   ├── Навички: bash scripting, tmux, containers               │
 │   └── Компанії: Netflix, Spotify, startups                    │
-│                                                                 │
-│   Site Reliability Engineer (SRE)                               │
+│                                                               │
+│   Site Reliability Engineer (SRE)                             │
 │   ├── Зарплата: $120,000 - $200,000/рік                       │
 │   ├── Навички: Advanced bash, debugging, automation           │
 │   └── Компанії: Google, Meta, Amazon                          │
-│                                                                 │
-│   Security Engineer / Pentester                                 │
+│                                                               │
+│   Security Engineer / Pentester                               │
 │   ├── Зарплата: $100,000 - $180,000/рік                       │
 │   ├── Навички: Console tools, scripting, forensics            │
 │   └── Компанії: CrowdStrike, Mandiant, consulting             │
-│                                                                 │
-│   Cloud Engineer                                                │
+│                                                               │
+│   Cloud Engineer                                              │
 │   ├── Зарплата: $100,000 - $170,000/рік                       │
 │   ├── Навички: SSH, bash, cloud CLIs, tmux                    │
 │   └── Компанії: AWS, GCP, Azure partners                      │
-└─────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
@@ -782,17 +782,17 @@ cat /etc/os-release
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 CONSOLE MODE QUICK REFERENCE                    │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   TTY Navigation:                                               │
+┌────────────────────────────────────────────────────────────────┐
+│                 CONSOLE MODE QUICK REFERENCE                   │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│   TTY Navigation:                                              │
 │   Ctrl+Alt+F1-F6    Switch to TTY1-6                           │
 │   Ctrl+Alt+F1/F7    Back to GUI (varies by distro)             │
 │   tty               Show current TTY                           │
 │   who               Who is logged in                           │
-│                                                                 │
-│   Bash Essentials:                                              │
+│                                                                │
+│   Bash Essentials:                                             │
 │   Ctrl+R            Reverse history search                     │
 │   Ctrl+A/E          Beginning/end of line                      │
 │   Ctrl+U/K          Delete to start/end                        │
@@ -803,7 +803,7 @@ cat /etc/os-release
 │   Ctrl+Z            Suspend (fg to resume)                     │
 │   !!                Repeat last command                        │
 │   !$                Last argument                              │
-│                                                                 │
+│                                                                │
 │   tmux (prefix = Ctrl+B):                                      │
 │   Ctrl+B c          New window                                 │
 │   Ctrl+B n/p        Next/previous window                       │
@@ -812,7 +812,7 @@ cat /etc/os-release
 │   Ctrl+B o          Switch pane                                │
 │   Ctrl+B d          Detach                                     │
 │   tmux a            Attach to session                          │
-│                                                                 │
+│                                                                │
 │   mc (Midnight Commander):                                     │
 │   F3/F4             View/Edit                                  │
 │   F5/F6             Copy/Move                                  │
@@ -820,7 +820,7 @@ cat /etc/os-release
 │   F10               Quit                                       │
 │   Ctrl+O            Toggle console                             │
 │   Tab               Switch panel                               │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки

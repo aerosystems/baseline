@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import type { Lesson } from '@/types/content';
+import type { Lesson, ProgramItem } from '@/types/content';
 
 interface LectureNodeProps {
   lesson: Lesson;
+  program?: ProgramItem;
   onClick: () => void;
 }
 
-export function LectureNode({ lesson, onClick }: LectureNodeProps) {
+export function LectureNode({ lesson, program, onClick }: LectureNodeProps) {
   const { t } = useTranslation();
   const hasContent = !lesson.isStub;
 
@@ -24,7 +25,7 @@ export function LectureNode({ lesson, onClick }: LectureNodeProps) {
           borderColor: 'var(--rail)',
           backgroundColor: 'var(--bg)',
         }}
-        aria-label={lesson.frontmatter.title}
+        aria-label={lesson.frontmatter.shortTitle || lesson.frontmatter.title}
       />
 
       {/* Content */}
@@ -40,9 +41,25 @@ export function LectureNode({ lesson, onClick }: LectureNodeProps) {
               borderBottom: hasContent ? '2px solid var(--red)' : 'none',
             }}
           >
-            {lesson.frontmatter.title}
+            {lesson.frontmatter.shortTitle || lesson.frontmatter.title}
           </span>
         </button>
+
+        {/* Форма подачі в обраній програмі: та сама тема буває лекцією
+            в одній групі та самостійною роботою в іншій */}
+        {program?.delivery && (
+          <span
+            className="text-xs ml-2 px-2 py-0.5 rounded"
+            style={{
+              backgroundColor: 'var(--card)',
+              border: '1px solid var(--border)',
+              color: 'var(--muted)',
+            }}
+          >
+            {program.delivery === 'lecture' ? 'лекція' : 'самостійно'}
+            {program.hours ? ` · ${program.hours} год` : ''}
+          </span>
+        )}
 
         {/* Reading time */}
         <div

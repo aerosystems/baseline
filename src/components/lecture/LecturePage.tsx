@@ -4,6 +4,7 @@ import { ReadingProgressBar } from '@/components/layout/ReadingProgressBar';
 import { LectureHeader } from './LectureHeader';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { LabMetadata } from '@/components/lab/LabMetadata';
+import { readSelectedProgram } from '@/lib/selectedProgram';
 import type { Lesson, Module, LabFrontmatter } from '@/types/content';
 
 interface LecturePageProps {
@@ -26,8 +27,10 @@ const SUBJECT_NAMES: Record<string, string> = {
   'pmzi': 'ПМЗІ'
 };
 
-// Generates path to the .docx file for a lab or for the grading criteria
-function generateDocxPath(lesson: Lesson, courseSlug?: string): string | undefined {
+// Generates path to the .docx file for a lab or for the grading criteria.
+// Методичні вказівки лежать окремим комплектом на кожну групу, бо номер роботи
+// й години в різних програмах різні.
+function generateDocxPath(lesson: Lesson, courseSlug?: string, programId?: string | null): string | undefined {
   const subject = courseSlug ? SUBJECT_MAP[courseSlug] : undefined;
   if (!subject) return undefined;
 
@@ -39,14 +42,24 @@ function generateDocxPath(lesson: Lesson, courseSlug?: string): string | undefin
 
   if (lesson.frontmatter.type !== 'lab') return undefined;
   const labFm = lesson.frontmatter as LabFrontmatter;
-  // Use labNumber if specified, otherwise fall back to order
-  const labNum = labFm.labNumber || lesson.frontmatter.order;
-  const title = lesson.frontmatter.title
+
+  // Програму обирають у роадмапі; якщо не обрано — беремо першу, яка має цю роботу
+  const programs = lesson.byProgram;
+  const program = programs
+    ? (programId && programs[programId] ? programId : Object.keys(programs)[0])
+    : undefined;
+
+  const labNum = (program ? programs?.[program]?.labNumber : undefined)
+    ?? labFm.labNumber
+    ?? lesson.frontmatter.order;
+
+  const title = (lesson.frontmatter.shortTitle || lesson.frontmatter.title)
     .replace(/[^\wа-яіїєґА-ЯІЇЄҐ\s-]/g, '')
     .replace(/\s+/g, '_')
     .substring(0, 50);
 
-  return `/labs/${subject}/ЛР${labNum}_${subjectName}_${title}.docx`;
+  const folder = program ? `${subject}/${program}` : subject;
+  return `/labs/${folder}/ЛР${labNum}_${subjectName}_${title}.docx`;
 }
 
 export function LecturePage({ lesson, module, isFallback, anchor, onBack }: LecturePageProps) {
@@ -61,11 +74,23 @@ export function LecturePage({ lesson, module, isFallback, anchor, onBack }: Lect
     return parts.length >= 2 ? parts[1] : undefined;
   }, [lesson.path]);
 
+  const programId = useMemo(
+    () => (courseSlug ? readSelectedProgram(courseSlug) : null),
+    [courseSlug]
+  );
+
+  // Години роботи задає програма групи: та сама робота буває на 4 і на 2 години
+  const programHours = useMemo(() => {
+    const hours = programId ? lesson.byProgram?.[programId]?.hours : undefined;
+    if (!hours) return undefined;
+    return `${hours} ${hours >= 5 ? 'академічних годин' : 'академічні години'}`;
+  }, [lesson.byProgram, programId]);
+
   // Generate path to .docx file
   const docxPath = useMemo(() => {
     if (!isLab && !isGrading) return undefined;
-    return generateDocxPath(lesson, courseSlug);
-  }, [isLab, isGrading, lesson, courseSlug]);
+    return generateDocxPath(lesson, courseSlug, programId);
+  }, [isLab, isGrading, lesson, courseSlug, programId]);
 
   // Get lab-specific frontmatter
   const labFrontmatter = isLab ? lesson.frontmatter as LabFrontmatter : undefined;
@@ -103,7 +128,7 @@ export function LecturePage({ lesson, module, isFallback, anchor, onBack }: Lect
         {/* Lab metadata block with download button */}
         {(isGrading || (isLab && !lesson.isStub)) && (
           <LabMetadata
-            duration={labFrontmatter?.duration}
+            duration={programHours ?? labFrontmatter?.duration}
             equipment={labFrontmatter?.equipment}
             docxPath={docxPath}
           />

@@ -13,24 +13,24 @@ Linux використовує два основних GUI toolkit'и: **GTK** (
 ┌─────────────────────────────────────────────────────────────────┐
 │                    КОМПОНЕНТИ ТЕМ                               │
 │                                                                 │
-│   ┌───────────────────────────────────────────────────────────┐│
-│   │                        THEME                               ││
-│   │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    ││
-│   │  │  GTK Theme   │  │   Qt Theme   │  │ Shell Theme  │    ││
-│   │  │ (Applications)│  │ (Applications)│  │(Panel, menu)│    ││
-│   │  │              │  │              │  │ GNOME only  │    ││
-│   │  │ Adwaita      │  │ Breeze       │  │ Adwaita     │    ││
-│   │  │ Arc          │  │ Kvantum      │  │ Yaru        │    ││
-│   │  └──────────────┘  └──────────────┘  └──────────────┘    ││
-│   │                                                           ││
-│   │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    ││
-│   │  │  Icon Theme  │  │ Cursor Theme │  │ Sound Theme  │    ││
-│   │  │              │  │              │  │              │    ││
-│   │  │ Papirus      │  │ Bibata       │  │ freedesktop  │    ││
-│   │  │ Adwaita      │  │ DMZ          │  │ Yaru         │    ││
-│   │  │ Numix        │  │ Breeze       │  │              │    ││
-│   │  └──────────────┘  └──────────────┘  └──────────────┘    ││
-│   └───────────────────────────────────────────────────────────┘│
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │                        THEME                             │  │
+│   │  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐   │  │
+│   │  │  GTK Theme   │  │   Qt Theme   │  │ Shell Theme   │   │  │
+│   │  │ (Applications)│  │ (Applications)│  │(Panel, menu)│   │  │
+│   │  │              │  │              │  │ GNOME only    │   │  │
+│   │  │ Adwaita      │  │ Breeze       │  │ Adwaita       │   │  │
+│   │  │ Arc          │  │ Kvantum      │  │ Yaru          │   │  │
+│   │  └──────────────┘  └──────────────┘  └───────────────┘   │  │
+│   │                                                          │  │
+│   │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │  │
+│   │  │  Icon Theme  │  │ Cursor Theme │  │ Sound Theme  │    │  │
+│   │  │              │  │              │  │              │    │  │
+│   │  │ Papirus      │  │ Bibata       │  │ freedesktop  │    │  │
+│   │  │ Adwaita      │  │ DMZ          │  │ Yaru         │    │  │
+│   │  │ Numix        │  │ Breeze       │  │              │    │  │
+│   │  └──────────────┘  └──────────────┘  └──────────────┘    │  │
+│   └──────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -118,24 +118,24 @@ kvantummanager  # GUI для вибору теми
 ### GTK в KDE / Qt в GNOME
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    CROSS-TOOLKIT THEMING                        │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    CROSS-TOOLKIT THEMING                       │
+│                                                                │
 │   GNOME (GTK-based):                                           │
 │   • GTK apps → GTK theme автоматично                           │
 │   • Qt apps → потрібен qt5ct або QGtkStyle                     │
-│                                                                 │
+│                                                                │
 │   KDE (Qt-based):                                              │
 │   • Qt apps → Plasma theme автоматично                         │
 │   • GTK apps → System Settings → Application Style             │
-│                → GNOME/GTK Application Style                    │
-│                                                                 │
+│                → GNOME/GTK Application Style                   │
+│                                                                │
 │   Рекомендація:                                                │
-│   Обирайте теми, що мають і GTK, і Qt варіанти:               │
+│   Обирайте теми, що мають і GTK, і Qt варіанти:                │
 │   • Arc (GTK + Kvantum)                                        │
 │   • Breeze (KDE default, є GTK port)                           │
 │   • Materia (GTK + Kvantum)                                    │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Icon Themes
@@ -185,28 +185,28 @@ xrdb -merge ~/.Xresources
 Шрифти критично важливі для читабельності та естетики системи. Linux підтримує TrueType (.ttf) та OpenType (.otf) шрифти.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    РОЗТАШУВАННЯ ШРИФТІВ                         │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    РОЗТАШУВАННЯ ШРИФТІВ                        │
+│                                                                │
 │   Системні шрифти:                                             │
 │   /usr/share/fonts/                                            │
 │   /usr/share/fonts/truetype/                                   │
 │   /usr/share/fonts/opentype/                                   │
-│                                                                 │
+│                                                                │
 │   Користувацькі шрифти:                                        │
 │   ~/.local/share/fonts/       (рекомендовано)                  │
 │   ~/.fonts/                   (legacy, але працює)             │
-│                                                                 │
+│                                                                │
 │   Формати:                                                     │
-│   • TrueType (.ttf)  — найпоширеніший                         │
+│   • TrueType (.ttf)  — найпоширеніший                          │
 │   • OpenType (.otf)  — розширений TrueType                     │
 │   • Web Fonts (.woff, .woff2) — для браузерів                  │
-│                                                                 │
+│                                                                │
 │   Типи шрифтів:                                                │
-│   • Sans-serif — без засічок (Noto Sans, Roboto)              │
+│   • Sans-serif — без засічок (Noto Sans, Roboto)               │
 │   • Serif — із засічками (Noto Serif, Liberation Serif)        │
-│   • Monospace — моноширинні (JetBrains Mono, Fira Code)       │
-└─────────────────────────────────────────────────────────────────┘
+│   • Monospace — моноширинні (JetBrains Mono, Fira Code)        │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Встановлення шрифтів
@@ -345,9 +345,9 @@ fc-match monospace
 **CUPS (Common Unix Printing System)** — стандартна система друку в Linux та macOS. Розроблена Apple.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    АРХІТЕКТУРА CUPS                             │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    АРХІТЕКТУРА CUPS                            │
+│                                                                │
 │   ┌────────────┐    ┌────────────┐    ┌────────────┐           │
 │   │Application │───►│   CUPS     │───►│  Printer   │           │
 │   │ (Firefox)  │    │  Daemon    │    │  (Driver)  │           │
@@ -355,14 +355,14 @@ fc-match monospace
 │         │           └────────────┘           │                 │
 │         │                 │                  │                 │
 │         ▼                 ▼                  ▼                 │
-│   Print Dialog      Job Queue           Physical              │
+│   Print Dialog      Job Queue           Physical               │
 │                                          Printer               │
-│                                                                 │
+│                                                                │
 │   Конфігурація:     /etc/cups/                                 │
 │   Логи:            /var/log/cups/                              │
 │   Спул (черга):    /var/spool/cups/                            │
 │   Web UI:          http://localhost:631                        │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Встановлення та налаштування
@@ -550,34 +550,34 @@ xdg-open http://localhost:631
 ## 🏢 Real World: Theming та Typography в індустрії
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 THEMING & FONTS У КОМПАНІЯХ                     │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                 THEMING & FONTS У КОМПАНІЯХ                    │
+│                                                                │
 │   🎨 DESIGN STUDIOS (Figma, Adobe, Canva)                      │
 │   • Кастомні теми для brand consistency                        │
 │   • Professional typography налаштування                       │
 │   • Color calibration через GTK/Qt themes                      │
-│                                                                 │
+│                                                                │
 │   🏢 ENTERPRISE IT (IBM, Oracle, SAP)                          │
 │   • Стандартизовані corporate themes                           │
 │   • Centralized font deployment                                │
 │   • CUPS print servers для офісів                              │
-│                                                                 │
+│                                                                │
 │   🎬 MEDIA & ENTERTAINMENT (Netflix, Spotify)                  │
 │   • Dark themes для content creators                           │
 │   • Nerd Fonts для developer terminals                         │
 │   • Custom icon themes для internal tools                      │
-│                                                                 │
+│                                                                │
 │   📱 EMBEDDED SYSTEMS (Tesla, Medical devices)                 │
 │   • Optimized fonts для embedded displays                      │
 │   • Custom Qt themes для automotive HMI                        │
 │   • Thermal printer integration (CUPS)                         │
-│                                                                 │
-│   🖨️ PRINT INDUSTRY (Publishing, Marketing)                   │
+│                                                                │
+│   🖨️ PRINT INDUSTRY (Publishing, Marketing)                    │
 │   • CUPS для production printing                               │
 │   • PostScript/PDF workflows                                   │
 │   • Font management systems                                    │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Реальні use cases
@@ -593,34 +593,34 @@ xdg-open http://localhost:631
 ## 💼 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 КАР'ЄРНІ МОЖЛИВОСТІ                             │
-│                                                                 │
-│   Linux Desktop Customization Specialist                        │
+┌───────────────────────────────────────────────────────────────┐
+│                 КАР'ЄРНІ МОЖЛИВОСТІ                           │
+│                                                               │
+│   Linux Desktop Customization Specialist                      │
 │   ├── Зарплата: $50,000 - $80,000/рік                         │
 │   ├── Навички: GTK/Qt theming, fontconfig, accessibility      │
 │   └── Компанії: Enterprise IT, UI/UX agencies                 │
-│                                                                 │
-│   Print Systems Administrator                                   │
+│                                                               │
+│   Print Systems Administrator                                 │
 │   ├── Зарплата: $55,000 - $90,000/рік                         │
 │   ├── Навички: CUPS, IPP, printer drivers, networking         │
 │   └── Компанії: Publishing, enterprise, healthcare            │
-│                                                                 │
-│   Typography Engineer                                           │
+│                                                               │
+│   Typography Engineer                                         │
 │   ├── Зарплата: $70,000 - $120,000/рік                        │
 │   ├── Навички: Font development, fontconfig, rendering        │
 │   └── Компанії: Google Fonts, Adobe, font foundries           │
-│                                                                 │
-│   Accessibility Specialist                                      │
+│                                                               │
+│   Accessibility Specialist                                    │
 │   ├── Зарплата: $60,000 - $100,000/рік                        │
 │   ├── Навички: High contrast themes, screen readers           │
 │   └── Компанії: Government, enterprise, education             │
-│                                                                 │
-│   UI/UX Developer (Linux)                                       │
+│                                                               │
+│   UI/UX Developer (Linux)                                     │
 │   ├── Зарплата: $80,000 - $140,000/рік                        │
 │   ├── Навички: GTK CSS, Qt QML, theme development             │
 │   └── Компанії: Canonical, Red Hat, System76                  │
-└─────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
@@ -639,41 +639,41 @@ xdg-open http://localhost:631
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 THEMES & FONTS QUICK REFERENCE                  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   GTK Theme Locations:                                          │
+┌────────────────────────────────────────────────────────────────┐
+│                 THEMES & FONTS QUICK REFERENCE                 │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│   GTK Theme Locations:                                         │
 │   ~/.themes/  ~/.local/share/themes/  /usr/share/themes/       │
-│                                                                 │
-│   Icon Theme Locations:                                         │
+│                                                                │
+│   Icon Theme Locations:                                        │
 │   ~/.local/share/icons/  ~/.icons/  /usr/share/icons/          │
-│                                                                 │
-│   Font Locations:                                               │
+│                                                                │
+│   Font Locations:                                              │
 │   ~/.local/share/fonts/  ~/.fonts/  /usr/share/fonts/          │
-│                                                                 │
+│                                                                │
 │   Apply Theme (GNOME):                                         │
 │   gsettings set org.gnome.desktop.interface gtk-theme "Name"   │
 │   gsettings set org.gnome.desktop.interface icon-theme "Name"  │
 │   gsettings set org.gnome.desktop.interface cursor-theme "Name"│
-│                                                                 │
-│   Font Commands:                                                │
+│                                                                │
+│   Font Commands:                                               │
 │   fc-cache -fv              # Rebuild font cache               │
 │   fc-list                   # List all fonts                   │
 │   fc-list : family | sort   # List font families               │
 │   fc-match monospace        # Check font fallback              │
-│                                                                 │
-│   CUPS Commands:                                                │
+│                                                                │
+│   CUPS Commands:                                               │
 │   lpstat -p -d              # List printers + default          │
 │   lp -d Printer file.pdf    # Print to specific printer        │
 │   lpq                       # Print queue                      │
 │   cancel job-id             # Cancel print job                 │
 │   cupsenable/cupsdisable    # Enable/disable printer           │
-│                                                                 │
-│   Dark Mode:                                                    │
+│                                                                │
+│   Dark Mode:                                                   │
 │   gsettings set org.gnome.desktop.interface color-scheme \     │
 │       'prefer-dark'                                            │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки

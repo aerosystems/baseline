@@ -61,39 +61,52 @@ preview: "DSA, ECDSA, RSA-підпис, український стандарт 
 
 Сучасна рекомендована схема з випадковістю:
 
-```python
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
+```cpp
+// RSA-PSS засобами OpenSSL: детермінований підпис PKCS#1 v1.5
+// поступається ймовірнісній схемі PSS, тому для нових систем беруть PSS.
+#include <openssl/evp.h>
+#include <openssl/rsa.h>
+#include <vector>
+#include <string>
 
-# Генерація ключів
-private_key = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048
-)
-public_key = private_key.public_key()
+std::vector<unsigned char> signPss(EVP_PKEY* privateKey, const std::string& message) {
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_PKEY_CTX* pkeyCtx = nullptr;
 
-# Підписання з PSS
-message = b"Important document"
-signature = private_key.sign(
-    message,
-    padding.PSS(
-        mgf=padding.MGF1(hashes.SHA256()),
-        salt_length=padding.PSS.MAX_LENGTH
-    ),
-    hashes.SHA256()
-)
+    EVP_DigestSignInit(ctx, &pkeyCtx, EVP_sha256(), nullptr, privateKey);
+    EVP_PKEY_CTX_set_rsa_padding(pkeyCtx, RSA_PKCS1_PSS_PADDING);
+    EVP_PKEY_CTX_set_rsa_pss_saltlen(pkeyCtx, RSA_PSS_SALTLEN_DIGEST);
 
-# Перевірка
-public_key.verify(
-    signature,
-    message,
-    padding.PSS(
-        mgf=padding.MGF1(hashes.SHA256()),
-        salt_length=padding.PSS.MAX_LENGTH
-    ),
-    hashes.SHA256()
-)
-print("Підпис дійсний!")
+    size_t length = 0;
+    EVP_DigestSign(ctx, nullptr, &length,
+                   reinterpret_cast<const unsigned char*>(message.data()), message.size());
+
+    std::vector<unsigned char> signature(length);
+    EVP_DigestSign(ctx, signature.data(), &length,
+                   reinterpret_cast<const unsigned char*>(message.data()), message.size());
+    signature.resize(length);
+
+    EVP_MD_CTX_free(ctx);
+    return signature;
+}
+
+bool verifyPss(EVP_PKEY* publicKey, const std::string& message,
+               const std::vector<unsigned char>& signature) {
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_PKEY_CTX* pkeyCtx = nullptr;
+
+    EVP_DigestVerifyInit(ctx, &pkeyCtx, EVP_sha256(), nullptr, publicKey);
+    EVP_PKEY_CTX_set_rsa_padding(pkeyCtx, RSA_PKCS1_PSS_PADDING);
+    EVP_PKEY_CTX_set_rsa_pss_saltlen(pkeyCtx, RSA_PSS_SALTLEN_DIGEST);
+
+    bool ok = EVP_DigestVerify(ctx, signature.data(), signature.size(),
+                               reinterpret_cast<const unsigned char*>(message.data()),
+                               message.size()) == 1;
+    EVP_MD_CTX_free(ctx);
+    return ok;
+}
+
+// Ключ: EVP_PKEY* key = EVP_RSA_gen(2048);
 ```
 
 ## DSA (Digital Signature Algorithm)
@@ -109,14 +122,14 @@ DSA розроблений NIST у 1991 році як частина станд�
 │                    ПАРАМЕТРИ DSA                                    │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   p — велике просте число (1024-3072 біт)                          │
-│   q — просте число, дільник (p-1) (160-256 біт)                    │
-│   g — генератор підгрупи порядку q                                 │
+│   p — велике просте число (1024-3072 біт)                           │
+│   q — просте число, дільник (p-1) (160-256 біт)                     │
+│   g — генератор підгрупи порядку q                                  │
 │                                                                     │
-│   g = h^((p-1)/q) mod p, де h — будь-яке 1 < h < p-1               │
+│   g = h^((p-1)/q) mod p, де h — будь-яке 1 < h < p-1                │
 │                                                                     │
-│   Приватний ключ: x (випадкове, 0 < x < q)                         │
-│   Публічний ключ: y = g^x mod p                                    │
+│   Приватний ключ: x (випадкове, 0 < x < q)                          │
+│   Публічний ключ: y = g^x mod p                                     │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -127,20 +140,20 @@ DSA розроблений NIST у 1991 році як частина станд�
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    ПІДПИСАННЯ DSA                                   │
 │                                                                     │
-│   Вхід: повідомлення M, приватний ключ x                           │
+│   Вхід: повідомлення M, приватний ключ x                            │
 │                                                                     │
 │   1. Обчислити хеш: h = H(M)                                        │
 │                                                                     │
 │   2. Обрати випадкове k: 0 < k < q                                  │
-│      (КРИТИЧНО: k має бути унікальним для кожного підпису!)        │
+│      (КРИТИЧНО: k має бути унікальним для кожного підпису!)         │
 │                                                                     │
 │   3. Обчислити r:                                                   │
 │      r = (g^k mod p) mod q                                          │
-│      Якщо r = 0, повернутися до кроку 2                            │
+│      Якщо r = 0, повернутися до кроку 2                             │
 │                                                                     │
 │   4. Обчислити s:                                                   │
 │      s = k^(-1) × (h + x×r) mod q                                   │
-│      Якщо s = 0, повернутися до кроку 2                            │
+│      Якщо s = 0, повернутися до кроку 2                             │
 │                                                                     │
 │   Підпис: (r, s)                                                    │
 │                                                                     │
@@ -153,9 +166,9 @@ DSA розроблений NIST у 1991 році як частина станд�
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    ПЕРЕВІРКА DSA                                    │
 │                                                                     │
-│   Вхід: повідомлення M, підпис (r, s), публічний ключ y            │
+│   Вхід: повідомлення M, підпис (r, s), публічний ключ y             │
 │                                                                     │
-│   1. Перевірити: 0 < r < q та 0 < s < q                            │
+│   1. Перевірити: 0 < r < q та 0 < s < q                             │
 │                                                                     │
 │   2. Обчислити хеш: h = H(M)                                        │
 │                                                                     │
@@ -270,28 +283,46 @@ y² = x³ + ax + b  (mod p)
 
 ### ECDSA підписання
 
-```python
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import ec
+```cpp
+// ECDSA на кривій P-256: той самий рівень стійкості, що й RSA-3072,
+// але ключ у 12 разів коротший
+#include <openssl/evp.h>
+#include <openssl/ec.h>
+#include <vector>
+#include <string>
 
-# Генерація ключів (крива P-256)
-private_key = ec.generate_private_key(ec.SECP256R1())
-public_key = private_key.public_key()
+EVP_PKEY* generateEcKey() {
+    return EVP_EC_gen("P-256");        // крива SECP256R1
+}
 
-# Підписання
-message = b"Transaction: send 10 BTC"
-signature = private_key.sign(
-    message,
-    ec.ECDSA(hashes.SHA256())
-)
+std::vector<unsigned char> signEcdsa(EVP_PKEY* privateKey, const std::string& message) {
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_DigestSignInit(ctx, nullptr, EVP_sha256(), nullptr, privateKey);
 
-# Перевірка
-public_key.verify(
-    signature,
-    message,
-    ec.ECDSA(hashes.SHA256())
-)
-print("ECDSA підпис дійсний!")
+    size_t length = 0;
+    EVP_DigestSign(ctx, nullptr, &length,
+                   reinterpret_cast<const unsigned char*>(message.data()), message.size());
+
+    std::vector<unsigned char> signature(length);
+    EVP_DigestSign(ctx, signature.data(), &length,
+                   reinterpret_cast<const unsigned char*>(message.data()), message.size());
+    signature.resize(length);
+
+    EVP_MD_CTX_free(ctx);
+    return signature;
+}
+
+bool verifyEcdsa(EVP_PKEY* publicKey, const std::string& message,
+                 const std::vector<unsigned char>& signature) {
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_DigestVerifyInit(ctx, nullptr, EVP_sha256(), nullptr, publicKey);
+
+    bool ok = EVP_DigestVerify(ctx, signature.data(), signature.size(),
+                               reinterpret_cast<const unsigned char*>(message.data()),
+                               message.size()) == 1;
+    EVP_MD_CTX_free(ctx);
+    return ok;
+}
 ```
 
 ### Застосування ECDSA
@@ -312,15 +343,15 @@ print("ECDSA підпис дійсний!")
 │                    ДСТУ 4145                                        │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   Еліптичні криві над полем GF(2^m)                                │
-│   (бінарні поля, на відміну від простих у NIST)                    │
+│   Еліптичні криві над полем GF(2^m)                                 │
+│   (бінарні поля, на відміну від простих у NIST)                     │
 │                                                                     │
-│   Рівняння кривої: y² + xy = x³ + ax² + b                          │
+│   Рівняння кривої: y² + xy = x³ + ax² + b                           │
 │                                                                     │
-│   Підтримувані розміри: 163, 167, 173, 179, 191, 233, 257,         │
+│   Підтримувані розміри: 163, 167, 173, 179, 191, 233, 257,          │
 │                         307, 367, 431 біт                           │
 │                                                                     │
-│   Хеш-функція: ГОСТ 34.311-95 (подібна до SHA-1)                   │
+│   Хеш-функція: ГОСТ 34.311-95 (подібна до SHA-1)                    │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -338,17 +369,17 @@ print("ECDSA підпис дійсний!")
 │       │ Отримує сертифікат                                          │
 │       ▼                                                             │
 │   ┌─────────────────┐                                               │
-│   │ АЦСК            │ Акредитований центр сертифікації ключів      │
-│   │ (ПриватБанк,    │ • Ідентифікує особу                          │
-│   │  Дія, ІІТ...)   │ • Видає сертифікат                           │
+│   │ АЦСК            │ Акредитований центр сертифікації ключів       │
+│   │ (ПриватБанк,    │ • Ідентифікує особу                           │
+│   │  Дія, ІІТ...)   │ • Видає сертифікат                            │
 │   └────────┬────────┘                                               │
 │            │                                                        │
 │            │ Реєстрація                                             │
 │            ▼                                                        │
 │   ┌─────────────────┐                                               │
-│   │ ЦЗО             │ Центральний засвідчувальний орган            │
-│   │ (Мін'юст)       │ • Акредитує АЦСК                             │
-│   │                 │ • Веде реєстр сертифікатів                   │
+│   │ ЦЗО             │ Центральний засвідчувальний орган             │
+│   │ (Мін'юст)       │ • Акредитує АЦСК                              │
+│   │                 │ • Веде реєстр сертифікатів                    │
 │   └─────────────────┘                                               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -363,24 +394,24 @@ print("ECDSA підпис дійсний!")
 │                                                                     │
 │   Версія: 3                                                         │
 │   Серійний номер: 12345678                                          │
-│   Алгоритм підпису: ДСТУ 4145 / SHA-256                            │
+│   Алгоритм підпису: ДСТУ 4145 / SHA-256                             │
 │                                                                     │
 │   Видавець (Issuer):                                                │
-│     CN = АЦСК ПриватБанку                                          │
-│     O = ПриватБанк                                                 │
-│     C = UA                                                         │
+│     CN = АЦСК ПриватБанку                                           │
+│     O = ПриватБанк                                                  │
+│     C = UA                                                          │
 │                                                                     │
 │   Термін дії:                                                       │
-│     Від: 2024-01-01                                                │
-│     До: 2026-01-01                                                 │
+│     Від: 2024-01-01                                                 │
+│     До: 2026-01-01                                                  │
 │                                                                     │
-│   Суб'єкт (Subject):                                               │
-│     CN = Іваненко Іван Іванович                                    │
-│     Serial = 1234567890 (РНОКПП)                                   │
+│   Суб'єкт (Subject):                                                │
+│     CN = Іваненко Іван Іванович                                     │
+│     Serial = 1234567890 (РНОКПП)                                    │
 │                                                                     │
-│   Публічний ключ: (координати точки на кривій)                     │
+│   Публічний ключ: (координати точки на кривій)                      │
 │                                                                     │
-│   Підпис видавця: (ДСТУ 4145)                                      │
+│   Підпис видавця: (ДСТУ 4145)                                       │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -389,7 +420,7 @@ print("ECDSA підпис дійсний!")
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│                    ПОРІВНЯННЯ АЛГОРИТМІВ ЕЦП                        │
+│                    ПОРІВНЯННЯ АЛГОРИТМІВ ЕЦП                       │
 ├──────────┬──────────┬────────────┬─────────────┬───────────────────┤
 │ Алгоритм │ Основа   │ Ключ (біт) │ Підпис(біт) │ Швидкість         │
 ├──────────┼──────────┼────────────┼─────────────┼───────────────────┤
@@ -426,35 +457,35 @@ print("ECDSA підпис дійсний!")
 ### Алгоритми ЕЦП в індустрії
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    ЕЦП У РЕАЛЬНИХ СИСТЕМАХ                          │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  TLS/HTTPS СЕРТИФІКАТИ:                                             │
+┌────────────────────────────────────────────────────────────────────┐
+│                    ЕЦП У РЕАЛЬНИХ СИСТЕМАХ                         │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  TLS/HTTPS СЕРТИФІКАТИ:                                            │
 │  ├── RSA-2048/3072 — досі 70%+ сертифікатів                        │
 │  ├── ECDSA P-256 — зростає популярність (Google, Cloudflare)       │
 │  ├── Ed25519 — ще не підтримується браузерами для TLS              │
 │  └── Let's Encrypt: 300M+ сертифікатів (RSA за замовчуванням)      │
-│                                                                     │
-│  КРИПТОВАЛЮТИ:                                                      │
+│                                                                    │
+│  КРИПТОВАЛЮТИ:                                                     │
 │  ├── Bitcoin — ECDSA secp256k1 для всіх транзакцій                 │
 │  ├── Ethereum — ECDSA secp256k1 + планує BLS signatures            │
 │  ├── Solana — Ed25519 (швидкість критична)                         │
 │  └── Cardano — Ed25519                                             │
-│                                                                     │
-│  SSH АВТЕНТИФІКАЦІЯ:                                                │
+│                                                                    │
+│  SSH АВТЕНТИФІКАЦІЯ:                                               │
 │  ├── Ed25519 — рекомендований (ssh-keygen -t ed25519)              │
 │  ├── ECDSA — підтримується, але менш бажаний                       │
 │  ├── RSA-4096 — legacy, все ще широко використовується             │
 │  └── DSA — deprecated, вимкнений за замовчуванням                  │
-│                                                                     │
-│  УКРАЇНСЬКА PKI:                                                    │
+│                                                                    │
+│  УКРАЇНСЬКА PKI:                                                   │
 │  ├── ДСТУ 4145 — обов'язковий для КЕП                              │
 │  ├── АЦСК ПриватБанку — 15+ млн КЕП                                │
 │  ├── Дія.Підпис — КЕП через смартфон                               │
 │  └── Prozorro — електронні тендери з ДСТУ 4145                     │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Приклад: Sony PlayStation 3 Hack (2010)
@@ -464,26 +495,26 @@ print("ECDSA підпис дійсний!")
 │                    ECDSA IMPLEMENTATION FAILURE                     │
 │                                                                     │
 │   Помилка Sony:                                                     │
-│   • Використовували ECDSA для підпису firmware                     │
-│   • Замість випадкового k використали ФІКСОВАНЕ значення           │
-│   • k має бути унікальним для КОЖНОГО підпису!                     │
+│   • Використовували ECDSA для підпису firmware                      │
+│   • Замість випадкового k використали ФІКСОВАНЕ значення            │
+│   • k має бути унікальним для КОЖНОГО підпису!                      │
 │                                                                     │
 │   Математика атаки:                                                 │
 │                                                                     │
-│   Підпис 1: (r₁, s₁) де s₁ = k⁻¹(H(m₁) + xr₁)                      │
-│   Підпис 2: (r₂, s₂) де s₂ = k⁻¹(H(m₂) + xr₂)                      │
+│   Підпис 1: (r₁, s₁) де s₁ = k⁻¹(H(m₁) + xr₁)                       │
+│   Підпис 2: (r₂, s₂) де s₂ = k⁻¹(H(m₂) + xr₂)                       │
 │                                                                     │
 │   Якщо k₁ = k₂ = k:                                                 │
-│   r₁ = r₂ (бо r = (k×G).x mod n)                                   │
+│   r₁ = r₂ (бо r = (k×G).x mod n)                                    │
 │                                                                     │
-│   s₁ - s₂ = k⁻¹(H(m₁) - H(m₂))                                     │
-│   k = (H(m₁) - H(m₂)) / (s₁ - s₂)                                  │
+│   s₁ - s₂ = k⁻¹(H(m₁) - H(m₂))                                      │
+│   k = (H(m₁) - H(m₂)) / (s₁ - s₂)                                   │
 │                                                                     │
-│   x = (s₁×k - H(m₁)) / r₁                                          │
+│   x = (s₁×k - H(m₁)) / r₁                                           │
 │                                                                     │
-│   → Приватний ключ Sony розкрито!                                  │
-│   → Homebrew software на PS3                                       │
-│   → $170M втрат для Sony                                           │
+│   → Приватний ключ Sony розкрито!                                   │
+│   → Homebrew software на PS3                                        │
+│   → $170M втрат для Sony                                            │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -494,23 +525,23 @@ print("ECDSA підпис дійсний!")
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    LET'S ENCRYPT WORKFLOW                           │
 │                                                                     │
-│   1. Клієнт (certbot) генерує CSR з публічним ключем               │
+│   1. Клієнт (certbot) генерує CSR з публічним ключем                │
 │                                                                     │
 │   2. ACME Challenge (доведення володіння доменом):                  │
-│      ├── HTTP-01: файл на /.well-known/acme-challenge/             │
-│      ├── DNS-01: TXT запис в DNS                                   │
-│      └── TLS-ALPN-01: спеціальний TLS сертифікат                   │
+│      ├── HTTP-01: файл на /.well-known/acme-challenge/              │
+│      ├── DNS-01: TXT запис в DNS                                    │
+│      └── TLS-ALPN-01: спеціальний TLS сертифікат                    │
 │                                                                     │
-│   3. Let's Encrypt підписує сертифікат:                            │
-│      ├── RSA-2048 або ECDSA P-256 (вибір клієнта)                  │
-│      └── Сертифікат підписаний ланцюжком до ISRG Root X1           │
+│   3. Let's Encrypt підписує сертифікат:                             │
+│      ├── RSA-2048 або ECDSA P-256 (вибір клієнта)                   │
+│      └── Сертифікат підписаний ланцюжком до ISRG Root X1            │
 │                                                                     │
-│   4. Автоматичне поновлення кожні 60-90 днів                       │
+│   4. Автоматичне поновлення кожні 60-90 днів                        │
 │                                                                     │
 │   Статистика (2024):                                                │
-│   • 300+ мільйонів активних сертифікатів                           │
-│   • 250+ мільйонів доменів                                         │
-│   • Безкоштовно та автоматизовано                                  │
+│   • 300+ мільйонів активних сертифікатів                            │
+│   • 250+ мільйонів доменів                                          │
+│   • Безкоштовно та автоматизовано                                   │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -522,44 +553,44 @@ print("ECDSA підпис дійсний!")
 ### Спеціалізації з цифрового підпису
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    КАР'ЄРНІ МОЖЛИВОСТІ                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
+┌────────────────────────────────────────────────────────────────────┐
+│                    КАР'ЄРНІ МОЖЛИВОСТІ                             │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
 │  SECURITY ARCHITECT (PKI/Digital Identity)                         │
 │  ├── Зарплата: $150,000 - $220,000 (США)                           │
 │  ├── Зарплата: €90,000 - €140,000 (Європа)                         │
-│  ├── Завдання:                                                      │
+│  ├── Завдання:                                                     │
 │  │   • Проектування PKI архітектури                                │
 │  │   • Вибір алгоритмів (RSA vs ECDSA vs Ed25519)                  │
 │  │   • Compliance (eIDAS, ДСТУ, PCI DSS)                           │
 │  └── Компанії: DigiCert, Entrust, Thales, банки                    │
-│                                                                     │
-│  CRYPTOGRAPHY ENGINEER                                              │
+│                                                                    │
+│  CRYPTOGRAPHY ENGINEER                                             │
 │  ├── Зарплата: $140,000 - $200,000 (США)                           │
-│  ├── Вимоги:                                                        │
+│  ├── Вимоги:                                                       │
 │  │   • PhD або MS в криптографії/математиці                        │
 │  │   • Публікації на CRYPTO, EUROCRYPT, IACR                       │
 │  │   • Досвід з post-quantum algorithms                            │
 │  └── Компанії: Google, Apple, Microsoft, AWS                       │
-│                                                                     │
-│  BLOCKCHAIN SECURITY SPECIALIST                                     │
+│                                                                    │
+│  BLOCKCHAIN SECURITY SPECIALIST                                    │
 │  ├── Зарплата: $130,000 - $250,000 (США)                           │
-│  ├── Завдання:                                                      │
+│  ├── Завдання:                                                     │
 │  │   • Аудит смарт-контрактів                                      │
 │  │   • Аналіз ECDSA реалізацій                                     │
 │  │   • Дослідження Schnorr/BLS signatures                          │
 │  └── Компанії: Chainalysis, Trail of Bits, OpenZeppelin            │
-│                                                                     │
-│  КЕП/ЕЦП СПЕЦІАЛІСТ (Україна)                                       │
+│                                                                    │
+│  КЕП/ЕЦП СПЕЦІАЛІСТ (Україна)                                      │
 │  ├── Зарплата: $30,000 - $60,000 (Україна)                         │
-│  ├── Завдання:                                                      │
+│  ├── Завдання:                                                     │
 │  │   • Впровадження КЕП в організаціях                             │
 │  │   • Інтеграція з Дія.Підпис                                     │
 │  │   • Робота з ДСТУ 4145                                          │
 │  └── Компанії: ІІТ, державні установи, банки                       │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -589,10 +620,10 @@ print("ECDSA підпис дійсний!")
 ### Алгоритми підпису
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    SIGNATURE ALGORITHMS CHEAT SHEET                 │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
+┌────────────────────────────────────────────────────────────────────┐
+│                    SIGNATURE ALGORITHMS CHEAT SHEET                │
+├────────────────────────────────────────────────────────────────────┤
+│                                                                    │
 │  АЛГОРИТМ  │ КЛЮЧ      │ ПІДПИС    │ БЕЗПЕКА  │ ШВИДКІСТЬ          │
 │  ──────────┼───────────┼───────────┼──────────┼─────────────────── │
 │  RSA-2048  │ 2048 біт  │ 2048 біт  │ 112 біт  │ Повільний          │
@@ -602,13 +633,13 @@ print("ECDSA підпис дійсний!")
 │  ECDSA-384 │ 384 біт   │ 768 біт   │ 192 біт  │ Швидкий            │
 │  Ed25519   │ 256 біт   │ 512 біт   │ 128 біт  │ Дуже швидкий       │
 │  Ed448     │ 448 біт   │ 896 біт   │ 224 біт  │ Швидкий            │
-│                                                                     │
-│  РЕКОМЕНДАЦІЇ:                                                      │
+│                                                                    │
+│  РЕКОМЕНДАЦІЇ:                                                     │
 │  • Нові системи: Ed25519 або ECDSA P-256                           │
 │  • Legacy/сумісність: RSA-3072+                                    │
 │  • Україна (КЕП): ДСТУ 4145                                        │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ### OpenSSL команди
@@ -652,34 +683,31 @@ openssl req -new -x509 -key ec_private.pem -sha256 -days 365 \
     -subj "/CN=example.com" -out certificate.pem
 ```
 
-### Python cryptography
+### Стисла довідка: OpenSSL
 
-```python
-from cryptography.hazmat.primitives.asymmetric import ec, ed25519
-from cryptography.hazmat.primitives import hashes
+```cpp
+// Стисла довідка: підписи в OpenSSL
+#include <openssl/evp.h>
+#include <openssl/pem.h>
 
-# ===== ECDSA P-256 =====
-private_key = ec.generate_private_key(ec.SECP256R1())
-public_key = private_key.public_key()
+// ===== Генерація ключів =====
+EVP_PKEY* rsaKey = EVP_RSA_gen(2048);       // RSA-2048
+EVP_PKEY* ecKey  = EVP_EC_gen("P-256");     // ECDSA P-256
+EVP_PKEY* edKey  = EVP_PKEY_Q_keygen(nullptr, nullptr, "ED25519");  // Ed25519
 
-signature = private_key.sign(b"message", ec.ECDSA(hashes.SHA256()))
-public_key.verify(signature, b"message", ec.ECDSA(hashes.SHA256()))
+// ===== Підпис і перевірка =====
+// EVP_DigestSignInit / EVP_DigestSign — формування підпису
+// EVP_DigestVerifyInit / EVP_DigestVerify — перевірка
+// Для Ed25519 хеш-функцію не вказують: вона вбудована в схему
 
-# ===== Ed25519 =====
-private_key = ed25519.Ed25519PrivateKey.generate()
-public_key = private_key.public_key()
+// ===== Збереження ключів у форматі PEM =====
+BIO* out = BIO_new_file("private.pem", "w");
+PEM_write_bio_PrivateKey(out, rsaKey, nullptr, nullptr, 0, nullptr, nullptr);
+BIO_free(out);
 
-signature = private_key.sign(b"message")
-public_key.verify(signature, b"message")
-
-# ===== Серіалізація ключів =====
-from cryptography.hazmat.primitives import serialization
-
-pem = private_key.private_bytes(
-    encoding=serialization.Encoding.PEM,
-    format=serialization.PrivateFormat.PKCS8,
-    encryption_algorithm=serialization.NoEncryption()
-)
+BIO* pub = BIO_new_file("public.pem", "w");
+PEM_write_bio_PUBKEY(pub, rsaKey, nullptr);
+BIO_free(pub);
 ```
 
 ### SSH ключі
@@ -833,145 +861,87 @@ openssl pkey -in ed25519.pem -pubout 2>/dev/null | wc -c
 
 **Мета:** Практично дослідити різні алгоритми підпису, їх швидкість та особливості.
 
-**Частина 1: Бенчмарк алгоритмів (Python)**
+**Частина 1: Бенчмарк алгоритмів (C++)**
 
-```python
-"""
-Завдання: Порівняйте швидкість RSA, ECDSA та Ed25519
+```cpp
+// Завдання: порівняйте швидкодію RSA, ECDSA та Ed25519.
+//
+// Виміряйте час:
+//   1. Генерації ключової пари
+//   2. Формування підпису
+//   3. Перевірки підпису
+// Для повідомлень різного розміру: 32 Б, 1 КБ, 1 МБ, 100 МБ.
 
-Виміряйте час:
-1. Генерації ключів
-2. Підписання
-3. Верифікації
+#include <chrono>
+#include <string>
 
-Для різних розмірів повідомлень: 32B, 1KB, 1MB, 100MB
-"""
+// TODO: виміряти RSA-2048 і RSA-4096 (доповнення PSS)
+void benchmarkRsa(const std::string& message, int iterations = 100);
 
-import time
-from cryptography.hazmat.primitives.asymmetric import rsa, ec, ed25519
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
+// TODO: виміряти ECDSA на кривих P-256 і P-384
+void benchmarkEcdsa(const std::string& message, int iterations = 100);
 
-def benchmark_rsa(message: bytes, iterations: int = 100):
-    """
-    TODO: Виміряйте час для RSA-2048 та RSA-4096
-    - Генерація ключа
-    - Підпис (PSS padding)
-    - Верифікація
-    """
-    pass
+// TODO: виміряти Ed25519
+void benchmarkEd25519(const std::string& message, int iterations = 100);
 
-def benchmark_ecdsa(message: bytes, iterations: int = 100):
-    """
-    TODO: Виміряйте час для ECDSA P-256 та P-384
-    """
-    pass
-
-def benchmark_ed25519(message: bytes, iterations: int = 100):
-    """
-    TODO: Виміряйте час для Ed25519
-    """
-    pass
-
-def generate_report():
-    """
-    TODO: Згенеруйте таблицю результатів та ASCII графік
-    """
-    pass
-
-if __name__ == "__main__":
-    message_sizes = [32, 1024, 1024*1024, 100*1024*1024]
-
-    for size in message_sizes:
-        message = b"x" * size
-        print(f"\n=== Message size: {size} bytes ===")
-        benchmark_rsa(message)
-        benchmark_ecdsa(message)
-        benchmark_ed25519(message)
+// TODO: звести результати в таблицю та пояснити,
+// чому перевірка RSA швидша за підпис, а в ECDSA — навпаки
+void printComparisonTable();
 ```
 
 **Частина 2: Демонстрація атаки на DSA/ECDSA**
 
-```python
-"""
-Завдання: Продемонструйте атаку при повторному використанні k
+```cpp
+// Завдання: продемонструйте атаку на повторне використання k у ECDSA.
+//
+//   1. Реалізуйте спрощений варіант ECDSA
+//   2. Підпишіть два різні повідомлення з тим самим k
+//   3. Відновіть закритий ключ із двох підписів
 
-1. Реалізуйте спрощений ECDSA
-2. Підпишіть два повідомлення з однаковим k
-3. Відновіть приватний ключ
-"""
+#include <string>
+#include <utility>
 
-def simple_ecdsa_sign(message: bytes, private_key: int, k: int, curve_params):
-    """
-    TODO: Спрощена реалізація ECDSA підпису
-    r = (k * G).x mod n
-    s = k^(-1) * (hash(m) + r * private_key) mod n
-    return (r, s)
-    """
-    pass
+using u64 = unsigned long long;
 
-def recover_private_key(msg1: bytes, sig1: tuple, msg2: bytes, sig2: tuple, curve_params):
-    """
-    TODO: Відновіть приватний ключ якщо k однаковий
+// TODO: спрощений підпис ECDSA
+//   r = (k * G).x mod n
+//   s = k^-1 * (hash(m) + r * privateKey) mod n
+std::pair<u64, u64> simpleEcdsaSign(const std::string& message, u64 privateKey, u64 k);
 
-    Якщо r1 == r2 (однаковий k):
-    k = (hash(msg1) - hash(msg2)) / (s1 - s2) mod n
-    private_key = (s1 * k - hash(msg1)) / r mod n
-    """
-    pass
+// TODO: відновлення закритого ключа за двома підписами з однаковим k.
+// Якщо r1 == r2, то k однаковий, і тоді:
+//   k = (hash(m1) - hash(m2)) * (s1 - s2)^-1 mod n
+//   privateKey = (s1 * k - hash(m1)) * r^-1 mod n
+u64 recoverPrivateKey(const std::string& m1, std::pair<u64, u64> sig1,
+                      const std::string& m2, std::pair<u64, u64> sig2);
 
-def demonstrate_attack():
-    """
-    TODO:
-    1. Згенеруйте випадковий приватний ключ
-    2. Підпишіть два різних повідомлення з ОДНАКОВИМ k
-    3. Відновіть приватний ключ
-    4. Перевірте, що ключ правильний
-    """
-    pass
+// Саме через цю вразливість було зламано підписи PlayStation 3:
+// Sony використовувала однакове k для всіх підписів
 ```
 
 **Частина 3: Робота з X.509 сертифікатами**
 
-```python
-"""
-Завдання: Створіть та проаналізуйте сертифікати з різними алгоритмами
-"""
+```cpp
+// Завдання: створіть і проаналізуйте сертифікати з різними алгоритмами
 
-from cryptography import x509
-from cryptography.x509.oid import NameOID
-from datetime import datetime, timedelta
+#include <openssl/x509.h>
+#include <openssl/evp.h>
+#include <string>
 
-def create_self_signed_cert(algorithm: str):
-    """
-    TODO: Створіть self-signed сертифікат з:
-    - RSA-2048
-    - ECDSA P-256
-    - Ed25519 (якщо підтримується)
+// TODO: створіть самопідписаний сертифікат із ключем:
+//   - RSA-2048
+//   - ECDSA P-256
+//   - Ed25519
+// Виведіть відомості про сертифікат: суб'єкт, видавця, алгоритм, термін дії
+X509* createSelfSignedCert(const std::string& algorithm);
 
-    Виведіть інформацію про сертифікат
-    """
-    pass
-
-def analyze_real_cert(domain: str):
-    """
-    TODO: Завантажте сертифікат реального сайту та проаналізуйте:
-    - Алгоритм підпису
-    - Розмір ключа
-    - Термін дії
-    - Ланцюжок сертифікації
-    """
-    pass
-
-# Приклад використання
-if __name__ == "__main__":
-    # Створення сертифікатів
-    for algo in ["RSA", "ECDSA", "Ed25519"]:
-        create_self_signed_cert(algo)
-
-    # Аналіз реальних сертифікатів
-    for domain in ["google.com", "github.com", "privatbank.ua"]:
-        analyze_real_cert(domain)
+// TODO: завантажте сертифікат реального сайту (openssl s_client -connect)
+// і проаналізуйте:
+//   - алгоритм підпису
+//   - довжину ключа
+//   - термін дії
+//   - ланцюжок сертифікації
+void analyzeRealCert(const std::string& domain);
 ```
 
 **Частина 4: OpenSSL скрипт**

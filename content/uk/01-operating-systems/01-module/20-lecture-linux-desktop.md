@@ -11,12 +11,12 @@ preview: "Налаштування робочого столу, панелі, м
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    АНАТОМІЯ РОБОЧОГО СТОЛУ                     │
+│                    АНАТОМІЯ РОБОЧОГО СТОЛУ                      │
 │                                                                 │
-│   ┌─────────────────────────────────────────────────────────┐  │
+│   ┌─────────────────────────────────────────────────────────┐   │
 │   │ ≡ Activities │ Firefox ▼ │              🔊 🔋 📶 10:30  │  │  ← Top Panel
 │   ├─────────────────────────────────────────────────────────┤  │     (GNOME)
-│   │                                                         │  │
+│   │                                                        │  │
 │   │   ┌──────────────────┐     ┌──────────────────┐        │  │
 │   │   │                  │     │                  │        │  │
 │   │   │  Desktop Icons   │     │   Floating       │        │  │
@@ -31,8 +31,8 @@ preview: "Налаштування робочого столу, панелі, м
 │   ├─────────────────────────────────────────────────────────┤  │
 │   │ ┌───┐ ┌───┐ ┌───┐ ┌───┐          ┌───────────────────┐ │  │  ← Dock/
 │   │ │📁 │ │🌐 │ │💻 │ │⚙️ │          │ Show Applications │ │  │     Panel
-│   │ └───┘ └───┘ └───┘ └───┘          └───────────────────┘ │  │
-│   └─────────────────────────────────────────────────────────┘  │
+│   │ └───┘ └───┘ └───┘ └───┘          └───────────────────┘ │    │
+│   └─────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -94,38 +94,38 @@ gnome-tweaks
 ```
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    GNOME TWEAKS                                 │
-│                                                                 │
-│   Appearance                                                   │
-│   ├── Themes                                                   │
+┌───────────────────────────────────────────────────────────────┐
+│                    GNOME TWEAKS                               │
+│                                                               │
+│   Appearance                                                  │
+│   ├── Themes                                                  │
 │   │   ├── Applications (GTK theme)                            │
-│   │   ├── Cursor                                               │
-│   │   ├── Icons                                                │
+│   │   ├── Cursor                                              │
+│   │   ├── Icons                                               │
 │   │   └── Shell (потрібен user-theme extension)               │
-│   └── Background                                               │
-│                                                                 │
-│   Fonts                                                        │
+│   └── Background                                              │
+│                                                               │
+│   Fonts                                                       │
 │   ├── Interface Text: Cantarell Regular 11                    │
 │   ├── Document Text: Sans Regular 11                          │
 │   ├── Monospace Text: Monospace Regular 11                    │
 │   ├── Antialiasing: Subpixel                                  │
 │   └── Scaling Factor: 1.00                                    │
-│                                                                 │
-│   Keyboard & Mouse                                             │
+│                                                               │
+│   Keyboard & Mouse                                            │
 │   ├── Acceleration Profile                                    │
 │   └── Additional Layout Options                               │
-│                                                                 │
-│   Startup Applications                                         │
+│                                                               │
+│   Startup Applications                                        │
 │   └── Програми для автозапуску                                │
-│                                                                 │
-│   Top Bar                                                      │
+│                                                               │
+│   Top Bar                                                     │
 │   ├── Clock: Show Seconds                                     │
 │   └── Calendar: Show Week Numbers                             │
-│                                                                 │
-│   Window Titlebars                                             │
+│                                                               │
+│   Window Titlebars                                            │
 │   └── Titlebar Buttons: Minimize, Maximize                    │
-└─────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ### GNOME Extensions
@@ -133,29 +133,29 @@ gnome-tweaks
 **Extensions** — головний спосіб кастомізації GNOME. Це плагіни, написані на JavaScript, що змінюють поведінку Shell.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    ПОПУЛЯРНІ EXTENSIONS                         │
-│                                                                 │
-│   Dock & Panel:                                                │
+┌───────────────────────────────────────────────────────────────┐
+│                    ПОПУЛЯРНІ EXTENSIONS                       │
+│                                                               │
+│   Dock & Panel:                                               │
 │   • Dash to Dock — dock внизу/збоку, auto-hide                │
 │   • Dash to Panel — Windows-подібна панель знизу              │
 │   • Arc Menu — класичне меню Start                            │
-│                                                                 │
-│   Productivity:                                                │
+│                                                               │
+│   Productivity:                                               │
 │   • Clipboard History — буфер обміну з історією               │
 │   • GSConnect — інтеграція з Android (KDE Connect)            │
 │   • Caffeine — не вимикати екран                              │
-│                                                                 │
-│   Appearance:                                                  │
+│                                                               │
+│   Appearance:                                                 │
 │   • User Themes — дозволяє Shell themes                       │
 │   • Blur my Shell — розмиття фону                             │
 │   • Rounded Window Corners — заокруглення вікон               │
-│                                                                 │
-│   System:                                                      │
+│                                                               │
+│   System:                                                     │
 │   • system-monitor — графіки CPU/RAM в панелі                 │
 │   • Vitals — температура, швидкість вентиляторів              │
 │   • AppIndicator Support — підтримка tray icons               │
-└─────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ```bash
@@ -220,20 +220,20 @@ systemsettings5
 ```
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    KDE SYSTEM SETTINGS                          │
-│                                                                 │
-│   APPEARANCE                          WORKSPACE                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    KDE SYSTEM SETTINGS                         │
+│                                                                │
+│   APPEARANCE                          WORKSPACE                │
 │   ├── Global Theme                    ├── Workspace Behavior   │
 │   ├── Plasma Style                    │   ├── General Behavior │
 │   ├── Application Style               │   ├── Desktop Effects  │
 │   │   ├── GNOME/GTK Apps Style       │   ├── Screen Edges      │
 │   │   └── Window Decorations         │   ├── Screen Locking    │
 │   ├── Colors                          │   └── Virtual Desktops │
-│   ├── Icons                           ├── Window Management     │
+│   ├── Icons                           ├── Window Management    │
 │   ├── Cursors                         ├── Shortcuts            │
 │   └── Fonts                           └── Startup & Shutdown   │
-│                                                                 │
+│                                                                │
 │   HARDWARE                            PERSONALIZATION          │
 │   ├── Input Devices                   ├── Notifications        │
 │   │   ├── Keyboard                    ├── Users                │
@@ -242,7 +242,7 @@ systemsettings5
 │   ├── Display & Monitor                                        │
 │   ├── Audio                                                    │
 │   └── Power Management                                         │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Plasma Widgets
@@ -432,28 +432,28 @@ journalctl --user -u mybackground.service
 ### Налаштування панелі GNOME
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    GNOME TOP BAR                                │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    GNOME TOP BAR                               │
+│                                                                │
 │   ┌─────────────────────────────────────────────────────────┐  │
 │   │ Activities │ App Menu │           │ System Tray │ 10:30 │  │
 │   └─────────────────────────────────────────────────────────┘  │
-│                                                                 │
+│                                                                │
 │   Activities (ліворуч):                                        │
 │   • Клік або Super key → Overview                              │
 │   • Type to search                                             │
 │   • Drag windows to workspaces                                 │
-│                                                                 │
+│                                                                │
 │   System Tray (праворуч):                                      │
-│   • Мережа, звук, батарея                                     │
+│   • Мережа, звук, батарея                                      │
 │   • Quick Settings (клік)                                      │
 │   • Notifications                                              │
-│                                                                 │
+│                                                                │
 │   Dash (в Overview):                                           │
-│   • Улюблені програми                                         │
+│   • Улюблені програми                                          │
 │   • Running apps (з точками)                                   │
 │   • Trash, Files, Show Applications                            │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ```bash
@@ -468,25 +468,25 @@ gsettings set org.gnome.desktop.calendar show-weekdate true
 ### Налаштування панелі KDE
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    KDE PLASMA PANEL                             │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                    KDE PLASMA PANEL                            │
+│                                                                │
 │   Редагування панелі:                                          │
 │   1. Правий клік на панелі                                     │
 │   2. "Enter Edit Mode" або "Panel Options"                     │
-│                                                                 │
+│                                                                │
 │   Можливості:                                                  │
 │   • Додати/видалити widgets                                    │
-│   • Змінити позицію панелі (top/bottom/left/right)            │
-│   • Налаштувати висоту панелі                                 │
+│   • Змінити позицію панелі (top/bottom/left/right)             │
+│   • Налаштувати висоту панелі                                  │
 │   • Auto-hide                                                  │
-│   • Максимальна/центрована ширина                             │
+│   • Максимальна/центрована ширина                              │
 │   • Floating panel                                             │
-│                                                                 │
-│   Стандартні widgets на панелі:                               │
+│                                                                │
+│   Стандартні widgets на панелі:                                │
 │   [App Launcher] [Task Manager] [System Tray] [Clock]          │
 │   [Pager] [Media Player] [Weather] [etc.]                      │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## Гарячі клавіші та жести
@@ -567,34 +567,34 @@ nautilus . 2>/dev/null || dolphin . 2>/dev/null || thunar .
 ## 🏢 Real World: Desktop Linux у компаніях
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 LINUX DESKTOP В ENTERPRISE                       │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                 LINUX DESKTOP В ENTERPRISE                     │
+│                                                                │
 │   🎬 PIXAR / DreamWorks / Industrial Light & Magic             │
 │   • 3D-анімація на Linux workstations                          │
 │   • KDE Plasma для художників                                  │
 │   • Кастомізовані панелі для render farms                      │
-│                                                                 │
+│                                                                │
 │   🚗 TESLA / BMW / Mercedes                                    │
 │   • Linux для розробки автопілоту                              │
 │   • Embedded GUI на Qt/KDE frameworks                          │
 │   • Інженерні workstations                                     │
-│                                                                 │
+│                                                                │
 │   🎮 VALVE / Steam Deck                                        │
 │   • SteamOS базується на Arch Linux                            │
 │   • KDE Plasma як desktop environment                          │
 │   • Кастомізація через gsettings/kwriteconfig5                 │
-│                                                                 │
+│                                                                │
 │   💻 RED HAT / Canonical / SUSE                                │
-│   • Enterprise Linux distributions                              │
+│   • Enterprise Linux distributions                             │
 │   • Розробники працюють на GNOME/KDE                           │
 │   • Автоматизація через gsettings в deployment                 │
-│                                                                 │
-│   🏛️ УРЯДИ (Німеччина, Франція, Мюнхен)                       │
-│   • LiMux project: 15000+ комп'ютерів                         │
+│                                                                │
+│   🏛️ УРЯДИ (Німеччина, Франція, Мюнхен)                        │
+│   • LiMux project: 15000+ комп'ютерів                          │
 │   • Стандартизовані desktop configurations                     │
-│   • Автозапуск корпоративних програм                          │
-└─────────────────────────────────────────────────────────────────┘
+│   • Автозапуск корпоративних програм                           │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Реальні сценарії налаштування
@@ -614,24 +614,24 @@ nautilus . 2>/dev/null || dolphin . 2>/dev/null || thunar .
 │                 КАР'ЄРНІ МОЖЛИВОСТІ                             │
 │                                                                 │
 │   Linux Desktop Administrator                                   │
-│   ├── Зарплата: $50,000 - $90,000/рік                         │
-│   ├── Навички: GNOME/KDE, gsettings, dconf, MDM               │
-│   └── Компанії: Enterprise IT, освіта, уряд                   │
+│   ├── Зарплата: $50,000 - $90,000/рік                           │
+│   ├── Навички: GNOME/KDE, gsettings, dconf, MDM                 │
+│   └── Компанії: Enterprise IT, освіта, уряд                     │
 │                                                                 │
 │   Enterprise Desktop Engineer                                   │
-│   ├── Зарплата: $70,000 - $120,000/рік                        │
-│   ├── Навички: Configuration management, imaging               │
-│   └── Компанії: Red Hat, Canonical, consultancies             │
+│   ├── Зарплата: $70,000 - $120,000/рік                          │
+│   ├── Навички: Configuration management, imaging                │
+│   └── Компанії: Red Hat, Canonical, consultancies               │
 │                                                                 │
 │   Linux Support Specialist                                      │
-│   ├── Зарплата: $40,000 - $70,000/рік                         │
-│   ├── Навички: Troubleshooting, user training                 │
-│   └── Компанії: IT support, MSP                               │
+│   ├── Зарплата: $40,000 - $70,000/рік                           │
+│   ├── Навички: Troubleshooting, user training                   │
+│   └── Компанії: IT support, MSP                                 │
 │                                                                 │
 │   Open Source Developer (Desktop)                               │
-│   ├── Зарплата: $80,000 - $150,000/рік                        │
-│   ├── Навички: C/C++, GTK, Qt, JavaScript (GNOME)             │
-│   └── Компанії: Red Hat, Canonical, KDE e.V.                  │
+│   ├── Зарплата: $80,000 - $150,000/рік                          │
+│   ├── Навички: C/C++, GTK, Qt, JavaScript (GNOME)               │
+│   └── Компанії: Red Hat, Canonical, KDE e.V.                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -649,36 +649,36 @@ nautilus . 2>/dev/null || dolphin . 2>/dev/null || thunar .
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    GNOME/KDE QUICK REFERENCE                    │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   GNOME Settings:                                               │
+┌────────────────────────────────────────────────────────────────┐
+│                    GNOME/KDE QUICK REFERENCE                   │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│   GNOME Settings:                                              │
 │   gsettings get/set org.gnome.desktop.interface <key>          │
 │   gsettings list-keys org.gnome.desktop.interface              │
 │   gnome-control-center [section]                               │
 │   gnome-tweaks                                                 │
-│                                                                 │
+│                                                                │
 │   Теми та іконки:                                              │
 │   ~/.themes/           ~/.local/share/icons/                   │
-│   gsettings set org.gnome.desktop.interface gtk-theme "Name"  │
-│   gsettings set org.gnome.desktop.interface icon-theme "Name" │
-│                                                                 │
-│   Extensions:                                                   │
+│   gsettings set org.gnome.desktop.interface gtk-theme "Name"   │
+│   gsettings set org.gnome.desktop.interface icon-theme "Name"  │
+│                                                                │
+│   Extensions:                                                  │
 │   gnome-extensions list --enabled                              │
 │   gnome-extensions enable/disable <name>                       │
 │   ~/.local/share/gnome-shell/extensions/                       │
-│                                                                 │
+│                                                                │
 │   Автозапуск:                                                  │
 │   ~/.config/autostart/*.desktop                                │
 │   ~/.config/systemd/user/*.service                             │
 │   systemctl --user enable/start <service>                      │
-│                                                                 │
+│                                                                │
 │   Корисні ключі gsettings:                                     │
 │   org.gnome.desktop.interface  color-scheme, gtk-theme         │
 │   org.gnome.desktop.background picture-uri                     │
 │   org.gnome.desktop.wm.preferences button-layout               │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки

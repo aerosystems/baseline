@@ -1,19 +1,20 @@
 ---
-title: "Шифр Плейфера. Подвійний квадрат"
+title: "Використання шифру складної перестановки при розв'язанні задачі захисту інформації (шифр Плейфера, шифр подвійний квадрат Уітстона). Програмна реалізація"
+shortTitle: "Шифр Плейфера. Подвійний квадрат"
 type: lab
 order: 11
 labNumber: 4
 subject: pmzi
 duration: "2 академічні години"
 equipment:
-  - "ПК з встановленим C++ компілятором або Python 3"
+  - "ПК з встановленим C++ компілятором (MSVC, MinGW або GCC)"
   - "Середовище розробки (Visual Studio, VS Code)"
 preview: "Реалізація шифру Плейфера та подвійного квадрата Уітстона."
 ---
 
 **Мета:** вивчити принципи поліграмного шифрування. Реалізувати шифр Плейфера та подвійний квадрат Уітстона.
 
-**Обладнання:** ПК з встановленим C++ компілятором або Python 3; Середовище розробки (Visual Studio, VS Code).
+**Обладнання:** ПК з встановленим C++ компілятором (MSVC, MinGW або GCC); Середовище розробки (Visual Studio, VS Code).
 
 **Тривалість:** 2 академічні години.
 
@@ -23,7 +24,7 @@ preview: "Реалізація шифру Плейфера та подвійно
 |--------|------|
 | **Знання** | Лекція 10: Шифр Трисемуса. Шифр Плейфера. Подвійний квадрат |
 | **Навички** | Робота з матрицями символів |
-| **Середовище** | ПК з встановленим C++ компілятором або Python 3 |
+| **Середовище** | ПК з встановленим C++ компілятором (MSVC, MinGW або GCC) |
 
 ## Теоретичні відомості
 
@@ -42,8 +43,8 @@ preview: "Реалізація шифру Плейфера та подвійно
 │                                                                       │
 │  ПОЛІГРАМНИЙ (Плейфер):                                               │
 │  EA → XY, ER → UV, EN → ZW                                            │
-│  Біграма EA шифрується по-різному в різних контекстах                 │
-│  Частотний аналіз: набагато складніше                                 │
+│  Літера E дає різний результат залежно від сусідки в біграмі          │
+│  Частотний аналіз окремих літер не працює: рахувати треба біграми     │
 │                                                                       │
 └───────────────────────────────────────────────────────────────────────┘
 ```
@@ -78,8 +79,8 @@ preview: "Реалізація шифру Плейфера та подвійно
 │                                                                       │
 │  1. ОДИН РЯДОК: зсув вправо (з циклічним переносом)                   │
 │     ┌───┬───┬───┬───┬───┐                                             │
-│     │ M │[O]│ N │[A]│ R │   OA → NA (зсув вправо)                     │
-│     └───┴───┴───┴───┴───┘                                             │
+│     │ M │[O]│ N │[A]│ R │   OA → NR (O→N, A→R)                        │
+│     └───┴───┴───┴───┴───┘   остання літера рядка переходить у першу   │
 │                                                                       │
 │  2. ОДИН СТОВПЕЦЬ: зсув вниз (з циклічним переносом)                  │
 │     ┌───┐                                                             │
@@ -122,252 +123,314 @@ preview: "Реалізація шифру Плейфера та подвійно
 ```
 **Правило шифрування:**
 
-- Перша літера біграми шукається в квадраті 1
-- Друга літера — в квадраті 2
-- Результат — літери на тих же рядках, але з протилежних стовпців
+- Перша літера біграми шукається в квадраті 1, друга — у квадраті 2
+- Перша літера шифротексту: квадрат 1, рядок першої літери, стовпець другої
+- Друга літера шифротексту: квадрат 2, рядок другої літери, стовпець першої
 
 ```
-Приклад: HE
-H у квадраті 1: рядок 2, стовпець 1
-E у квадраті 2: рядок 0, стовпець 1
+Приклад: AT
+A у квадраті 1: рядок 0, стовпець 2
+T у квадраті 2: рядок 4, стовпець 0
 
 Шифрування:
-- З квадрата 1 беремо літеру (рядок H, стовпець E) = L
-- З квадрата 2 беремо літеру (рядок E, стовпець H) = Y
+- З квадрата 1: рядок A (0), стовпець T (0) → E
+- З квадрата 2: рядок T (4), стовпець A (2) → V
 
-HE → LY
+AT → EV
 ```
+
+Якщо обидві літери опиняються в однаковому стовпці своїх квадратів, біграма лишається
+незмінною (`HE → HE`). Так поводиться приблизно кожна п'ята пара — це відома слабкість шифру.
 ## Приклад виконання
 
-### Крок 1. Побудова матриці Плейфера (Python)
+### Крок 1. Побудова матриці Плейфера
 
-```python
-def create_playfair_matrix(keyword: str) -> list:
-    """Створює матрицю 5×5 для шифру Плейфера."""
-    # Замінюємо J на I, видаляємо повтори
-    alphabet = 'ABCDEFGHIKLMNOPQRSTUVWXYZ'  # без J
-    keyword = keyword.upper().replace('J', 'I')
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cctype>
 
-    # Формуємо послідовність: ключ + решта алфавіту
-    seen = set()
-    matrix_chars = []
+using Matrix = std::vector<std::string>;  // 5 рядків по 5 літер
 
-    for c in keyword:
-        if c.isalpha() and c not in seen:
-            seen.add(c)
-            matrix_chars.append(c)
+// Матриця 5x5: спершу літери ключа без повторів, далі решта абетки без J
+Matrix createMatrix(const std::string& keyword) {
+    const std::string alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ";  // без J
+    bool used[26] = { false };
+    std::string chars;
 
-    for c in alphabet:
-        if c not in seen:
-            matrix_chars.append(c)
+    for (char c : keyword) {
+        char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        if (up == 'J') up = 'I';
+        if (up >= 'A' && up <= 'Z' && !used[up - 'A']) {
+            used[up - 'A'] = true;
+            chars += up;
+        }
+    }
 
-    # Створюємо матрицю 5×5
-    matrix = []
-    for i in range(5):
-        matrix.append(matrix_chars[i*5:(i+1)*5])
+    for (char c : alphabet) {
+        if (!used[c - 'A']) {
+            used[c - 'A'] = true;
+            chars += c;
+        }
+    }
 
-    return matrix
+    Matrix matrix(5);
+    for (int row = 0; row < 5; ++row) {
+        matrix[row] = chars.substr(row * 5, 5);
+    }
+    return matrix;
+}
 
-def find_position(matrix: list, char: str) -> tuple:
-    """Знаходить позицію символу в матриці."""
-    char = char.upper().replace('J', 'I')
-    for row in range(5):
-        for col in range(5):
-            if matrix[row][col] == char:
-                return (row, col)
-    return None
+// Позиція літери в матриці; повертає false, якщо літери немає
+bool findPosition(const Matrix& matrix, char c, int& row, int& col) {
+    char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+    if (up == 'J') up = 'I';
 
-def print_matrix(matrix: list, title: str = ""):
-    """Друкує матрицю."""
-    if title:
-        print(title)
-    print("┌───┬───┬───┬───┬───┐")
-    for i, row in enumerate(matrix):
-        print("│ " + " │ ".join(row) + " │")
-        if i < 4:
-            print("├───┼───┼───┼───┼───┤")
-    print("└───┴───┴───┴───┴───┘")
+    for (row = 0; row < 5; ++row) {
+        for (col = 0; col < 5; ++col) {
+            if (matrix[row][col] == up) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
-# Демонстрація
-keyword = "MONARCHY"
-matrix = create_playfair_matrix(keyword)
-print_matrix(matrix, f"Матриця для ключа '{keyword}':")
+void printMatrix(const Matrix& matrix, const std::string& title) {
+    if (!title.empty()) {
+        std::cout << title << "\n";
+    }
+    for (const std::string& row : matrix) {
+        for (char c : row) {
+            std::cout << c << ' ';
+        }
+        std::cout << "\n";
+    }
+}
+
+int main() {
+    std::string keyword = "MONARCHY";
+    Matrix matrix = createMatrix(keyword);
+    printMatrix(matrix, "Матриця для ключа " + keyword + ":");
+    return 0;
+}
 ```
+
+Результат роботи програми:
+
+```
+Матриця для ключа MONARCHY:
+M O N A R
+C H Y B D
+E F G I K
+L P Q S T
+U V W X Z
+```
+
 ### Крок 2. Шифрування Плейфера
 
-```python
-def prepare_text(plaintext: str) -> str:
-    """Підготовка тексту: видалення пробілів, заміна J, розбивка на біграми."""
-    text = plaintext.upper().replace('J', 'I')
-    text = ''.join(c for c in text if c.isalpha())
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cctype>
 
-    # Вставляємо X між однаковими літерами
-    result = []
-    i = 0
-    while i < len(text):
-        result.append(text[i])
-        if i + 1 < len(text):
-            if text[i] == text[i + 1]:
-                result.append('X')
-            else:
-                result.append(text[i + 1])
-                i += 1
-        i += 1
+using Matrix = std::vector<std::string>;
 
-    # Якщо непарна кількість, додаємо X
-    if len(result) % 2 == 1:
-        result.append('X')
+Matrix createMatrix(const std::string& keyword);                  // з кроку 1
+bool findPosition(const Matrix& m, char c, int& row, int& col);   // з кроку 1
 
-    return ''.join(result)
+// Підготовка тексту: лише літери, J→I, розділення однакових літер біграми
+std::string prepareText(const std::string& plaintext) {
+    std::string clean;
+    for (char c : plaintext) {
+        if (std::isalpha(static_cast<unsigned char>(c))) {
+            char up = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+            clean += (up == 'J') ? 'I' : up;
+        }
+    }
 
-def playfair_encrypt_bigram(matrix: list, a: str, b: str) -> str:
-    """Шифрує одну біграму."""
-    row_a, col_a = find_position(matrix, a)
-    row_b, col_b = find_position(matrix, b)
+    std::string result;
+    for (size_t i = 0; i < clean.size(); ++i) {
+        result += clean[i];
+        // однакові літери в біграмі розділяємо літерою X
+        if (result.size() % 2 == 1 && i + 1 < clean.size() && clean[i] == clean[i + 1]) {
+            result += 'X';
+        }
+    }
 
-    if row_a == row_b:  # Один рядок
-        return matrix[row_a][(col_a + 1) % 5] + matrix[row_b][(col_b + 1) % 5]
-    elif col_a == col_b:  # Один стовпець
-        return matrix[(row_a + 1) % 5][col_a] + matrix[(row_b + 1) % 5][col_b]
-    else:  # Прямокутник
-        return matrix[row_a][col_b] + matrix[row_b][col_a]
+    if (result.size() % 2 == 1) {
+        result += 'X';
+    }
+    return result;
+}
 
-def playfair_decrypt_bigram(matrix: list, a: str, b: str) -> str:
-    """Дешифрує одну біграму."""
-    row_a, col_a = find_position(matrix, a)
-    row_b, col_b = find_position(matrix, b)
+// shift = +1 для зашифрування, -1 (тобто +4 за модулем 5) для розшифрування
+std::string processBigram(const Matrix& matrix, char a, char b, int shift) {
+    int rowA, colA, rowB, colB;
+    findPosition(matrix, a, rowA, colA);
+    findPosition(matrix, b, rowB, colB);
 
-    if row_a == row_b:  # Один рядок
-        return matrix[row_a][(col_a - 1) % 5] + matrix[row_b][(col_b - 1) % 5]
-    elif col_a == col_b:  # Один стовпець
-        return matrix[(row_a - 1) % 5][col_a] + matrix[(row_b - 1) % 5][col_b]
-    else:  # Прямокутник
-        return matrix[row_a][col_b] + matrix[row_b][col_a]
+    std::string result;
+    if (rowA == rowB) {                       // один рядок: беремо сусідів праворуч
+        result += matrix[rowA][(colA + shift + 5) % 5];
+        result += matrix[rowB][(colB + shift + 5) % 5];
+    } else if (colA == colB) {                // один стовпець: сусіди знизу
+        result += matrix[(rowA + shift + 5) % 5][colA];
+        result += matrix[(rowB + shift + 5) % 5][colB];
+    } else {                                  // прямокутник: протилежні кути
+        result += matrix[rowA][colB];
+        result += matrix[rowB][colA];
+    }
+    return result;
+}
 
-def playfair_encrypt(plaintext: str, keyword: str) -> str:
-    """Повне шифрування Плейфера."""
-    matrix = create_playfair_matrix(keyword)
-    text = prepare_text(plaintext)
+std::string playfairEncrypt(const std::string& plaintext, const std::string& keyword) {
+    Matrix matrix = createMatrix(keyword);
+    std::string text = prepareText(plaintext);
+    std::string ciphertext;
 
-    ciphertext = ''
-    for i in range(0, len(text), 2):
-        ciphertext += playfair_encrypt_bigram(matrix, text[i], text[i+1])
+    for (size_t i = 0; i + 1 < text.size(); i += 2) {
+        ciphertext += processBigram(matrix, text[i], text[i + 1], +1);
+    }
+    return ciphertext;
+}
 
-    return ciphertext
+std::string playfairDecrypt(const std::string& ciphertext, const std::string& keyword) {
+    Matrix matrix = createMatrix(keyword);
+    std::string plaintext;
 
-def playfair_decrypt(ciphertext: str, keyword: str) -> str:
-    """Повне дешифрування Плейфера."""
-    matrix = create_playfair_matrix(keyword)
+    for (size_t i = 0; i + 1 < ciphertext.size(); i += 2) {
+        plaintext += processBigram(matrix, ciphertext[i], ciphertext[i + 1], -1);
+    }
+    return plaintext;
+}
 
-    plaintext = ''
-    for i in range(0, len(ciphertext), 2):
-        plaintext += playfair_decrypt_bigram(matrix, ciphertext[i], ciphertext[i+1])
+int main() {
+    std::string keyword = "MONARCHY";
+    std::string plaintext = "HELLO WORLD";
 
-    return plaintext
+    std::cout << "=== Шифр Плейфера ===\n";
+    std::cout << "Ключ:            " << keyword << "\n";
+    std::cout << "Відкритий текст: " << plaintext << "\n";
+    std::cout << "Підготовлений:   " << prepareText(plaintext) << "\n";
 
-# Демонстрація
-keyword = "MONARCHY"
-plaintext = "HELLO WORLD"
+    std::string ciphertext = playfairEncrypt(plaintext, keyword);
+    std::cout << "Шифротекст:      " << ciphertext << "\n";
+    std::cout << "Розшифровано:    " << playfairDecrypt(ciphertext, keyword) << "\n";
 
-print(f"\n=== Шифр Плейфера ===")
-print(f"Ключ: {keyword}")
-print(f"Відкритий текст: {plaintext}")
-print(f"Підготовлений: {prepare_text(plaintext)}")
-
-ciphertext = playfair_encrypt(plaintext, keyword)
-print(f"Шифротекст: {ciphertext}")
-
-decrypted = playfair_decrypt(ciphertext, keyword)
-print(f"Розшифровано: {decrypted}")
+    return 0;
+}
 ```
+
+Результат роботи програми:
+
+```
+=== Шифр Плейфера ===
+Ключ:            MONARCHY
+Відкритий текст: HELLO WORLD
+Підготовлений:   HELXLOWORLDX
+Шифротекст:      CFSUPMVNMTBZ
+Розшифровано:    HELXLOWORLDX
+```
+
+Першу біграму легко перевірити за матрицею: H стоїть у рядку 2, стовпці 2,
+E — у рядку 3, стовпці 1. Літери в різних рядках і стовпцях, тому кожна
+замінюється літерою свого рядка в стовпці іншої: H дає C, E дає F.
+
 ### Крок 3. Подвійний квадрат Уітстона
 
-```python
-def two_square_encrypt(plaintext: str, keyword1: str, keyword2: str) -> str:
-    """Шифрування подвійним квадратом."""
-    matrix1 = create_playfair_matrix(keyword1)
-    matrix2 = create_playfair_matrix(keyword2)
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
 
-    text = prepare_text(plaintext)
+using Matrix = std::vector<std::string>;
 
-    ciphertext = ''
-    for i in range(0, len(text), 2):
-        a, b = text[i], text[i+1]
+Matrix createMatrix(const std::string& keyword);                  // з кроку 1
+bool findPosition(const Matrix& m, char c, int& row, int& col);   // з кроку 1
+void printMatrix(const Matrix& m, const std::string& title);      // з кроку 1
+std::string prepareText(const std::string& plaintext);            // з кроку 2
 
-        row1, col1 = find_position(matrix1, a)
-        row2, col2 = find_position(matrix2, b)
+// Подвійний квадрат: перша літера біграми шукається в першому квадраті,
+// друга — у другому; результат беруть із протилежних кутів прямокутника
+std::string twoSquareProcess(const std::string& text,
+                             const std::string& keyword1,
+                             const std::string& keyword2) {
+    Matrix first = createMatrix(keyword1);
+    Matrix second = createMatrix(keyword2);
+    std::string result;
 
-        # Протилежні кути прямокутника
-        cipher_a = matrix1[row1][col2]
-        cipher_b = matrix2[row2][col1]
+    for (size_t i = 0; i + 1 < text.size(); i += 2) {
+        int row1, col1, row2, col2;
+        findPosition(first, text[i], row1, col1);
+        findPosition(second, text[i + 1], row2, col2);
 
-        ciphertext += cipher_a + cipher_b
+        result += first[row1][col2];
+        result += second[row2][col1];
+    }
+    return result;
+}
 
-    return ciphertext
+std::string twoSquareEncrypt(const std::string& plaintext,
+                             const std::string& keyword1,
+                             const std::string& keyword2) {
+    return twoSquareProcess(prepareText(plaintext), keyword1, keyword2);
+}
 
-def two_square_decrypt(ciphertext: str, keyword1: str, keyword2: str) -> str:
-    """Дешифрування подвійним квадратом."""
-    matrix1 = create_playfair_matrix(keyword1)
-    matrix2 = create_playfair_matrix(keyword2)
+// Операція симетрична: повторне застосування повертає відкритий текст
+std::string twoSquareDecrypt(const std::string& ciphertext,
+                             const std::string& keyword1,
+                             const std::string& keyword2) {
+    return twoSquareProcess(ciphertext, keyword1, keyword2);
+}
 
-    plaintext = ''
-    for i in range(0, len(ciphertext), 2):
-        a, b = ciphertext[i], ciphertext[i+1]
+int main() {
+    std::string keyword1 = "EXAMPLE";
+    std::string keyword2 = "KEYWORD";
+    std::string plaintext = "HELLO WORLD";
 
-        row1, col1 = find_position(matrix1, a)
-        row2, col2 = find_position(matrix2, b)
+    std::cout << "=== Подвійний квадрат Уітстона ===\n";
+    std::cout << "Ключ 1:          " << keyword1 << "\n";
+    std::cout << "Ключ 2:          " << keyword2 << "\n";
+    std::cout << "Відкритий текст: " << plaintext << "\n\n";
 
-        # Обернена операція
-        plain_a = matrix1[row1][col2]
-        plain_b = matrix2[row2][col1]
+    printMatrix(createMatrix(keyword1), "Квадрат 1:");
+    std::cout << "\n";
+    printMatrix(createMatrix(keyword2), "Квадрат 2:");
 
-        plaintext += plain_a + plain_b
+    std::string ciphertext = twoSquareEncrypt(plaintext, keyword1, keyword2);
+    std::cout << "\nШифротекст:      " << ciphertext << "\n";
+    std::cout << "Розшифровано:    " << twoSquareDecrypt(ciphertext, keyword1, keyword2) << "\n";
 
-    return plaintext
-
-# Демонстрація
-keyword1 = "EXAMPLE"
-keyword2 = "KEYWORD"
-plaintext = "HELLO WORLD"
-
-print(f"\n=== Подвійний квадрат Уітстона ===")
-print(f"Ключ 1: {keyword1}")
-print(f"Ключ 2: {keyword2}")
-print(f"Відкритий текст: {plaintext}")
-
-print("\nКвадрат 1:")
-print_matrix(create_playfair_matrix(keyword1))
-print("\nКвадрат 2:")
-print_matrix(create_playfair_matrix(keyword2))
-
-ciphertext = two_square_encrypt(plaintext, keyword1, keyword2)
-print(f"\nШифротекст: {ciphertext}")
-
-decrypted = two_square_decrypt(ciphertext, keyword1, keyword2)
-print(f"Розшифровано: {decrypted}")
+    return 0;
+}
 ```
-**Очікуваний результат:**
+Результат роботи програми:
 
 ```
-Матриця для ключа 'MONARCHY':
-┌───┬───┬───┬───┬───┐
-│ M │ O │ N │ A │ R │
-├───┼───┼───┼───┼───┤
-│ C │ H │ Y │ B │ D │
-├───┼───┼───┼───┼───┤
-│ E │ F │ G │ I │ K │
-├───┼───┼───┼───┼───┤
-│ L │ P │ Q │ S │ T │
-├───┼───┼───┼───┼───┤
-│ U │ V │ W │ X │ Z │
-└───┴───┴───┴───┴───┘
-
-=== Шифр Плейфера ===
-Ключ: MONARCHY
+=== Подвійний квадрат Уітстона ===
+Ключ 1:          EXAMPLE
+Ключ 2:          KEYWORD
 Відкритий текст: HELLO WORLD
-Підготовлений: HELXLOWORLD
-Шифротекст: KFUYMQWLTPQ
-Розшифровано: HELXLOWORLD
+
+Квадрат 1:
+E X A M P
+L B C D F
+G H I K N
+O Q R S T
+U V W Y Z
+
+Квадрат 2:
+K E Y W O
+R D A B C
+F G H I L
+M N P Q S
+T U V X Z
+
+Шифротекст:      HEDTFKZYTHDX
+Розшифровано:    HELXLOWORLDX
 ```
 ## Порядок виконання роботи
 
@@ -425,13 +488,36 @@ print(f"Розшифровано: {decrypted}")
 
 ## Контрольні запитання
 
-1. Які правила шифрування біграм у шифрі Плейфера?
-2. Як обробляються повторювані літери (наприклад, LL)?
-3. Чому I та J об'єднуються в одну літеру?
-4. Чому подвійний квадрат стійкіший за одинарний Плейфер?
-5. Скільки можливих ключів у шифрі Плейфера?
-6. Як дешифрувати біграму, якщо літери в одному рядку?
-7. Які переваги поліграмних шифрів над моноалфавітними?
+Запитання згруповано за рівнями навчальних досягнень. Для позитивної оцінки студент має відповісти на запитання середнього рівня, оцінка «добре» потребує відповідей достатнього рівня, оцінка «відмінно» — високого.
+
+### Середній рівень (репродуктивний)
+
+1. Що таке поліграмний шифр?
+2. Які правила шифрування біграм застосовує шифр Плейфера?
+3. Як формується таблиця 5×5 для шифру Плейфера?
+4. Чому літери I та J об'єднують в одну клітинку?
+5. Як обробляються повторювані літери в біграмі, наприклад LL?
+6. Як дешифрувати біграму, літери якої розташовані в одному рядку?
+7. Скільки можливих ключів має шифр Плейфера?
+8. Що таке подвійний квадрат Уітстона?
+
+### Достатній рівень (конструктивно-варіативний)
+
+1. Які переваги поліграмних шифрів над моноалфавітними з погляду частотного аналізу?
+2. Чому подвійний квадрат вважається стійкішим за одинарний шифр Плейфера?
+3. Як зміниться алгоритм, якщо використати таблицю 6×6 для української абетки?
+4. Запишіть порядок дій для розшифрування біграми, літери якої утворюють прямокутник.
+5. Чому текст непарної довжини доповнюють і як обрати символ-заповнювач?
+6. Як частотний аналіз біграм застосовують до шифру Плейфера?
+7. Чому шифр Плейфера не приховує довжину повідомлення?
+8. Як перевірити, що реалізація шифрує й дешифрує симетрично?
+
+### Високий рівень (творчий)
+
+1. Поясніть, чому перехід від однієї літери до біграми принципово ускладнює частотний аналіз, і оцініть, скільки тексту потрібно криптоаналітику.
+2. Запропонуйте модифікацію шифру Плейфера, яка усуває його головну слабкість. Обґрунтуйте, ціною чого досягається виграш.
+3. Порівняйте шифр Плейфера й подвійний квадрат за трьома критеріями: розмір ключа, складність реалізації, стійкість.
+4. Сформулюйте, чому історичні поліграмні шифри не застосовують сьогодні, попри їхню відносну складність.
 
 ## Критерії оцінювання
 

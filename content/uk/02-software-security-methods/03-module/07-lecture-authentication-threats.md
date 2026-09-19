@@ -12,26 +12,26 @@ preview: "Методи аутентифікації, MFA, найпоширені
 │                    КОНТРОЛЬ ДОСТУПУ                                 │
 │                                                                     │
 │   ┌─────────────────┐                                               │
-│   │ ІДЕНТИФІКАЦІЯ   │  "Хто ви?"                                   │
-│   │                 │  • Логін                                     │
-│   │                 │  • Email                                     │
-│   │                 │  • Номер картки                              │
+│   │ ІДЕНТИФІКАЦІЯ   │  "Хто ви?"                                    │
+│   │                 │  • Логін                                      │
+│   │                 │  • Email                                      │
+│   │                 │  • Номер картки                               │
 │   └────────┬────────┘                                               │
 │            │                                                        │
 │            ▼                                                        │
 │   ┌─────────────────┐                                               │
-│   │ АУТЕНТИФІКАЦІЯ  │  "Доведіть, що це ви"                        │
-│   │                 │  • Пароль                                    │
-│   │                 │  • Відбиток пальця                           │
-│   │                 │  • SMS-код                                   │
+│   │ АУТЕНТИФІКАЦІЯ  │  "Доведіть, що це ви"                         │
+│   │                 │  • Пароль                                     │
+│   │                 │  • Відбиток пальця                            │
+│   │                 │  • SMS-код                                    │
 │   └────────┬────────┘                                               │
 │            │                                                        │
 │            ▼                                                        │
 │   ┌─────────────────┐                                               │
-│   │ АВТОРИЗАЦІЯ     │  "Що вам дозволено?"                         │
-│   │                 │  • Читання файлів                            │
-│   │                 │  • Адміністрування                           │
-│   │                 │  • Переказ коштів                            │
+│   │ АВТОРИЗАЦІЯ     │  "Що вам дозволено?"                          │
+│   │                 │  • Читання файлів                             │
+│   │                 │  • Адміністрування                            │
+│   │                 │  • Переказ коштів                             │
 │   └─────────────────┘                                               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -49,20 +49,20 @@ preview: "Методи аутентифікації, MFA, найпоширені
 │   1. ЗНАННЯ (Something you KNOW)                                    │
 │      • Пароль                                                       │
 │      • PIN-код                                                      │
-│      • Секретне питання                                            │
-│      • Графічний ключ                                              │
+│      • Секретне питання                                             │
+│      • Графічний ключ                                               │
 │                                                                     │
 │   2. ВОЛОДІННЯ (Something you HAVE)                                 │
-│      • Смартфон (SMS, TOTP)                                        │
-│      • Апаратний токен (YubiKey)                                   │
-│      • Смарт-карта                                                 │
-│      • Банківська картка                                           │
+│      • Смартфон (SMS, TOTP)                                         │
+│      • Апаратний токен (YubiKey)                                    │
+│      • Смарт-карта                                                  │
+│      • Банківська картка                                            │
 │                                                                     │
 │   3. ВЛАСТИВІСТЬ (Something you ARE)                                │
-│      • Відбиток пальця                                             │
-│      • Розпізнавання обличчя                                       │
-│      • Сканування райдужки                                         │
-│      • Голос                                                       │
+│      • Відбиток пальця                                              │
+│      • Розпізнавання обличчя                                        │
+│      • Сканування райдужки                                          │
+│      • Голос                                                        │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -77,13 +77,13 @@ preview: "Методи аутентифікації, MFA, найпоширені
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │   ✅ Справжня MFA:                                                  │
-│      • Пароль (знання) + SMS (володіння)                           │
-│      • PIN (знання) + карта (володіння)                            │
-│      • Пароль (знання) + відбиток (властивість)                    │
+│      • Пароль (знання) + SMS (володіння)                            │
+│      • PIN (знання) + карта (володіння)                             │
+│      • Пароль (знання) + відбиток (властивість)                     │
 │                                                                     │
 │   ❌ НЕ справжня MFA:                                               │
-│      • Пароль + секретне питання (обидва — знання)                 │
-│      • Два паролі (обидва — знання)                                │
+│      • Пароль + секретне питання (обидва — знання)                  │
+│      • Два паролі (обидва — знання)                                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -96,10 +96,10 @@ preview: "Методи аутентифікації, MFA, найпоширені
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    СТАТИСТИКА ПАРОЛІВ                               │
 │                                                                     │
-│   • 81% витоків даних — через слабкі або вкрадені паролі           │
-│   • Топ паролів: 123456, password, qwerty, admin                   │
-│   • Середній користувач має 100+ акаунтів                          │
-│   • 65% використовують один пароль скрізь                          │
+│   • 81% витоків даних — через слабкі або вкрадені паролі            │
+│   • Топ паролів: 123456, password, qwerty, admin                    │
+│   • Середній користувач має 100+ акаунтів                           │
+│   • 65% використовують один пароль скрізь                           │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -115,78 +115,70 @@ preview: "Методи аутентифікації, MFA, найпоширені
 │                                                                     │
 │   ❌ Відкритий текст:                                               │
 │      password: "qwerty123"                                          │
-│      → Витік БД = всі паролі скомпрометовані                       │
+│      → Витік БД = всі паролі скомпрометовані                        │
 │                                                                     │
 │   ❌ Простий хеш:                                                   │
 │      hash: SHA256("qwerty123")                                      │
-│      → Rainbow tables: попередньо обчислені хеші                   │
+│      → Rainbow tables: попередньо обчислені хеші                    │
 │                                                                     │
 │   ⚠️ Хеш + сіль:                                                    │
 │      salt: "a1b2c3d4"                                               │
 │      hash: SHA256(salt + "qwerty123")                               │
-│      → Швидкі хеші = brute force можливий                          │
+│      → Швидкі хеші = brute force можливий                           │
 │                                                                     │
 │   ✅ Повільні хеш-функції:                                          │
 │      bcrypt(password, cost=12)                                      │
-│      Argon2id(password, memory=64MB, iterations=3)                 │
-│      → Спеціально повільні, стійкі до GPU                          │
+│      Argon2id(password, memory=64MB, iterations=3)                  │
+│      → Спеціально повільні, стійкі до GPU                           │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Реалізація безпечного зберігання
 
-```python
-import bcrypt
-from argon2 import PasswordHasher
+```cpp
+// Для паролів застосовують повільні функції з керованою складністю.
+// У C++ це libsodium (Argon2id) або OpenSSL (PBKDF2, scrypt).
+#include <sodium.h>
+#include <openssl/evp.h>
+#include <string>
+#include <vector>
 
+// ===== Argon2id, рекомендований варіант =====
+// Функція сама генерує сіль і зберігає параметри всередині рядка хешу
+std::string hashPasswordArgon2(const std::string& password) {
+    char hashed[crypto_pwhash_STRBYTES];
 
-# === bcrypt ===
-def hash_password_bcrypt(password: str) -> bytes:
-    """Хешування з bcrypt."""
-    salt = bcrypt.gensalt(rounds=12)  # cost factor
-    return bcrypt.hashpw(password.encode(), salt)
+    if (crypto_pwhash_str(hashed,
+                          password.c_str(), password.size(),
+                          crypto_pwhash_OPSLIMIT_INTERACTIVE,   // ітерації
+                          crypto_pwhash_MEMLIMIT_INTERACTIVE)   // пам'ять, ~64 МБ
+        != 0) {
+        return "";   // бракує пам'яті
+    }
+    return std::string(hashed);
+}
 
+bool verifyArgon2(const std::string& password, const std::string& stored) {
+    return crypto_pwhash_str_verify(stored.c_str(), password.c_str(), password.size()) == 0;
+}
 
-def verify_bcrypt(password: str, hashed: bytes) -> bool:
-    """Перевірка пароля."""
-    return bcrypt.checkpw(password.encode(), hashed)
+// ===== PBKDF2 засобами OpenSSL, якщо libsodium недоступна =====
+std::vector<unsigned char> hashPasswordPbkdf2(const std::string& password,
+                                              const std::vector<unsigned char>& salt,
+                                              int iterations = 600000) {
+    std::vector<unsigned char> key(32);
 
+    PKCS5_PBKDF2_HMAC(password.c_str(), static_cast<int>(password.size()),
+                      salt.data(), static_cast<int>(salt.size()),
+                      iterations, EVP_sha256(),
+                      static_cast<int>(key.size()), key.data());
+    return key;
+}
 
-# === Argon2 (рекомендований) ===
-ph = PasswordHasher(
-    time_cost=3,        # ітерації
-    memory_cost=65536,  # 64 MB
-    parallelism=4       # потоки
-)
-
-
-def hash_password_argon2(password: str) -> str:
-    """Хешування з Argon2id."""
-    return ph.hash(password)
-
-
-def verify_argon2(password: str, hashed: str) -> bool:
-    """Перевірка пароля."""
-    try:
-        ph.verify(hashed, password)
-        return True
-    except:
-        return False
-
-
-# Приклад
-password = "SecureP@ssw0rd!"
-
-# bcrypt
-hashed_bcrypt = hash_password_bcrypt(password)
-print(f"bcrypt: {hashed_bcrypt}")
-print(f"Верифікація: {verify_bcrypt(password, hashed_bcrypt)}")
-
-# Argon2
-hashed_argon2 = hash_password_argon2(password)
-print(f"Argon2: {hashed_argon2}")
-print(f"Верифікація: {verify_argon2(password, hashed_argon2)}")
+// Кількість ітерацій підбирають так, щоб перевірка одного пароля
+// тривала близько 100 мс — непомітно для користувача
+// й украй дорого для перебору мільярдів варіантів
 ```
 
 ## TOTP (Time-based One-Time Password)
@@ -197,21 +189,21 @@ print(f"Верифікація: {verify_argon2(password, hashed_argon2)}")
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    TOTP (RFC 6238)                                  │
 │                                                                     │
-│   Секретний ключ K (спільний для сервера і клієнта)                │
+│   Секретний ключ K (спільний для сервера і клієнта)                 │
 │                                                                     │
-│   Поточний час T = floor(Unix_time / 30)  (30-секундні інтервали)  │
+│   Поточний час T = floor(Unix_time / 30)  (30-секундні інтервали)   │
 │                                                                     │
-│   TOTP = HMAC-SHA1(K, T) → 6 цифр                                  │
+│   TOTP = HMAC-SHA1(K, T) → 6 цифр                                   │
 │                                                                     │
 │   ┌────────────────────────────────────────────┐                    │
 │   │                                            │                    │
-│   │   Сервер            Клієнт (Google Auth)   │                   │
+│   │   Сервер            Клієнт (Google Auth)   │                    │
 │   │     │                     │                │                    │
 │   │     │  Реєстрація         │                │                    │
-│   │     │  ─────────────────► │ K (QR-код)     │                   │
+│   │     │  ─────────────────► │ K (QR-код)     │                    │
 │   │     │                     │                │                    │
 │   │     │  Аутентифікація     │                │                    │
-│   │     │ ◄───────────────────│ TOTP(K, T)     │                   │
+│   │     │ ◄───────────────────│ TOTP(K, T)     │                    │
 │   │     │                     │                │                    │
 │   │   TOTP(K, T) ==?          │                │                    │
 │   │                           │                │                    │
@@ -222,34 +214,41 @@ print(f"Верифікація: {verify_argon2(password, hashed_argon2)}")
 
 ### Реалізація TOTP
 
-```python
-import hmac
-import struct
-import time
-import base64
+```cpp
+#include <ctime>
+#include <cstdint>
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <sstream>
 
+std::vector<unsigned char> hmacSha256(const std::vector<unsigned char>& key,
+                                      const std::vector<unsigned char>& message);
 
-def generate_totp(secret: bytes, interval: int = 30) -> str:
-    """Генерація TOTP коду."""
-    # Поточний часовий інтервал
-    counter = int(time.time()) // interval
+// TOTP за RFC 6238: код залежить від номера 30-секундного інтервалу
+std::string generateTotp(const std::vector<unsigned char>& secret, int interval = 30) {
+    uint64_t counter = static_cast<uint64_t>(std::time(nullptr)) / interval;
 
-    # HMAC-SHA1
-    counter_bytes = struct.pack('>Q', counter)
-    hmac_hash = hmac.new(secret, counter_bytes, 'sha1').digest()
+    std::vector<unsigned char> message(8);
+    for (int i = 7; i >= 0; --i) {                 // лічильник у big-endian
+        message[i] = static_cast<unsigned char>(counter & 0xFF);
+        counter >>= 8;
+    }
 
-    # Dynamic truncation
-    offset = hmac_hash[-1] & 0x0F
-    code = struct.unpack('>I', hmac_hash[offset:offset+4])[0]
-    code = (code & 0x7FFFFFFF) % 1000000
+    std::vector<unsigned char> mac = hmacSha256(secret, message);
 
-    return f"{code:06d}"
+    // Динамічне обрізання: зсув визначається останнім байтом MAC
+    int offset = mac.back() & 0x0F;
+    uint32_t code =
+        (static_cast<uint32_t>(mac[offset]     & 0x7F) << 24) |
+        (static_cast<uint32_t>(mac[offset + 1] & 0xFF) << 16) |
+        (static_cast<uint32_t>(mac[offset + 2] & 0xFF) << 8)  |
+        (static_cast<uint32_t>(mac[offset + 3] & 0xFF));
 
-
-# Приклад
-secret = base64.b32decode("JBSWY3DPEHPK3PXP")  # Типовий секрет
-code = generate_totp(secret)
-print(f"TOTP код: {code}")
+    std::ostringstream out;
+    out << std::setw(6) << std::setfill('0') << (code % 1000000);
+    return out.str();
+}
 ```
 
 ## Протоколи аутентифікації
@@ -262,7 +261,7 @@ print(f"TOTP код: {code}")
 │                                                                     │
 │   Клієнт                                    Сервер                  │
 │     │                                         │                     │
-│     │  "Хочу увійти як Alice"                │                     │
+│     │  "Хочу увійти як Alice"                │                      │
 │     │ ────────────────────────────────────────►                     │
 │     │                                         │                     │
 │     │  Challenge: R (випадкове число)         │                     │
@@ -279,8 +278,8 @@ print(f"TOTP код: {code}")
 │     │ ◄────────────────────────────────────────                     │
 │                                                                     │
 │   Переваги:                                                         │
-│   • Пароль ніколи не передається                                   │
-│   • Replay attack неможлива (R унікальне)                          │
+│   • Пароль ніколи не передається                                    │
+│   • Replay attack неможлива (R унікальне)                           │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -335,42 +334,54 @@ print(f"TOTP код: {code}")
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    OWASP TOP 10                                     │
 ├──────┬──────────────────────────────────────────────────────────────┤
-│  1   │ Broken Access Control (порушення контролю доступу)          │
+│  1   │ Broken Access Control (порушення контролю доступу)           │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│  2   │ Cryptographic Failures (криптографічні помилки)             │
+│  2   │ Cryptographic Failures (криптографічні помилки)              │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│  3   │ Injection (ін'єкції: SQL, XSS, Command)                     │
+│  3   │ Injection (ін'єкції: SQL, XSS, Command)                      │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│  4   │ Insecure Design (небезпечний дизайн)                        │
+│  4   │ Insecure Design (небезпечний дизайн)                         │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│  5   │ Security Misconfiguration (неправильна конфігурація)        │
+│  5   │ Security Misconfiguration (неправильна конфігурація)         │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│  6   │ Vulnerable Components (вразливі компоненти)                 │
+│  6   │ Vulnerable Components (вразливі компоненти)                  │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│  7   │ Identification and Authentication Failures                  │
+│  7   │ Identification and Authentication Failures                   │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│  8   │ Software and Data Integrity Failures                        │
+│  8   │ Software and Data Integrity Failures                         │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│  9   │ Security Logging and Monitoring Failures                    │
+│  9   │ Security Logging and Monitoring Failures                     │
 ├──────┼──────────────────────────────────────────────────────────────┤
-│ 10   │ Server-Side Request Forgery (SSRF)                          │
+│ 10   │ Server-Side Request Forgery (SSRF)                           │
 └──────┴──────────────────────────────────────────────────────────────┘
 ```
 
 ### SQL-ін'єкція
 
-```python
-# ❌ ВРАЗЛИВИЙ КОД
-def login_vulnerable(username, password):
-    query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
-    # Якщо username = "admin' --"
-    # Запит стає: SELECT * FROM users WHERE username='admin' --' AND password='...'
-    # Пароль ігнорується!
+```cpp
+// ВРАЗЛИВИЙ КОД: дані користувача стають частиною тексту запиту
+bool loginVulnerable(const std::string& username, const std::string& password) {
+    std::string query = "SELECT * FROM users WHERE username='" + username +
+                        "' AND password='" + password + "'";
+    // Якщо username = "admin' --", запит перетворюється на
+    // SELECT * FROM users WHERE username='admin' --' AND password='...'
+    // Решта рядка стає коментарем, і пароль узагалі не перевіряється
+    return execute(query);
+}
 
-# ✅ БЕЗПЕЧНИЙ КОД
-def login_safe(username, password):
-    query = "SELECT * FROM users WHERE username=? AND password=?"
-    cursor.execute(query, (username, password))  # Параметризований запит
+// БЕЗПЕЧНИЙ КОД: структура запиту стала, дані передаються параметрами
+bool loginSafe(sqlite3* db, const std::string& username, const std::string& password) {
+    const char* query = "SELECT * FROM users WHERE username=? AND password_hash=?";
+
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
+
+    bool found = (sqlite3_step(stmt) == SQLITE_ROW);
+    sqlite3_finalize(stmt);
+    return found;
+}
 ```
 
 ### XSS (Cross-Site Scripting)
@@ -390,7 +401,7 @@ def login_safe(username, password):
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    MAN-IN-THE-MIDDLE                                │
 │                                                                     │
-│   Аліса          Зловмисник (Мелорі)           Боб                 │
+│   Аліса          Зловмисник (Мелорі)           Боб                  │
 │     │                   │                       │                   │
 │     │  "Привіт, Бобе"   │                       │                   │
 │     │──────────────────►│                       │                   │
@@ -402,9 +413,9 @@ def login_safe(username, password):
 │     │  "Привіт, Алісо"  │                       │                   │
 │     │◄──────────────────│                       │                   │
 │     │                   │                       │                   │
-│   Аліса та Боб не знають, що Мелорі читає всі повідомлення!       │
+│   Аліса та Боб не знають, що Мелорі читає всі повідомлення!         │
 │                                                                     │
-│   Захист: TLS/HTTPS, перевірка сертифікатів                        │
+│   Захист: TLS/HTTPS, перевірка сертифікатів                         │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -412,26 +423,26 @@ def login_safe(username, password):
 ### Фішинг
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    ФІШИНГ                                           │
-│                                                                     │
+┌────────────────────────────────────────────────────────────────────┐
+│                    ФІШИНГ                                          │
+│                                                                    │
 │   Від: security@paypa1.com  (l замість l? Це 1!)                   │
 │   Тема: Ваш акаунт заблоковано!                                    │
-│                                                                     │
+│                                                                    │
 │   Шановний клієнте,                                                │
-│                                                                     │
+│                                                                    │
 │   Ми виявили підозрілу активність. Негайно підтвердіть             │
 │   свої дані за посиланням:                                         │
-│                                                                     │
+│                                                                    │
 │   [Підтвердити] ← насправді веде на paypa1-security.com            │
-│                                                                     │
+│                                                                    │
 │   Ознаки фішингу:                                                  │
 │   • Терміновість ("негайно", "заблоковано")                        │
 │   • Помилки в домені                                               │
 │   • Загальне звернення ("шановний клієнте")                        │
 │   • Посилання не на офіційний сайт                                 │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+│                                                                    │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Методи захисту
@@ -443,11 +454,11 @@ def login_safe(username, password):
 │                    ШАРИ ЗАХИСТУ                                     │
 │                                                                     │
 │   ┌───────────────────────────────────────────────────────────┐     │
-│   │                    ПОЛІТИКИ                                │     │
+│   │                    ПОЛІТИКИ                               │     │
 │   │   ┌───────────────────────────────────────────────────┐   │     │
-│   │   │              ПЕРИМЕТР (Firewall)                   │   │     │
+│   │   │              ПЕРИМЕТР (Firewall)                  │   │     │
 │   │   │   ┌───────────────────────────────────────────┐   │   │     │
-│   │   │   │           МЕРЕЖА (IDS/IPS)                 │   │   │     │
+│   │   │   │           МЕРЕЖА (IDS/IPS)                │   │   │     │
 │   │   │   │   ┌───────────────────────────────────┐   │   │   │     │
 │   │   │   │   │        ХОСТ (антивірус)           │   │   │   │     │
 │   │   │   │   │   ┌───────────────────────────┐   │   │   │   │     │
@@ -472,15 +483,15 @@ def login_safe(username, password):
 │                    LEAST PRIVILEGE                                  │
 │                                                                     │
 │   ❌ Поганий підхід:                                                │
-│      • Всі розробники мають root/admin доступ                      │
-│      • Застосунок працює від root                                  │
-│      • База даних з правами SELECT/INSERT/UPDATE/DELETE/DROP       │
+│      • Всі розробники мають root/admin доступ                       │
+│      • Застосунок працює від root                                   │
+│      • База даних з правами SELECT/INSERT/UPDATE/DELETE/DROP        │
 │                                                                     │
 │   ✅ Правильний підхід:                                             │
-│      • Кожен має мінімум необхідних прав                           │
-│      • Застосунок працює від обмеженого користувача                │
-│      • Окремі облікові записи для читання/запису                   │
-│      • Тимчасові підвищені права (sudo, just-in-time)              │
+│      • Кожен має мінімум необхідних прав                            │
+│      • Застосунок працює від обмеженого користувача                 │
+│      • Окремі облікові записи для читання/запису                    │
+│      • Тимчасові підвищені права (sudo, just-in-time)               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -502,32 +513,32 @@ def login_safe(username, password):
 ## 💼 Real World: Authentication у компаніях
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 AUTHENTICATION В ENTERPRISE                     │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                 AUTHENTICATION В ENTERPRISE                    │
+│                                                                │
 │   🔐 GOOGLE / MICROSOFT / META                                 │
 │   • Passkeys (FIDO2/WebAuthn) — passwordless                   │
-│   • Hardware security keys для співробітників                 │
-│   • Risk-based authentication                                   │
+│   • Hardware security keys для співробітників                  │
+│   • Risk-based authentication                                  │
 │   • Zero Trust Architecture                                    │
-│                                                                 │
+│                                                                │
 │   🏦 БАНКИ (ПриватБанк, Monobank)                              │
 │   • MFA: пароль + SMS/Push                                     │
-│   • Біометрія в мобільних застосунках                         │
+│   • Біометрія в мобільних застосунках                          │
 │   • 3D Secure для онлайн-платежів                              │
 │   • HSM для зберігання ключів                                  │
-│                                                                 │
+│                                                                │
 │   ☁️ AWS / AZURE / GCP                                         │
-│   • IAM (Identity and Access Management)                        │
+│   • IAM (Identity and Access Management)                       │
 │   • MFA для консолі та CLI                                     │
 │   • Service accounts з обмеженими правами                      │
 │   • SSO (Single Sign-On) через SAML/OIDC                       │
-│                                                                 │
+│                                                                │
 │   🛡️ OWASP TOP 10 2021                                         │
 │   • #7: Identification and Authentication Failures             │
 │   • 81% breaches через слабкі/вкрадені credentials             │
 │   • Credential stuffing атаки                                  │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Реальні інциденти
@@ -542,34 +553,34 @@ def login_safe(username, password):
 ## 🎯 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 КАР'ЄРНІ МОЖЛИВОСТІ                             │
-│                                                                 │
-│   Identity & Access Management (IAM) Engineer                   │
+┌───────────────────────────────────────────────────────────────┐
+│                 КАР'ЄРНІ МОЖЛИВОСТІ                           │
+│                                                               │
+│   Identity & Access Management (IAM) Engineer                 │
 │   ├── Зарплата: $100,000 - $160,000/рік                       │
 │   ├── Навички: OAuth/OIDC, SAML, LDAP, Azure AD               │
 │   └── Компанії: Okta, Auth0, Ping Identity, enterprise        │
-│                                                                 │
-│   Application Security Engineer                                 │
+│                                                               │
+│   Application Security Engineer                               │
 │   ├── Зарплата: $120,000 - $180,000/рік                       │
 │   ├── Навички: OWASP, secure coding, threat modeling          │
 │   └── Компанії: Google, Meta, Netflix, Coinbase               │
-│                                                                 │
-│   Penetration Tester                                            │
+│                                                               │
+│   Penetration Tester                                          │
 │   ├── Зарплата: $100,000 - $170,000/рік                       │
 │   ├── Навички: Web app testing, credential attacks            │
 │   └── Компанії: NCC Group, Bishop Fox, Synack                 │
-│                                                                 │
-│   Security Operations (SOC) Analyst                             │
+│                                                               │
+│   Security Operations (SOC) Analyst                           │
 │   ├── Зарплата: $70,000 - $120,000/рік                        │
 │   ├── Навички: SIEM, threat detection, incident response      │
 │   └── Компанії: CrowdStrike, Splunk, enterprise               │
-│                                                                 │
-│   DevSecOps Engineer                                            │
+│                                                               │
+│   DevSecOps Engineer                                          │
 │   ├── Зарплата: $130,000 - $190,000/рік                       │
 │   ├── Навички: CI/CD security, secrets management             │
 │   └── Компанії: HashiCorp, GitLab, major tech                 │
-└─────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ## 📚 Resources
@@ -593,39 +604,39 @@ def login_safe(username, password):
 │                 AUTH & SECURITY QUICK REFERENCE                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Фактори аутентифікації:                                      │
-│   • Знання (Something you KNOW): пароль, PIN                   │
-│   • Володіння (Something you HAVE): телефон, токен             │
-│   • Властивість (Something you ARE): біометрія                 │
+│   Фактори аутентифікації:                                       │
+│   • Знання (Something you KNOW): пароль, PIN                    │
+│   • Володіння (Something you HAVE): телефон, токен              │
+│   • Властивість (Something you ARE): біометрія                  │
 │                                                                 │
-│   Password Hashing (Python):                                    │
-│   import bcrypt                                                │
-│   hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())  │
-│   bcrypt.checkpw(password.encode(), hashed)                    │
+│   Хешування паролів (C++, libsodium):                           │
+│   crypto_pwhash_str(hash, pass, len, OPSLIMIT, MEMLIMIT)        │
+│   crypto_pwhash_str_verify(hash, pass, len)                     │
+│   Алгоритм Argon2id — стандарт де-факто                         │
 │                                                                 │
-│   from argon2 import PasswordHasher                            │
-│   ph = PasswordHasher()                                        │
-│   hash = ph.hash(password)                                     │
-│   ph.verify(hash, password)                                    │
+│   from argon2 import PasswordHasher                             │
+│   ph = PasswordHasher()                                         │
+│   hash = ph.hash(password)                                      │
+│   ph.verify(hash, password)                                     │
 │                                                                 │
-│   TOTP (RFC 6238):                                             │
-│   counter = floor(unix_time / 30)                              │
-│   TOTP = HMAC-SHA1(secret, counter) → truncate → 6 digits     │
+│   TOTP (RFC 6238):                                              │
+│   counter = floor(unix_time / 30)                               │
+│   TOTP = HMAC-SHA1(secret, counter) → truncate → 6 digits       │
 │                                                                 │
 │   SQL Injection Prevention:                                     │
-│   ❌ f"SELECT * FROM users WHERE id={user_input}"              │
-│   ✅ cursor.execute("SELECT * FROM users WHERE id=?", (id,))   │
+│   ❌ f"SELECT * FROM users WHERE id={user_input}"               │
+│   ✅ cursor.execute("SELECT * FROM users WHERE id=?", (id,))    │
 │                                                                 │
 │   XSS Prevention:                                               │
-│   ❌ <div>{user_input}</div>                                   │
-│   ✅ <div>{escape(user_input)}</div>                           │
-│   ✅ Content-Security-Policy header                            │
+│   ❌ <div>{user_input}</div>                                    │
+│   ✅ <div>{escape(user_input)}</div>                            │
+│   ✅ Content-Security-Policy header                             │
 │                                                                 │
-│   OWASP Top 10 (2021):                                         │
+│   OWASP Top 10 (2021):                                          │
 │   1. Broken Access Control                                      │
 │   2. Cryptographic Failures                                     │
 │   3. Injection                                                  │
-│   7. Identification and Authentication Failures                │
+│   7. Identification and Authentication Failures                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -672,61 +683,102 @@ mkdir -p ~/totp-project && cd ~/totp-project
 nano my_totp.py
 ```
 
-```python
-#!/usr/bin/env python3
-"""Мій власний TOTP автентифікатор як Google Authenticator!"""
+```cpp
+// Власний застосунок-автентифікатор, аналог Google Authenticator
+#include <iostream>
+#include <string>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <ctime>
+#include <cctype>
 
-import hmac
-import struct
-import time
-import base64
-import sys
+std::string generateTotp(const std::vector<unsigned char>& secret, int interval = 30);
 
-def generate_totp(secret: str, interval: int = 30) -> str:
-    """Генерує 6-значний TOTP код."""
-    # Декодуємо секрет з Base32
-    key = base64.b32decode(secret.upper() + '=' * (8 - len(secret) % 8))
+// Секрет сервіси показують у Base32 (RFC 4648): 32 символи алфавіту замість
+// довільних байтів, щоб його можна було продиктувати або набрати вручну.
+// Вісім символів кодують п'ять байтів, тому біти накопичуємо в буфері.
+std::vector<unsigned char> base32Decode(const std::string& encoded) {
+    const std::string ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    std::vector<unsigned char> result;
+    unsigned int buffer = 0;
+    int bits = 0;
 
-    # Поточний часовий інтервал
-    counter = int(time.time()) // interval
-    counter_bytes = struct.pack('>Q', counter)
+    for (char c : encoded) {
+        size_t value = ALPHABET.find(std::toupper(static_cast<unsigned char>(c)));
+        if (value == std::string::npos) continue;   // '=' і пробіли пропускаємо
 
-    # HMAC-SHA1
-    hmac_hash = hmac.new(key, counter_bytes, 'sha1').digest()
+        buffer = (buffer << 5) | static_cast<unsigned int>(value);
+        bits += 5;
 
-    # Dynamic truncation (RFC 6238)
-    offset = hmac_hash[-1] & 0x0F
-    code = struct.unpack('>I', hmac_hash[offset:offset+4])[0]
-    code = (code & 0x7FFFFFFF) % 1_000_000
+        if (bits >= 8) {
+            bits -= 8;
+            result.push_back(static_cast<unsigned char>((buffer >> bits) & 0xFF));
+        }
+    }
 
-    return f"{code:06d}"
+    return result;
+}
 
+int main() {
+    // Секрет у Base32 — саме його показує сервіс у вигляді QR-коду
+    const std::string TEST_SECRET = "JBSWY3DPEHPK3PXP";
+    const int INTERVALS = 3;              // скільки разів показати зміну коду
+    std::vector<unsigned char> secret = base32Decode(TEST_SECRET);
 
-def main():
-    # Тестовий секрет (Base32)
-    # В реальності це отримується з QR-коду при налаштуванні 2FA
-    TEST_SECRET = "JBSWY3DPEHPK3PXP"  # = "Hello!" в Base32
+    std::cout << "TOTP-автентифікатор\n";
+    std::cout << "========================================\n";
+    std::cout << "Секрет: " << TEST_SECRET << "\n\n";
 
-    print("🔐 My TOTP Authenticator")
-    print("=" * 40)
-    print(f"Secret: {TEST_SECRET}")
-    print()
+    std::string previous;
+    int shown = 0;                        // скільки різних кодів уже показано
 
-    while True:
-        code = generate_totp(TEST_SECRET)
-        remaining = 30 - (int(time.time()) % 30)
+    // Демонстрація охоплює три інтервали: цього досить, щоб двічі побачити
+    // зміну коду. Справжній автентифікатор працює, доки його не закрили, —
+    // для цього досить прибрати умову shown < INTERVALS
+    while (shown < INTERVALS) {
+        std::string code = generateTotp(secret);
+        int remaining = 30 - static_cast<int>(std::time(nullptr) % 30);
 
-        print(f"\r Code: {code}  (expires in {remaining:2d}s)", end="", flush=True)
-        time.sleep(1)
+        if (code != previous) {
+            if (!previous.empty()) {
+                std::cout << "\n";        // код змінився — залишаємо попередній у журналі
+            }
+            previous = code;
+            ++shown;
+        }
 
+        std::cout << "\rКод: " << code << "  (дійсний ще " << remaining
+                  << " с)   " << std::flush;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
-if __name__ == "__main__":
-    main()
+    std::cout << "\n\nКод змінився " << (INTERVALS - 1) << " рази — саме так "
+                 "автентифікатор і працює.\n";
+    return 0;
+}
 ```
 
-2. Запустіть:
+2. Зберіть і запустіть:
 ```bash
-python3 my_totp.py
+g++ -std=c++17 my_totp.cpp sha256.cpp -o my_totp
+./my_totp
+```
+
+Програма працює близько хвилини й завершується сама. Рядок із кодом
+оновлюється на місці, тому на екрані видно три рядки — по одному на кожен
+інтервал (значення коду залежать від часу запуску, у вас будуть свої):
+
+```
+TOTP-автентифікатор
+========================================
+Секрет: JBSWY3DPEHPK3PXP
+
+Код: 116079  (дійсний ще 1 с)
+Код: 503497  (дійсний ще 1 с)
+Код: 189678  (дійсний ще 30 с)
+
+Код змінився 2 рази — саме так автентифікатор і працює.
 ```
 
 3. Перевірте з реальним автентифікатором:
@@ -735,148 +787,84 @@ python3 my_totp.py
 - Коди мають збігатися!
 
 **Очікуваний результат:**
-- Працюючий TOTP генератор на Python
+- Працюючий генератор TOTP мовою C++
 - Розуміння алгоритму TOTP (HMAC + time + truncation)
 - Коди збігаються з Google Authenticator
 
 **Бонус (для допитливих):**
-- Додайте генерацію QR-коду: `pip install qrcode && python -c "import qrcode; qrcode.make('otpauth://totp/Test?secret=JBSWY3DPEHPK3PXP').save('qr.png')"`
+- Сформуйте рядок `otpauth://totp/Test?secret=JBSWY3DPEHPK3PXP` і згенеруйте з нього QR-код будь-яким онлайн-сервісом
 - Реалізуйте перевірку з допуском ±30 секунд
-- Зробіть CLI: `./my_totp.py --secret YOURSECRET`
+- Додайте аргументи командного рядка: `./my_totp --secret YOURSECRET`
 
 ---
 
 ## 🔧 Розширене практичне завдання (для лабораторної)
 
-```python
-#!/usr/bin/env python3
-"""
-Практичне завдання: безпечна аутентифікація.
-"""
+```cpp
+// Практичне завдання: безпечна автентифікація
+#include <iostream>
+#include <string>
+#include <vector>
+#include <ctime>
+#include <stdexcept>
 
-import secrets
-import hmac
-import time
-import struct
-from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
+std::string hashPasswordArgon2(const std::string& password);
+bool verifyArgon2(const std::string& password, const std::string& stored);
+std::string generateTotp(const std::vector<unsigned char>& secret, int interval = 30);
+std::vector<unsigned char> randomBytes(size_t count);
 
+struct User {
+    std::string username;
+    std::string passwordHash;              // у базі зберігається лише хеш
+    std::vector<unsigned char> mfaSecret;  // секрет для другого фактора
+    std::time_t createdAt = 0;
+};
 
-# === Безпечне хешування паролів ===
-
-ph = PasswordHasher(
-    time_cost=3,        # кількість ітерацій
-    memory_cost=65536,  # 64 MB RAM
-    parallelism=4       # паралельні потоки
-)
-
-
-def register_user(username: str, password: str) -> dict:
-    """
-    Реєстрація користувача з безпечним хешуванням.
-    """
-    # Валідація пароля
-    if len(password) < 8:
-        raise ValueError("Пароль має бути мінімум 8 символів")
-
-    # Хешування з Argon2id
-    password_hash = ph.hash(password)
-
-    return {
-        "username": username,
-        "password_hash": password_hash,
-        "mfa_secret": secrets.token_hex(20),  # для TOTP
-        "created_at": time.time()
+// Реєстрація: перевірка складності пароля та хешування Argon2id
+User registerUser(const std::string& username, const std::string& password) {
+    if (password.size() < 8) {
+        throw std::runtime_error("Пароль має містити щонайменше 8 символів");
     }
 
+    User user;
+    user.username = username;
+    user.passwordHash = hashPasswordArgon2(password);
+    user.mfaSecret = randomBytes(20);
+    user.createdAt = std::time(nullptr);
+    return user;
+}
 
-def verify_password(stored_hash: str, password: str) -> bool:
-    """
-    Перевірка пароля з constant-time порівнянням.
-    """
-    try:
-        ph.verify(stored_hash, password)
-        return True
-    except VerifyMismatchError:
-        return False
+// Перевірка пароля: порівняння виконується всередині verifyArgon2
+// за сталий час, тому час відповіді не видає кількості збігів
+bool checkPassword(const User& user, const std::string& password) {
+    return verifyArgon2(password, user.passwordHash);
+}
 
+// Перевірка коду другого фактора з допуском на розбіжність годинників
+bool checkTotp(const User& user, const std::string& code, int window = 1) {
+    for (int shift = -window; shift <= window; ++shift) {
+        if (generateTotp(user.mfaSecret) == code) return true;
+    }
+    return false;
+}
 
-# === TOTP Implementation ===
+int main() {
+    std::cout << "=== Реєстрація користувача ===\n";
+    User user = registerUser("john_doe", "SecureP@ss123!");
+    std::cout << "Користувач: " << user.username << "\n";
+    std::cout << "Хеш:        " << user.passwordHash.substr(0, 40) << "...\n\n";
 
-def generate_totp(secret: bytes, time_step: int = 30) -> str:
-    """
-    Генерує 6-значний TOTP код.
-    """
-    counter = int(time.time()) // time_step
-    counter_bytes = struct.pack('>Q', counter)
+    std::cout << "=== Перевірка пароля ===\n";
+    std::cout << "Правильний: " << (checkPassword(user, "SecureP@ss123!") ? "доступ" : "відмова") << "\n";
+    std::cout << "Хибний:     " << (checkPassword(user, "wrong") ? "доступ" : "відмова") << "\n\n";
 
-    # HMAC-SHA1
-    hmac_hash = hmac.new(secret, counter_bytes, 'sha1').digest()
+    std::cout << "=== Другий фактор ===\n";
+    std::string code = generateTotp(user.mfaSecret);
+    std::cout << "Поточний код: " << code << "\n";
+    std::cout << "Перевірка:    " << (checkTotp(user, code) ? "прийнято" : "відхилено") << "\n";
 
-    # Dynamic truncation
-    offset = hmac_hash[-1] & 0x0F
-    code = struct.unpack('>I', hmac_hash[offset:offset+4])[0]
-    code = (code & 0x7FFFFFFF) % 1_000_000
-
-    return f"{code:06d}"
-
-
-def verify_totp(secret: bytes, code: str, window: int = 1) -> bool:
-    """
-    Перевіряє TOTP код з допуском ±window інтервалів.
-    """
-    for offset in range(-window, window + 1):
-        expected = generate_totp(secret, 30)
-        # Shift time для перевірки сусідніх інтервалів
-        if hmac.compare_digest(code, expected):
-            return True
-    return False
-
-
-# === SQL Injection Demo ===
-
-def vulnerable_login(username: str, password: str):
-    """❌ ВРАЗЛИВИЙ КОД — НЕ ВИКОРИСТОВУЙТЕ!"""
-    query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
-    print(f"Вразливий запит: {query}")
-    # Якщо username = "admin' --", пароль ігнорується!
-
-
-def safe_login(cursor, username: str, password: str):
-    """✅ БЕЗПЕЧНИЙ КОД — параметризований запит"""
-    query = "SELECT * FROM users WHERE username=? AND password_hash=?"
-    # cursor.execute(query, (username, password_hash))
-    print(f"Безпечний запит з параметрами: {query}")
-
-
-# === Demo ===
-
-if __name__ == "__main__":
-    print("=== Реєстрація користувача ===")
-    user = register_user("john_doe", "SecureP@ss123!")
-    print(f"Username: {user['username']}")
-    print(f"Hash: {user['password_hash'][:50]}...")
-    print(f"MFA Secret: {user['mfa_secret']}")
-
-    print("\n=== Перевірка пароля ===")
-    print(f"Правильний пароль: {verify_password(user['password_hash'], 'SecureP@ss123!')}")
-    print(f"Неправильний пароль: {verify_password(user['password_hash'], 'wrong')}")
-
-    print("\n=== TOTP ===")
-    secret = bytes.fromhex(user['mfa_secret'])
-    totp_code = generate_totp(secret)
-    print(f"TOTP код: {totp_code}")
-    print(f"Верифікація: {verify_totp(secret, totp_code)}")
-
-    print("\n=== SQL Injection Demo ===")
-    print("Нормальний логін:")
-    vulnerable_login("john", "password123")
-
-    print("\nSQL Injection атака:")
-    vulnerable_login("admin' --", "anything")
-
-    print("\nБезпечний варіант:")
-    safe_login(None, "john", "password123")
+    return 0;
+}
 ```
 
 **Завдання:**

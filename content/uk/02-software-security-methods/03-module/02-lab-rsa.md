@@ -1,20 +1,21 @@
 ---
-title: "Реалізація алгоритму RSA"
+title: "Реалізація асиметричного алгоритму шифрування RSA. Програмна реалізація"
+shortTitle: "Реалізація алгоритму RSA"
 type: lab
 order: 2
 labNumber: 6
 subject: pmzi
-duration: "4 академічні години"
+duration: "2 академічні години"
 equipment:
-  - "ПК з встановленим C++ компілятором або Python 3"
-  - "Середовище розробки (Visual Studio, VS Code, PyCharm)"
+  - "ПК з встановленим C++ компілятором (MSVC, MinGW або GCC)"
+  - "Середовище розробки (Visual Studio, VS Code)"
   - "Калькулятор для модульної арифметики"
 preview: "Програмна реалізація асиметричного алгоритму RSA."
 ---
 
 **Мета:** вивчити принципи асиметричного шифрування на прикладі алгоритму RSA. Реалізувати генерацію ключів, шифрування та дешифрування.
 
-**Обладнання:** ПК з встановленим C++ компілятором або Python 3; Середовище розробки (Visual Studio, VS Code, PyCharm); Калькулятор для модульної арифметики.
+**Обладнання:** ПК з встановленим C++ компілятором (MSVC, MinGW або GCC); Середовище розробки (Visual Studio, VS Code); Калькулятор для модульної арифметики.
 
 **Тривалість:** 4 академічні години.
 
@@ -24,7 +25,7 @@ preview: "Програмна реалізація асиметричного а�
 |--------|------|
 | **Знання** | Лекція 1: Криптосистеми RSA та Ель-Гамаля |
 | **Навички** | Модульна арифметика, робота з великими числами |
-| **Середовище** | ПК з встановленим C++ компілятором або Python 3 |
+| **Середовище** | ПК з встановленим C++ компілятором (MSVC, MinGW або GCC) |
 
 ## Теоретичні відомості
 
@@ -158,255 +159,299 @@ e×x ≡ 1 (mod φ(n))
 ```
 ## Приклад виконання
 
-### Крок 1. Допоміжні функції (Python)
+### Крок 1. Допоміжні функції
 
-```python
-from typing import Tuple
-import random
+```cpp
+#include <iostream>
+#include <stdexcept>
+#include <random>
+#include <cstdint>
 
-def gcd(a: int, b: int) -> int:
-    """Найбільший спільний дільник (алгоритм Евкліда)."""
-    while b:
-        a, b = b, a % b
-    return a
+using u64 = unsigned long long;
 
-def extended_gcd(a: int, b: int) -> Tuple[int, int, int]:
-    """
-    Розширений алгоритм Евкліда.
-    Повертає (gcd, x, y) такі, що a*x + b*y = gcd
-    """
-    if a == 0:
-        return b, 0, 1
+// Усі числа тримаємо меншими за 2^31, тоді добуток двох чисел
+// гарантовано вміщується в 64-бітний тип і переповнення не буде.
+const u64 MAX_MODULUS = 1ULL << 31;
 
-    gcd_val, x1, y1 = extended_gcd(b % a, a)
-    x = y1 - (b // a) * x1
-    y = x1
+// Найбільший спільний дільник, алгоритм Евкліда
+long long gcdValue(long long a, long long b) {
+    while (b != 0) {
+        long long t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
 
-    return gcd_val, x, y
+// Розширений алгоритм Евкліда: повертає gcd і коефіцієнти x, y
+long long extendedGcd(long long a, long long b, long long& x, long long& y) {
+    if (a == 0) {
+        x = 0;
+        y = 1;
+        return b;
+    }
 
-def mod_inverse(e: int, phi: int) -> int:
-    """
-    Обчислює мультиплікативний обернений: d = e^(-1) mod phi
-    """
-    gcd_val, x, _ = extended_gcd(e, phi)
+    long long x1, y1;
+    long long g = extendedGcd(b % a, a, x1, y1);
+    x = y1 - (b / a) * x1;
+    y = x1;
+    return g;
+}
 
-    if gcd_val != 1:
-        raise ValueError(f"Обернений не існує: gcd({e}, {phi}) = {gcd_val}")
+// Обернений елемент: d = e^-1 mod phi
+long long modInverse(long long e, long long phi) {
+    long long x, y;
+    long long g = extendedGcd(e, phi, x, y);
 
-    return x % phi
+    if (g != 1) {
+        throw std::runtime_error("Оберненого елемента не існує: gcd != 1");
+    }
+    return ((x % phi) + phi) % phi;
+}
 
-def mod_pow(base: int, exp: int, mod: int) -> int:
-    """
-    Швидке модульне піднесення до степеня: base^exp mod mod
-    Метод square-and-multiply
-    """
-    result = 1
-    base = base % mod
+// Швидке модульне піднесення до степеня: base^exp mod modulus
+// Метод "піднести до квадрата й помножити"
+u64 modPow(u64 base, u64 exp, u64 modulus) {
+    u64 result = 1;
+    base %= modulus;
 
-    while exp > 0:
-        # Якщо exp непарний, множимо result на base
-        if exp & 1:
-            result = (result * base) % mod
+    while (exp > 0) {
+        if (exp & 1ULL) {
+            result = (result * base) % modulus;  // непарний біт показника
+        }
+        exp >>= 1;
+        base = (base * base) % modulus;
+    }
+    return result;
+}
 
-        # exp стає парним
-        exp >>= 1
-        base = (base * base) % mod
+// Тест простоти Міллера-Рабіна, rounds раундів
+bool isPrime(u64 n, int rounds = 10) {
+    if (n < 2) return false;
+    if (n == 2 || n == 3) return true;
+    if (n % 2 == 0) return false;
 
-    return result
+    // Подаємо n-1 як 2^r * d
+    u64 d = n - 1;
+    int r = 0;
+    while (d % 2 == 0) {
+        d /= 2;
+        ++r;
+    }
 
-def is_prime(n: int, k: int = 10) -> bool:
-    """
-    Тест простоти Міллера-Рабіна.
-    k — кількість раундів тестування.
-    """
-    if n < 2:
-        return False
-    if n == 2 or n == 3:
-        return True
-    if n % 2 == 0:
-        return False
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<u64> dist(2, n - 2);
 
-    # Представляємо n-1 як 2^r * d
-    r, d = 0, n - 1
-    while d % 2 == 0:
-        r += 1
-        d //= 2
+    for (int i = 0; i < rounds; ++i) {
+        u64 x = modPow(dist(gen), d, n);
+        if (x == 1 || x == n - 1) continue;
 
-    # Тестуємо k разів
-    for _ in range(k):
-        a = random.randrange(2, n - 1)
-        x = mod_pow(a, d, n)
+        bool composite = true;
+        for (int j = 0; j < r - 1; ++j) {
+            x = modPow(x, 2, n);
+            if (x == n - 1) {
+                composite = false;
+                break;
+            }
+        }
+        if (composite) return false;
+    }
+    return true;
+}
 
-        if x == 1 or x == n - 1:
-            continue
+// Випадкове просте число заданої розрядності (до 15 біт для навчальних прикладів)
+u64 generatePrime(int bits) {
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<u64> dist(1ULL << (bits - 1), (1ULL << bits) - 1);
 
-        for _ in range(r - 1):
-            x = mod_pow(x, 2, n)
-            if x == n - 1:
-                break
-        else:
-            return False
-
-    return True
-
-def generate_prime(bits: int) -> int:
-    """Генерує випадкове просте число заданої розрядності."""
-    while True:
-        # Генеруємо непарне число
-        candidate = random.getrandbits(bits) | (1 << bits - 1) | 1
-        if is_prime(candidate):
-            return candidate
+    while (true) {
+        u64 candidate = dist(gen) | 1ULL;  // робимо число непарним
+        if (isPrime(candidate)) {
+            return candidate;
+        }
+    }
+}
 ```
 ### Крок 2. Генерація ключів
 
-```python
-class RSA:
-    """Реалізація алгоритму RSA."""
+```cpp
+#include <iostream>
+#include <stdexcept>
 
-    def __init__(self, p: int = None, q: int = None, bits: int = 512):
-        """
-        Ініціалізація з заданими простими числами або генерація нових.
-        """
-        if p and q:
-            self.p = p
-            self.q = q
-        else:
-            self.p = generate_prime(bits // 2)
-            self.q = generate_prime(bits // 2)
+using u64 = unsigned long long;
 
-        self.n = self.p * self.q
-        self.phi = (self.p - 1) * (self.q - 1)
+long long gcdValue(long long a, long long b);      // з кроку 1
+long long modInverse(long long e, long long phi);  // з кроку 1
+u64 modPow(u64 base, u64 exp, u64 modulus);        // з кроку 1
+u64 generatePrime(int bits);                       // з кроку 1
 
-        # Вибір e (зазвичай 65537)
-        self.e = 65537
-        while gcd(self.e, self.phi) != 1:
-            self.e += 2
+class RSA {
+public:
+    // Ключова пара з наперед заданих простих чисел
+    RSA(u64 p, u64 q) : p_(p), q_(q) {
+        init();
+    }
 
-        # Обчислення d
-        self.d = mod_inverse(self.e, self.phi)
+    // Ключова пара з випадкових простих заданої розрядності
+    explicit RSA(int bits = 30) {
+        p_ = generatePrime(bits / 2);
+        do {
+            q_ = generatePrime(bits / 2);
+        } while (q_ == p_);  // p і q мають бути різними
+        init();
+    }
 
-    def get_public_key(self) -> Tuple[int, int]:
-        """Повертає відкритий ключ (e, n)."""
-        return (self.e, self.n)
+    u64 modulus() const { return n_; }
+    u64 phi() const { return phi_; }
+    u64 publicExponent() const { return e_; }
+    u64 privateExponent() const { return d_; }
 
-    def get_private_key(self) -> Tuple[int, int]:
-        """Повертає закритий ключ (d, n)."""
-        return (self.d, self.n)
+    // Зашифрування: C = M^e mod n
+    u64 encrypt(u64 message) const {
+        if (message >= n_) {
+            throw std::runtime_error("Повідомлення не менше за модуль n");
+        }
+        return modPow(message, e_, n_);
+    }
 
-    def encrypt(self, plaintext: int) -> int:
-        """
-        Шифрує повідомлення: C = M^e mod n
-        """
-        if plaintext >= self.n:
-            raise ValueError(f"Повідомлення {plaintext} >= n={self.n}")
-        return mod_pow(plaintext, self.e, self.n)
+    // Розшифрування: M = C^d mod n
+    u64 decrypt(u64 ciphertext) const {
+        return modPow(ciphertext, d_, n_);
+    }
 
-    def decrypt(self, ciphertext: int) -> int:
-        """
-        Дешифрує повідомлення: M = C^d mod n
-        """
-        return mod_pow(ciphertext, self.d, self.n)
+    // Зашифрування чужим відкритим ключем
+    static u64 encryptWith(u64 message, u64 e, u64 n) {
+        return modPow(message, e, n);
+    }
 
-    def encrypt_with_public_key(self, plaintext: int, e: int, n: int) -> int:
-        """Шифрує з чужим відкритим ключем."""
-        return mod_pow(plaintext, e, n)
+private:
+    void init() {
+        n_ = p_ * q_;
+        phi_ = (p_ - 1) * (q_ - 1);
+
+        e_ = 65537;                       // типовий відкритий експонент
+        if (e_ >= phi_) e_ = 17;          // для навчальних малих ключів
+        while (gcdValue(static_cast<long long>(e_), static_cast<long long>(phi_)) != 1) {
+            e_ += 2;
+        }
+
+        d_ = static_cast<u64>(modInverse(static_cast<long long>(e_),
+                                         static_cast<long long>(phi_)));
+    }
+
+    u64 p_ = 0, q_ = 0, n_ = 0, phi_ = 0, e_ = 0, d_ = 0;
+};
 ```
 ### Крок 3. Шифрування тексту
 
-```python
-def text_to_number(text: str) -> int:
-    """Конвертує текст у число."""
-    return int.from_bytes(text.encode('utf-8'), 'big')
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
 
-def number_to_text(number: int) -> str:
-    """Конвертує число назад у текст."""
-    length = (number.bit_length() + 7) // 8
-    return number.to_bytes(length, 'big').decode('utf-8')
+using u64 = unsigned long long;
 
-def encrypt_text(rsa: RSA, text: str) -> int:
-    """Шифрує текстове повідомлення."""
-    m = text_to_number(text)
-    if m >= rsa.n:
-        raise ValueError("Текст занадто довгий для цього ключа")
-    return rsa.encrypt(m)
+// Текст шифрується посимвольно: кожен байт перетворюється на окреме число.
+// Такий режим наочний, але в реальних системах не застосовується — він
+// зберігає статистику тексту, як і шифр простої заміни.
+std::vector<u64> encryptText(const RSA& rsa, const std::string& text) {
+    std::vector<u64> ciphertext;
+    ciphertext.reserve(text.size());
 
-def decrypt_text(rsa: RSA, ciphertext: int) -> str:
-    """Дешифрує повідомлення у текст."""
-    m = rsa.decrypt(ciphertext)
-    return number_to_text(m)
+    for (unsigned char c : text) {
+        ciphertext.push_back(rsa.encrypt(static_cast<u64>(c)));
+    }
+    return ciphertext;
+}
+
+std::string decryptText(const RSA& rsa, const std::vector<u64>& ciphertext) {
+    std::string text;
+    text.reserve(ciphertext.size());
+
+    for (u64 block : ciphertext) {
+        text += static_cast<char>(rsa.decrypt(block));
+    }
+    return text;
+}
+
+void printBlocks(const std::vector<u64>& blocks) {
+    for (size_t i = 0; i < blocks.size(); ++i) {
+        std::cout << blocks[i];
+        if (i + 1 < blocks.size()) std::cout << ' ';
+    }
+    std::cout << "\n";
+}
 ```
 ### Крок 4. Тестування
 
-```python
-def demo():
-    print("=" * 60)
-    print("ДЕМОНСТРАЦІЯ АЛГОРИТМУ RSA")
-    print("=" * 60)
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
 
-    # Приклад з малими простими (для демонстрації)
-    p, q = 61, 53
-    rsa = RSA(p, q)
+int main() {
+    std::cout << "============================================================\n";
+    std::cout << "ДЕМОНСТРАЦІЯ АЛГОРИТМУ RSA\n";
+    std::cout << "============================================================\n";
 
-    print(f"\n1. ГЕНЕРАЦІЯ КЛЮЧІВ")
-    print(f"   p = {p}")
-    print(f"   q = {q}")
-    print(f"   n = p × q = {rsa.n}")
-    print(f"   φ(n) = (p-1)(q-1) = {rsa.phi}")
-    print(f"   e = {rsa.e}")
-    print(f"   d = {rsa.d}")
-    print(f"\n   Відкритий ключ: ({rsa.e}, {rsa.n})")
-    print(f"   Закритий ключ: ({rsa.d}, {rsa.n})")
+    // 1. Генерація ключів на малих простих числах
+    u64 p = 61, q = 53;
+    RSA rsa(p, q);
 
-    # Перевірка: e * d ≡ 1 (mod φ(n))
-    print(f"\n   Перевірка: e × d mod φ(n) = {(rsa.e * rsa.d) % rsa.phi}")
+    std::cout << "\n1. ГЕНЕРАЦІЯ КЛЮЧІВ\n";
+    std::cout << "   p = " << p << "\n";
+    std::cout << "   q = " << q << "\n";
+    std::cout << "   n = p * q = " << rsa.modulus() << "\n";
+    std::cout << "   phi(n) = (p-1)(q-1) = " << rsa.phi() << "\n";
+    std::cout << "   e = " << rsa.publicExponent() << "\n";
+    std::cout << "   d = " << rsa.privateExponent() << "\n";
+    std::cout << "   Відкритий ключ: (" << rsa.publicExponent() << ", " << rsa.modulus() << ")\n";
+    std::cout << "   Закритий ключ:  (" << rsa.privateExponent() << ", " << rsa.modulus() << ")\n";
+    std::cout << "   Перевірка: e * d mod phi(n) = "
+              << (rsa.publicExponent() * rsa.privateExponent()) % rsa.phi() << "\n";
 
-    # Шифрування числа
-    print(f"\n2. ШИФРУВАННЯ ЧИСЛА")
-    M = 65  # ASCII код 'A'
-    print(f"   Повідомлення M = {M} (символ '{chr(M)}')")
+    // 2. Шифрування окремого числа
+    std::cout << "\n2. ШИФРУВАННЯ ЧИСЛА\n";
+    u64 message = 65;  // код символу 'A'
+    u64 cipher = rsa.encrypt(message);
+    std::cout << "   Повідомлення M = " << message
+              << " (символ '" << static_cast<char>(message) << "')\n";
+    std::cout << "   Шифротекст  C = M^e mod n = " << cipher << "\n";
 
-    C = rsa.encrypt(M)
-    print(f"   Шифротекст C = M^e mod n = {M}^{rsa.e} mod {rsa.n} = {C}")
+    // 3. Розшифрування
+    std::cout << "\n3. РОЗШИФРУВАННЯ\n";
+    u64 restored = rsa.decrypt(cipher);
+    std::cout << "   M = C^d mod n = " << restored
+              << " (символ '" << static_cast<char>(restored) << "')\n";
+    std::cout << (message == restored ? "   Тест пройдено: збігається з оригіналом\n"
+                                      : "   ПОМИЛКА: не збігається\n");
 
-    # Дешифрування
-    print(f"\n3. ДЕШИФРУВАННЯ")
-    M_dec = rsa.decrypt(C)
-    print(f"   Розшифроване M = C^d mod n = {C}^{rsa.d} mod {rsa.n} = {M_dec}")
-    print(f"   Символ: '{chr(M_dec)}'")
+    // 4. Шифрування тексту більшим ключем
+    std::cout << "\n4. ШИФРУВАННЯ ТЕКСТУ\n";
+    RSA rsaBig(10007, 10009);
+    std::string text = "Hello";
 
-    if M == M_dec:
-        print(f"\n   ✓ Тест пройдено: розшифроване = оригінал")
-    else:
-        print(f"\n   ✗ Помилка!")
+    std::vector<u64> blocks = encryptText(rsaBig, text);
+    std::cout << "   Текст:        \"" << text << "\"\n";
+    std::cout << "   n = " << rsaBig.modulus() << "\n";
+    std::cout << "   Шифроблоки:   ";
+    printBlocks(blocks);
+    std::cout << "   Розшифровано: \"" << decryptText(rsaBig, blocks) << "\"\n";
 
-    # Шифрування тексту (з більшим ключем)
-    print(f"\n4. ШИФРУВАННЯ ТЕКСТУ (більший ключ)")
-    rsa_big = RSA(p=104729, q=104743)  # Більші прості
+    // 5. Асиметричність: шифрує будь-хто, розшифровує лише власник d
+    std::cout << "\n5. АСИМЕТРИЧНІСТЬ\n";
+    u64 fromAlice = RSA::encryptWith(42, rsa.publicExponent(), rsa.modulus());
+    std::cout << "   Боб публікує відкритий ключ (" << rsa.publicExponent()
+              << ", " << rsa.modulus() << ")\n";
+    std::cout << "   Аліса шифрує M=42 ключем Боба: C = " << fromAlice << "\n";
+    std::cout << "   Боб розшифровує своїм d: M = " << rsa.decrypt(fromAlice) << "\n";
 
-    text = "Hello"
-    print(f"   Текст: \"{text}\"")
-    print(f"   n = {rsa_big.n}")
-
-    ciphertext = encrypt_text(rsa_big, text)
-    print(f"   Шифротекст: {ciphertext}")
-
-    decrypted = decrypt_text(rsa_big, ciphertext)
-    print(f"   Розшифровано: \"{decrypted}\"")
-
-    # Демонстрація асиметричності
-    print(f"\n5. АСИМЕТРИЧНІСТЬ")
-    print(f"   Боб публікує свій відкритий ключ: ({rsa.e}, {rsa.n})")
-    print(f"   Аліса шифрує повідомлення M=42 ключем Боба:")
-    C_alice = rsa.encrypt_with_public_key(42, rsa.e, rsa.n)
-    print(f"   C = 42^{rsa.e} mod {rsa.n} = {C_alice}")
-    print(f"   Тільки Боб (з ключем d={rsa.d}) може розшифрувати:")
-    M_bob = rsa.decrypt(C_alice)
-    print(f"   M = {C_alice}^{rsa.d} mod {rsa.n} = {M_bob}")
-
-if __name__ == "__main__":
-    demo()
+    return 0;
+}
 ```
-**Очікуваний результат:**
+Результат роботи програми:
 
 ```
 ============================================================
@@ -416,25 +461,32 @@ if __name__ == "__main__":
 1. ГЕНЕРАЦІЯ КЛЮЧІВ
    p = 61
    q = 53
-   n = p × q = 3233
-   φ(n) = (p-1)(q-1) = 3120
-   e = 65537
+   n = p * q = 3233
+   phi(n) = (p-1)(q-1) = 3120
+   e = 17
    d = 2753
-
-   Відкритий ключ: (65537, 3233)
-   Закритий ключ: (2753, 3233)
-
-   Перевірка: e × d mod φ(n) = 1
+   Відкритий ключ: (17, 3233)
+   Закритий ключ:  (2753, 3233)
+   Перевірка: e * d mod phi(n) = 1
 
 2. ШИФРУВАННЯ ЧИСЛА
    Повідомлення M = 65 (символ 'A')
-   Шифротекст C = M^e mod n = 65^65537 mod 3233 = 2790
+   Шифротекст  C = M^e mod n = 2790
 
-3. ДЕШИФРУВАННЯ
-   Розшифроване M = C^d mod n = 2790^2753 mod 3233 = 65
-   Символ: 'A'
+3. РОЗШИФРУВАННЯ
+   M = C^d mod n = 65 (символ 'A')
+   Тест пройдено: збігається з оригіналом
 
-   ✓ Тест пройдено: розшифроване = оригінал
+4. ШИФРУВАННЯ ТЕКСТУ
+   Текст:        "Hello"
+   n = 100160063
+   Шифроблоки:   52155730 1548242 68313330 68313330 4800691
+   Розшифровано: "Hello"
+
+5. АСИМЕТРИЧНІСТЬ
+   Боб публікує відкритий ключ (17, 3233)
+   Аліса шифрує M=42 ключем Боба: C = 2557
+   Боб розшифровує своїм d: M = 42
 ```
 ## Порядок виконання роботи
 
@@ -500,16 +552,36 @@ if __name__ == "__main__":
 
 ## Контрольні запитання
 
-1. Яка математична проблема лежить в основі безпеки RSA?
-2. Як обчислити закритий ключ d, знаючи e та φ(n)?
-3. Чому важливо зберігати p та q у секреті, навіть маючи n?
-4. Яка мінімальна рекомендована довжина ключа RSA у 2024 році?
+Запитання згруповано за рівнями навчальних досягнень. Для позитивної оцінки студент має відповісти на запитання середнього рівня, оцінка «добре» потребує відповідей достатнього рівня, оцінка «відмінно» — високого.
+
+### Середній рівень (репродуктивний)
+
+1. Яка математична проблема лежить в основі стійкості RSA?
+2. Які величини утворюють відкритий і закритий ключі RSA?
+3. Запишіть формули зашифрування й розшифрування RSA.
+4. Як обчислити закритий ключ d, знаючи e та φ(n)?
 5. Чому e = 65537 є популярним вибором?
-6. Що таке "текстбук RSA" і чому він небезпечний?
-7. Як працює швидке модульне піднесення до степеня?
+6. Яка мінімальна рекомендована довжина ключа RSA сьогодні?
+7. Що таке швидке модульне піднесення до степеня?
 8. Чому RSA повільніший за симетричні шифри?
-9. Як RSA використовується разом із симетричним шифруванням (гібридне)?
-10. Що станеться, якщо p = q?
+
+### Достатній рівень (конструктивно-варіативний)
+
+1. Чому важливо зберігати p і q у секреті, якщо відомий лише добуток n?
+2. Що станеться, якщо випадково обрати p = q? Чому це руйнує стійкість?
+3. Що таке «текстбук RSA» і чому його не застосовують без доповнення?
+4. Як RSA використовують разом із симетричним шифруванням у гібридних схемах?
+5. Чому обчислення d можливе лише за відомого φ(n)?
+6. Як перевірити, що згенеровані ключі коректні, не розшифровуючи реальних даних?
+7. Чому піднесення до степеня «в лоб» непридатне навіть для невеликих ключів?
+8. Які наслідки має повторне використання того самого p у двох різних ключах?
+
+### Високий рівень (творчий)
+
+1. Поясніть, чому зростання довжини ключа RSA дає нелінійний приріст стійкості, і оцініть, чому 1024 біти вже вважають недостатніми.
+2. Запропонуйте порядок дій для безпечної генерації ключової пари в навчальній лабораторії та поясніть роль джерела випадковості.
+3. Порівняйте RSA й криптографію на еліптичних кривих за довжиною ключа, швидкодією та поширеністю.
+4. Сформулюйте, які загрози для RSA створює поява квантових обчислень, і які напрями розв'язання цієї проблеми розвиваються.
 
 ## Критерії оцінювання
 

@@ -132,12 +132,15 @@ function parseFrontmatter(content) {
 
 /**
  * Generates output filename in Ukrainian format
+ *
+ * The file is named after the short title; the official title from the
+ * curriculum goes into the document itself.
  */
-function generateOutputName(frontmatter, subject) {
+function generateOutputName(frontmatter, subject, labNumber) {
   const subjectName = SUBJECT_NAMES[subject] || subject.toUpperCase();
-  // Use labNumber if specified, otherwise fall back to order
-  const labNum = frontmatter.labNumber || frontmatter.order || 1;
-  const title = frontmatter.title || 'Untitled';
+  // Номер беремо з програми; якщо програм немає — з frontmatter
+  const labNum = labNumber || frontmatter.labNumber || frontmatter.order || 1;
+  const title = frontmatter.shortTitle || frontmatter.title || 'Untitled';
 
   // Sanitize title for filename
   const cleanTitle = title
@@ -175,6 +178,17 @@ function findAllMdFiles(dir) {
 /**
  * Discovers all lab files across course modules
  */
+/**
+ * Навчальні програми курсу. Одна робота має різний номер і різні години в різних
+ * групах, тому методичні вказівки генеруються окремим комплектом на кожну програму.
+ */
+function loadPrograms(lang, courseDir) {
+  const path = join(CONTENT_DIR, lang, courseDir, '_programs.json');
+  if (!existsSync(path)) return null;
+
+  return JSON.parse(readFileSync(path, 'utf8'));
+}
+
 function findLabFiles() {
   const labs = [];
 
@@ -207,12 +221,16 @@ function findLabFiles() {
         // Only process files with type: lab
         if (frontmatter.type !== 'lab') continue;
 
+        // Ключ у _programs.json — «модуль/слаг», як у дереві контенту
+        const relative = filePath.slice(coursePath.length + 1).replace(/\.md$/, '');
+
         labs.push({
           path: filePath,
           subject,
           lang,
           courseDir,
           frontmatter,
+          key: relative,
           filename: basename(filePath)
         });
       }
@@ -357,37 +375,60 @@ function convert(inputPath, outputPath, metadata = {}) {
  * "Лабораторна робота №N" followed by the lab title in caps, as in the
  * reference guides.
  */
-function generateDocx(lab) {
+function generateDocx(lab, program) {
   const { path: filePath, subject, frontmatter } = lab;
 
-  const outputSubDir = join(OUTPUT_DIR, subject);
+  // Методичні вказівки кожної групи лежать у власному підкаталозі
+  const outputSubDir = program ? join(OUTPUT_DIR, subject, program.id) : join(OUTPUT_DIR, subject);
   if (!existsSync(outputSubDir)) {
     mkdirSync(outputSubDir, { recursive: true });
   }
 
-  const outputName = generateOutputName(frontmatter, subject);
+  const labNum = program?.item.labNumber || frontmatter.labNumber || frontmatter.order || 1;
+  const outputName = generateOutputName(frontmatter, subject, labNum);
   const outputPath = join(outputSubDir, `${outputName}.docx`);
-  const labNum = frontmatter.labNumber || frontmatter.order || 1;
+
+  // Години теж різні в різних групах, а в тексті роботи вони стоять абзацом
+  // «Тривалість: …» — підставляємо значення з програми
+  let sourcePath = filePath;
+  const hours = program?.item.hours;
+  if (hours) {
+    const content = readFileSync(filePath, 'utf8')
+      .replace(/^\*\*Тривалість:\*\*.*$/m, `**Тривалість:** ${academicHours(hours)}.`);
+    sourcePath = join(tmpdir(), `${outputName}.md`);
+    writeFileSync(sourcePath, content);
+  }
 
   try {
-    convert(filePath, outputPath, {
+    convert(sourcePath, outputPath, {
       title: `Лабораторна робота №${labNum}`,
       subtitle: frontmatter.title || ''
     });
 
-    console.log(`[ok] ${subject}/${outputName}.docx`);
-    return true;
+    const label = program ? `${subject}/${program.id}` : subject;
+    console.log(`[ok] ${label}/${outputName}.docx`);
+    return outputPath;
   } catch (error) {
     console.error(`[error] ${outputName}.docx`);
     console.error(`        ${error.message}`);
-    return false;
+    return null;
+  } finally {
+    if (sourcePath !== filePath) rmSync(sourcePath, { force: true });
   }
+}
+
+/** «4 академічні години», «2 академічні години», «6 академічних годин» */
+function academicHours(hours) {
+  const form = hours >= 5 ? 'академічних годин' : 'академічні години';
+  return `${hours} ${form}`;
 }
 
 /**
  * Generates grading criteria documents for each course
  */
 function generateGradingDocs() {
+  const written = [];
+
   const langDirs = readdirSync(CONTENT_DIR).filter(d =>
     statSync(join(CONTENT_DIR, d)).isDirectory()
   );
@@ -416,17 +457,52 @@ function generateGradingDocs() {
       const outputName = `Критерії_оцінювання_${subjectName}`;
       const frontmatter = parseFrontmatter(readFileSync(gradingPath, 'utf8'));
 
+      const outputPath = join(outputSubDir, `${outputName}.docx`);
+
       try {
-        convert(gradingPath, join(outputSubDir, `${outputName}.docx`), {
+        convert(gradingPath, outputPath, {
           title: frontmatter.title || 'Критерії оцінювання',
           subtitle: ''
         });
 
+        written.push(outputPath);
         console.log(`[ok] ${subject}/${outputName}.docx`);
       } catch (error) {
         console.error(`[error] ${outputName}.docx: ${error.message}`);
       }
     }
+  }
+
+  return written;
+}
+
+/**
+ * Removes .docx files left over from earlier runs — renamed labs and changed
+ * titles would otherwise pile up in public/labs as orphans.
+ */
+function removeStaleDocs(written) {
+  const keep = new Set(written);
+
+  const sweep = (dir, label) => {
+    if (!existsSync(dir)) return;
+
+    for (const name of readdirSync(dir)) {
+      const path = join(dir, name);
+
+      // Підкаталоги — це комплекти окремих груп
+      if (statSync(path).isDirectory()) {
+        sweep(path, `${label}/${name}`);
+        continue;
+      }
+      if (!name.endsWith('.docx') || keep.has(path)) continue;
+
+      rmSync(path);
+      console.log(`[rm] ${label}/${name}`);
+    }
+  };
+
+  for (const subject of Object.values(SUBJECT_MAP)) {
+    sweep(join(OUTPUT_DIR, subject), subject);
   }
 }
 
@@ -456,23 +532,51 @@ function main() {
 
   console.log(`Found ${labs.length} lab files\n`);
 
-  let success = 0;
+  const written = [];
   let failed = 0;
 
+  // Кеш програм на курс, щоб не читати _programs.json для кожної роботи
+  const programsCache = new Map();
+
   for (const lab of labs) {
-    if (generateDocx(lab)) {
-      success++;
-    } else {
-      failed++;
+    const cacheKey = `${lab.lang}/${lab.courseDir}`;
+    if (!programsCache.has(cacheKey)) {
+      programsCache.set(cacheKey, loadPrograms(lab.lang, lab.courseDir));
+    }
+    const programs = programsCache.get(cacheKey);
+
+    // Роботу видають кожній групі з її номером і годинами; якщо курс не має
+    // окремих програм, лишається один комплект із даними frontmatter
+    const variants = programs
+      ? programs.programs
+          .filter(program => programs.lessons[lab.key]?.[program.id])
+          .map(program => ({ id: program.id, item: programs.lessons[lab.key][program.id] }))
+      : [null];
+
+    if (!variants.length) {
+      console.log(`[skip] ${lab.filename} — немає в жодній програмі`);
+      continue;
+    }
+
+    for (const variant of variants) {
+      const outputPath = generateDocx(lab, variant);
+      if (outputPath) {
+        written.push(outputPath);
+      } else {
+        failed++;
+      }
     }
   }
 
   console.log('');
   console.log('Generating grading criteria...');
-  generateGradingDocs();
+  written.push(...generateGradingDocs());
 
   console.log('');
-  console.log(`Done: ${success} generated` + (failed > 0 ? `, ${failed} failed` : ''));
+  removeStaleDocs(written);
+
+  console.log('');
+  console.log(`Done: ${written.length} generated` + (failed > 0 ? `, ${failed} failed` : ''));
   console.log(`Output: ${OUTPUT_DIR}`);
 }
 

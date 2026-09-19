@@ -1,21 +1,22 @@
 ---
-title: "Програмні засоби захисту від мережевих атак"
+title: "Програмні засоби захисту від атак з мережі Internet"
+shortTitle: "Програмні засоби захисту від мережевих атак"
 type: lab
 order: 8
 labNumber: 9
 subject: pmzi
-duration: "4 академічні години"
+duration: "2 академічні години"
 equipment:
   - "ПК з встановленим Wireshark або tcpdump"
   - "Доступ до командного рядка з правами адміністратора"
-  - "Python 3 для написання скриптів"
+  - "C++ компілятор для написання утиліт"
   - "Віртуальна машина (опціонально, для безпечних експериментів)"
 preview: "Вивчення засобів захисту від атак з мережі Internet."
 ---
 
 **Мета:** вивчити основні типи мережевих атак та програмні засоби захисту від них. Навчитися аналізувати мережевий трафік, налаштовувати брандмауер та виявляти вразливості.
 
-**Обладнання:** ПК з встановленим Wireshark або tcpdump; Доступ до командного рядка з правами адміністратора; Python 3 для написання скриптів; Віртуальна машина (опціонально, для безпечних експериментів).
+**Обладнання:** ПК з встановленим Wireshark або tcpdump; Доступ до командного рядка з правами адміністратора; C++ компілятор для написання утиліт; Віртуальна машина (опціонально, для безпечних експериментів).
 
 **Тривалість:** 4 академічні години.
 
@@ -285,158 +286,204 @@ Get-NetTCPConnection -State Listen |
 # Linux
 ss -tuln | grep LISTEN
 ```
-#### Базове сканування портів (Python)
+#### Базове сканування портів
 
-```python
-import socket
-from concurrent.futures import ThreadPoolExecutor
+```cpp
+// Сканер портів. Збірка у Visual Studio: проєкт консольного застосунку,
+// у властивостях додати бібліотеку ws2_32.lib (Linker → Input → Additional Dependencies).
+#include <iostream>
+#include <string>
+#include <vector>
 
-def scan_port(host: str, port: int) -> tuple:
-    """Перевіряє, чи відкритий порт."""
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
-        result = sock.connect_ex((host, port))
-        sock.close()
-        if result == 0:
-            return (port, True)
-        return (port, False)
-    except:
-        return (port, False)
+#ifdef _WIN32
+  #include <winsock2.h>
+  #include <ws2tcpip.h>
+  #pragma comment(lib, "ws2_32.lib")
+  using socket_t = SOCKET;
+  const socket_t INVALID_SOCK = INVALID_SOCKET;
+#else
+  #include <sys/socket.h>
+  #include <arpa/inet.h>
+  #include <unistd.h>
+  using socket_t = int;
+  const socket_t INVALID_SOCK = -1;
+  #define closesocket close
+#endif
 
-def scan_ports(host: str, ports: list) -> list:
-    """Сканує список портів паралельно."""
-    open_ports = []
+struct ServiceName {
+    int port;
+    const char* name;
+};
 
-    with ThreadPoolExecutor(max_workers=50) as executor:
-        results = executor.map(lambda p: scan_port(host, p), ports)
+const ServiceName KNOWN_SERVICES[] = {
+    {21, "FTP"},   {22, "SSH"},   {23, "Telnet"}, {25, "SMTP"},
+    {53, "DNS"},   {80, "HTTP"},  {110, "POP3"},  {143, "IMAP"},
+    {443, "HTTPS"},{445, "SMB"},  {3306, "MySQL"},{3389, "RDP"},
+    {5432, "PostgreSQL"}, {8080, "HTTP-alt"}
+};
 
-    for port, is_open in results:
-        if is_open:
-            open_ports.append(port)
+const char* serviceName(int port) {
+    for (const ServiceName& service : KNOWN_SERVICES) {
+        if (service.port == port) return service.name;
+    }
+    return "Unknown";
+}
 
-    return open_ports
+// Спроба встановити з'єднання: успіх означає, що порт відкритий
+bool isPortOpen(const std::string& host, int port, int timeoutMs = 500) {
+    socket_t sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == INVALID_SOCK) return false;
 
-# Сканування localhost
-if __name__ == "__main__":
-    target = "127.0.0.1"
-    common_ports = [21, 22, 23, 25, 53, 80, 110, 135, 139, 143,
-                    443, 445, 993, 995, 1433, 3306, 3389, 5432, 8080]
+    // Обмежуємо час очікування, інакше сканування триватиме надто довго
+#ifdef _WIN32
+    DWORD timeout = static_cast<DWORD>(timeoutMs);
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof(timeout));
+#else
+    timeval timeout{ timeoutMs / 1000, (timeoutMs % 1000) * 1000 };
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+#endif
 
-    print(f"Сканування {target}...")
-    open_ports = scan_ports(target, common_ports)
+    sockaddr_in address{};
+    address.sin_family = AF_INET;
+    address.sin_port = htons(static_cast<unsigned short>(port));
+    inet_pton(AF_INET, host.c_str(), &address.sin_addr);
 
-    print(f"\nВідкриті порти:")
-    for port in open_ports:
-        service = {
-            21: "FTP", 22: "SSH", 23: "Telnet", 25: "SMTP",
-            53: "DNS", 80: "HTTP", 443: "HTTPS", 445: "SMB",
-            3306: "MySQL", 3389: "RDP", 5432: "PostgreSQL", 8080: "HTTP-alt"
-        }.get(port, "Unknown")
-        print(f"  {port}/tcp - {service}")
+    bool opened = connect(sock, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0;
+    closesocket(sock);
+    return opened;
+}
+
+int main() {
+    // УВАГА: сканувати дозволено лише власний комп'ютер або вузол,
+    // на який є письмовий дозвіл власника
+    const std::string target = "127.0.0.1";
+    const std::vector<int> ports = {
+        21, 22, 23, 25, 53, 80, 110, 135, 139, 143,
+        443, 445, 993, 995, 1433, 3306, 3389, 5432, 8080
+    };
+
+#ifdef _WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+        std::cerr << "Не вдалося ініціалізувати Winsock\n";
+        return 1;
+    }
+#endif
+
+    std::cout << "Сканування " << target << "...\n\n";
+    std::cout << "Відкриті порти:\n";
+
+    int found = 0;
+    for (int port : ports) {
+        if (isPortOpen(target, port)) {
+            std::cout << "  " << port << "/tcp - " << serviceName(port) << "\n";
+            ++found;
+        }
+    }
+
+    if (found == 0) {
+        std::cout << "  (жодного з перевірених портів не відкрито)\n";
+    }
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
+    return 0;
+}
 ```
 ### Завдання 4: Захист веб-застосунку
 
-#### Демонстрація SQL-ін'єкції та захисту (Python)
+#### Демонстрація SQL-ін'єкції та захисту
 
-```python
-import sqlite3
-import html
+```cpp
+// Демонстрація SQL-ін'єкції та захисту від неї.
+// Потрібна бібліотека SQLite: у Visual Studio додайте sqlite3.c і sqlite3.h
+// до проєкту (амальгама з sqlite.org) або підключіть пакет через NuGet.
+#include <iostream>
+#include <string>
+#include "sqlite3.h"
 
-# Створення тестової бази даних
-def setup_database():
-    conn = sqlite3.connect(':memory:')
-    cursor = conn.cursor()
+// Створює навчальну базу в пам'яті з двома обліковими записами
+sqlite3* setupDatabase() {
+    sqlite3* db = nullptr;
+    sqlite3_open(":memory:", &db);
 
-    cursor.execute('''
-        CREATE TABLE users (
-            id INTEGER PRIMARY KEY,
-            login TEXT NOT NULL,
-            password TEXT NOT NULL,
-            role TEXT DEFAULT 'user'
-        )
-    ''')
+    const char* schema =
+        "CREATE TABLE users ("
+        "  id INTEGER PRIMARY KEY,"
+        "  login TEXT NOT NULL,"
+        "  password TEXT NOT NULL,"
+        "  role TEXT DEFAULT 'user');"
+        "INSERT INTO users (login, password, role) VALUES ('admin', 'secret123', 'admin');"
+        "INSERT INTO users (login, password, role) VALUES ('user1', 'pass1', 'user');";
 
-    cursor.execute("INSERT INTO users (login, password, role) VALUES ('admin', 'secret123', 'admin')")
-    cursor.execute("INSERT INTO users (login, password, role) VALUES ('user1', 'pass1', 'user')")
+    sqlite3_exec(db, schema, nullptr, nullptr, nullptr);
+    return db;
+}
 
-    conn.commit()
-    return conn
+// ВРАЗЛИВИЙ варіант: запит склеюється з рядків, дані користувача
+// потрапляють у текст запиту й змінюють його структуру
+bool vulnerableLogin(sqlite3* db, const std::string& login, const std::string& password) {
+    std::string query = "SELECT login, role FROM users WHERE login='" + login +
+                        "' AND password='" + password + "'";
+    std::cout << "[ВРАЗЛИВИЙ] Запит: " << query << "\n";
 
-# ВРАЗЛИВИЙ КОД (НІКОЛИ НЕ ВИКОРИСТОВУЙТЕ!)
-def vulnerable_login(conn, login: str, password: str):
-    cursor = conn.cursor()
-    # Небезпечна конкатенація рядків
-    query = f"SELECT * FROM users WHERE login='{login}' AND password='{password}'"
-    print(f"[ВРАЗЛИВИЙ] Запит: {query}")
+    sqlite3_stmt* stmt = nullptr;
+    if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cout << "[ВРАЗЛИВИЙ] Помилка SQL: " << sqlite3_errmsg(db) << "\n";
+        return false;
+    }
 
-    try:
-        cursor.execute(query)
-        result = cursor.fetchone()
-        return result
-    except sqlite3.Error as e:
-        print(f"Помилка: {e}")
-        return None
+    bool found = (sqlite3_step(stmt) == SQLITE_ROW);
+    if (found) {
+        std::cout << "[ВРАЗЛИВИЙ] Вхід виконано як: "
+                  << sqlite3_column_text(stmt, 0) << " (роль "
+                  << sqlite3_column_text(stmt, 1) << ")\n";
+    }
+    sqlite3_finalize(stmt);
+    return found;
+}
 
-# БЕЗПЕЧНИЙ КОД (параметризований запит)
-def safe_login(conn, login: str, password: str):
-    cursor = conn.cursor()
-    # Параметризований запит — захищений від ін'єкції
-    query = "SELECT * FROM users WHERE login=? AND password=?"
-    print(f"[БЕЗПЕЧНИЙ] Запит: SELECT * FROM users WHERE login=? AND password=?")
-    print(f"[БЕЗПЕЧНИЙ] Параметри: ('{login}', '{password}')")
+// БЕЗПЕЧНИЙ варіант: структура запиту фіксована, дані передаються
+// окремо через параметри й ніколи не тлумачаться як код SQL
+bool safeLogin(sqlite3* db, const std::string& login, const std::string& password) {
+    const char* query = "SELECT login, role FROM users WHERE login=? AND password=?";
+    std::cout << "[БЕЗПЕЧНИЙ] Запит: " << query << "\n";
+    std::cout << "[БЕЗПЕЧНИЙ] Параметри: ('" << login << "', '" << password << "')\n";
 
-    cursor.execute(query, (login, password))
-    result = cursor.fetchone()
-    return result
+    sqlite3_stmt* stmt = nullptr;
+    sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
+    sqlite3_bind_text(stmt, 1, login.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
 
-def demo_sql_injection():
-    print("=" * 60)
-    print("ДЕМОНСТРАЦІЯ SQL-ІН'ЄКЦІЇ")
-    print("=" * 60)
+    bool found = (sqlite3_step(stmt) == SQLITE_ROW);
+    if (found) {
+        std::cout << "[БЕЗПЕЧНИЙ] Вхід виконано як: "
+                  << sqlite3_column_text(stmt, 0) << "\n";
+    }
+    sqlite3_finalize(stmt);
+    return found;
+}
 
-    conn = setup_database()
+int main() {
+    sqlite3* db = setupDatabase();
 
-    # Звичайний вхід
-    print("\n--- Звичайний вхід ---")
-    result = vulnerable_login(conn, "admin", "secret123")
-    print(f"Результат: {result}\n")
+    std::cout << "=== Коректний вхід ===\n";
+    vulnerableLogin(db, "admin", "secret123");
 
-    # SQL-ін'єкція
-    print("--- SQL-ін'єкція: admin'-- ---")
-    result = vulnerable_login(conn, "admin'--", "anything")
-    print(f"Результат: {result}")
-    print("АТАКА УСПІШНА! Увійшли без пароля.\n")
+    std::cout << "\n=== Атака SQL-ін'єкцією ===\n";
+    // Введене значення закриває лапку й додає умову, істинну завжди
+    std::string injection = "' OR '1'='1";
+    bool bypassed = vulnerableLogin(db, "admin", injection);
+    std::cout << "Результат: " << (bypassed ? "ЗАХИСТ ОБІЙДЕНО" : "доступ відхилено") << "\n";
 
-    # Захист параметризованим запитом
-    print("--- Той самий ввід через безпечний метод ---")
-    result = safe_login(conn, "admin'--", "anything")
-    print(f"Результат: {result}")
-    print("Ін'єкція заблокована!")
+    std::cout << "\n=== Та сама атака на параметризованому запиті ===\n";
+    bool blocked = safeLogin(db, "admin", injection);
+    std::cout << "Результат: " << (blocked ? "ЗАХИСТ ОБІЙДЕНО" : "доступ відхилено") << "\n";
 
-    conn.close()
-
-def demo_xss_protection():
-    print("\n" + "=" * 60)
-    print("ДЕМОНСТРАЦІЯ XSS ТА ЗАХИСТУ")
-    print("=" * 60)
-
-    malicious_input = '<script>alert("XSS")</script>'
-
-    print(f"\nЗловмисний ввід: {malicious_input}")
-
-    # Без захисту
-    print(f"\nБез захисту (HTML): <p>Привіт, {malicious_input}</p>")
-    print("НЕБЕЗПЕЧНО! Скрипт буде виконано в браузері.")
-
-    # З екрануванням
-    safe_output = html.escape(malicious_input)
-    print(f"\nЗ екрануванням: <p>Привіт, {safe_output}</p>")
-    print("Безпечно! Скрипт відображається як текст.")
-
-if __name__ == "__main__":
-    demo_sql_injection()
-    demo_xss_protection()
+    sqlite3_close(db);
+    return 0;
+}
 ```
 **Очікуваний результат:**
 
@@ -557,16 +604,36 @@ if __name__ == "__main__":
 
 ## Контрольні запитання
 
-1. Що таке брандмауер? Які типи брандмауерів існують?
-2. Чим відрізняється IDS від IPS? Коли краще використовувати кожен?
-3. Які порти потрібно захищати в першу чергу і чому?
-4. Як виявити сканування портів у мережевому трафіку?
-5. Що таке SQL-ін'єкція? Як від неї захиститися?
-6. Що таке XSS? Які типи XSS існують?
-7. Що таке stateful firewall і чим він кращий за пакетний фільтр?
-8. Як працює Content Security Policy (CSP)?
-9. Що таке OWASP Top 10?
-10. Чому HTTPS не захищає від всіх атак?
+Запитання згруповано за рівнями навчальних досягнень. Для позитивної оцінки студент має відповісти на запитання середнього рівня, оцінка «добре» потребує відповідей достатнього рівня, оцінка «відмінно» — високого.
+
+### Середній рівень (репродуктивний)
+
+1. Що таке брандмауер і які його типи існують?
+2. Чим IDS відрізняється від IPS?
+3. Які порти потребують захисту в першу чергу?
+4. Що таке сканування портів?
+5. Що таке SQL-ін'єкція?
+6. Що таке XSS і які його типи існують?
+7. Що таке OWASP Top 10?
+8. Що таке Content Security Policy?
+
+### Достатній рівень (конструктивно-варіативний)
+
+1. Чим stateful firewall кращий за простий пакетний фільтр?
+2. Як виявити сканування портів у мережевому трафіку? За якими ознаками?
+3. Як параметризовані запити унеможливлюють SQL-ін'єкцію?
+4. Чому екранування виводу захищає від XSS, а фільтрація вводу — не завжди?
+5. Коли доцільніший IDS, а коли IPS? Наведіть по одному сценарію.
+6. Запишіть правило брандмауера, яке дозволяє лише вихідні з'єднання на порт 443.
+7. Чому HTTPS не захищає від усіх атак? Наведіть два приклади.
+8. Як CSP обмежує наслідки успішної XSS-атаки?
+
+### Високий рівень (творчий)
+
+1. Побудуйте ешелоновану схему захисту веб-застосунку: які засоби на якому рівні та проти яких загроз працюють.
+2. Система виявлення вторгнень дає багато хибних спрацьовувань. Назвіть причини та порядок налаштування, щоб їх зменшити без втрати чутливості.
+3. Оцініть, чому повне блокування вхідного трафіку не є універсальним розв'язанням, і сформулюйте критерій відкриття порту.
+4. Сформулюйте, чому більшість успішних атак використовує не технічні вразливості, а помилки конфігурації та людський фактор. Проілюструйте прикладами з роботи.
 
 ## Критерії оцінювання
 

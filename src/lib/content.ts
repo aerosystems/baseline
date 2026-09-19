@@ -7,6 +7,7 @@ import type {
   ModuleJson,
   ContentTree,
   Language,
+  ProgramsJson,
 } from '@/types/content';
 import { calculateReadingTime, isStubContent } from './readingTime';
 
@@ -96,7 +97,7 @@ const markdownFiles = import.meta.glob('/content/**/*.md', {
 const jsonFiles = import.meta.glob('/content/**/*.json', {
   eager: true,
   import: 'default',
-}) as Record<string, CourseJson | ModuleJson>;
+}) as Record<string, CourseJson | ModuleJson | ProgramsJson>;
 
 function getJsonContent<T>(path: string): T | null {
   const file = jsonFiles[path];
@@ -196,16 +197,25 @@ export function buildContentTree(): ContentTree {
     for (const [courseSlug, modules] of Object.entries(courses)) {
       const courseJson = getJsonContent<CourseJson>(`/content/${lang}/${courseSlug}/course.json`);
 
+      // Номери лабораторних, години й форма подачі різні в різних групах,
+      // тому вони лежать окремо — у _programs.json, побудованому з РНП
+      const programsJson = getJsonContent<ProgramsJson>(`/content/${lang}/${courseSlug}/_programs.json`);
+
       const course: Course = {
         slug: courseSlug,
         title: courseJson?.title || courseSlug,
         description: courseJson?.description,
+        programs: programsJson?.programs,
         modules: [],
         grading: parseGradingLesson(lang, courseSlug) ?? undefined,
       };
 
       for (const [moduleSlug, lessons] of Object.entries(modules)) {
         const moduleJson = getJsonContent<ModuleJson>(`/content/${lang}/${courseSlug}/${moduleSlug}/module.json`);
+
+        for (const lesson of lessons) {
+          lesson.byProgram = programsJson?.lessons[`${moduleSlug}/${lesson.slug}`];
+        }
 
         const module: Module = {
           slug: moduleSlug,

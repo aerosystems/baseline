@@ -1,0 +1,1068 @@
+{
+  "_source": "Побудовано з робочих навчальних програм у data/РНП_ОС_*.docx",
+  "programs": [
+    {
+      "id": "pz-24",
+      "title": "ПЗ-24-1/9",
+      "semester": 5,
+      "students": 26
+    },
+    {
+      "id": "pz-25",
+      "title": "ПЗ-25-1/9",
+      "semester": 3,
+      "students": 29
+    },
+    {
+      "id": "kmp-23",
+      "title": "КМП-23-1/9",
+      "semester": 7,
+      "students": 24
+    },
+    {
+      "id": "kmp-24",
+      "title": "КМП-24-2/9, -3/9",
+      "semester": 6,
+      "students": 56
+    }
+  ],
+  "lessons": {
+    "01-module/01-lecture-intro": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.1"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.1"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.1"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.1"
+      }
+    },
+    "01-module/02-lecture-functions": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.2"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.2"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.2"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.2"
+      }
+    },
+    "01-module/03-lecture-requirements": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.3"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.3"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.3"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.3"
+      }
+    },
+    "01-module/04-lecture-evolution": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.4"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.4"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.4"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.4"
+      }
+    },
+    "01-module/05-lecture-modes": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.5"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.5"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.5"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.5"
+      }
+    },
+    "01-module/06-lecture-architecture": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.6"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.6"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.6"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.6"
+      }
+    },
+    "01-module/07-lecture-windows-overview": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.7"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.7"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.7"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.7"
+      }
+    },
+    "01-module/08-lecture-windows-versions": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.8"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.8"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.8"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.8"
+      }
+    },
+    "01-module/10-lecture-windows-cmd": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.9"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.9"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.9"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.9"
+      }
+    },
+    "01-module/12-lecture-batch-files": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.10"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.10"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.10"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.10"
+      }
+    },
+    "01-module/16-lecture-linux-overview": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.11"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.11"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.11"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.11"
+      }
+    },
+    "01-module/17-lecture-linux-distros": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.12"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.12"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.12"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.12"
+      }
+    },
+    "01-module/19-lecture-linux-gui": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.13"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.13"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.13"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.13"
+      }
+    },
+    "01-module/20-lecture-linux-desktop": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.14"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.14"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.14"
+      }
+    },
+    "01-module/21-lecture-linux-fs": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "1.15"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "1.15"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.15"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.15"
+      }
+    },
+    "01-module/22-lecture-linux-desktop-props": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.16"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.16"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.16"
+      }
+    },
+    "01-module/25-lecture-wm": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.17"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.17"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "1.17"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.17"
+      }
+    },
+    "01-module/26-lecture-themes": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.18"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.18"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "1.18"
+      }
+    },
+    "01-module/27-lecture-console": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.19"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.19"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.19"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "1.19"
+      }
+    },
+    "01-module/09-lab-windows-env": {
+      "pz-24": {
+        "labNumber": 1,
+        "hours": 4
+      },
+      "pz-25": {
+        "labNumber": 1,
+        "hours": 4
+      },
+      "kmp-24": {
+        "labNumber": 1,
+        "hours": 2
+      }
+    },
+    "01-module/11-lab-cmd-files": {
+      "pz-24": {
+        "labNumber": 2,
+        "hours": 4
+      },
+      "pz-25": {
+        "labNumber": 2,
+        "hours": 4
+      },
+      "kmp-23": {
+        "labNumber": 1,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 2,
+        "hours": 4
+      }
+    },
+    "01-module/13-lab-batch": {
+      "pz-24": {
+        "labNumber": 3,
+        "hours": 4
+      },
+      "pz-25": {
+        "labNumber": 3,
+        "hours": 4
+      },
+      "kmp-23": {
+        "labNumber": 2,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 3,
+        "hours": 4
+      }
+    },
+    "01-module/14-lab-recovery": {
+      "pz-24": {
+        "labNumber": 4,
+        "hours": 4
+      },
+      "pz-25": {
+        "labNumber": 4,
+        "hours": 4
+      },
+      "kmp-24": {
+        "labNumber": 4,
+        "hours": 2
+      }
+    },
+    "01-module/15-lab-wsh": {
+      "pz-24": {
+        "labNumber": 5,
+        "hours": 2
+      },
+      "pz-25": {
+        "labNumber": 5,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 5,
+        "hours": 2
+      }
+    },
+    "01-module/18-lab-linux-intro": {
+      "pz-24": {
+        "labNumber": 6,
+        "hours": 2
+      },
+      "pz-25": {
+        "labNumber": 6,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 6,
+        "hours": 2
+      }
+    },
+    "01-module/23-lab-linux-fs": {
+      "pz-24": {
+        "labNumber": 7,
+        "hours": 4
+      },
+      "pz-25": {
+        "labNumber": 7,
+        "hours": 4
+      },
+      "kmp-23": {
+        "labNumber": 3,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 7,
+        "hours": 2
+      }
+    },
+    "01-module/24-lab-users": {
+      "pz-24": {
+        "labNumber": 8,
+        "hours": 4
+      },
+      "pz-25": {
+        "labNumber": 8,
+        "hours": 4
+      },
+      "kmp-23": {
+        "labNumber": 4,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 8,
+        "hours": 2
+      }
+    },
+    "01-module/28-lab-mc-vi": {
+      "pz-24": {
+        "labNumber": 9,
+        "hours": 2
+      },
+      "pz-25": {
+        "labNumber": 9,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 9,
+        "hours": 2
+      }
+    },
+    "01-module/29-lab-shell": {
+      "pz-24": {
+        "labNumber": 10,
+        "hours": 4
+      },
+      "pz-25": {
+        "labNumber": 10,
+        "hours": 4
+      },
+      "kmp-24": {
+        "labNumber": 10,
+        "hours": 4
+      }
+    },
+    "02-module/01-lecture-parallel": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.1"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.1"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.1"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.1"
+      }
+    },
+    "02-module/02-lecture-states": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.2"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.2"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.2"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.2"
+      }
+    },
+    "02-module/03-lecture-dispatch": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.3"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.3"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "2.3"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "2.3"
+      }
+    },
+    "02-module/04-lecture-interrupts": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.4"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.4"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "2.4"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "2.4"
+      }
+    },
+    "02-module/05-lecture-process-mgmt": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.5"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.5"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 4,
+        "theme": "2.5"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "2.5"
+      }
+    },
+    "02-module/06-lecture-scheduling-alg": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.6"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.6"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "2.6"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "2.6"
+      }
+    },
+    "02-module/07-lab-processes": {
+      "pz-24": {
+        "labNumber": 11,
+        "hours": 4
+      },
+      "pz-25": {
+        "labNumber": 11,
+        "hours": 4
+      },
+      "kmp-23": {
+        "labNumber": 5,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 12,
+        "hours": 2
+      }
+    },
+    "02-module/08-seminar-1": {
+      "pz-24": {
+        "hours": 2
+      },
+      "pz-25": {
+        "hours": 2
+      },
+      "kmp-23": {
+        "hours": 2
+      },
+      "kmp-24": {
+        "hours": 2
+      }
+    },
+    "03-module/01-lecture-planning-ops": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.1"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.1"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 4,
+        "theme": "3.1"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.1"
+      }
+    },
+    "03-module/02-lecture-planning-params": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "3.2"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "3.2"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "3.2"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "3.2"
+      }
+    },
+    "03-module/03-lecture-planning-alg": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "3.3"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "3.3"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.3"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "3.3"
+      }
+    },
+    "03-module/04-lecture-disciplines": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.4"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.4"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "3.4"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "3.4"
+      }
+    },
+    "03-module/05-lecture-quality": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "3.5"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "3.5"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "3.5"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "3.5"
+      }
+    },
+    "04-module/01-lecture-vmem": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "4.1"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "4.1"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 4,
+        "theme": "4.1"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "4.1"
+      }
+    },
+    "04-module/02-lecture-paging": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "4.2"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "4.2"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 6,
+        "theme": "4.2"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 6,
+        "theme": "4.2"
+      }
+    },
+    "05-module/01-lecture-devices-class": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "5.1"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "5.1"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "5.1"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "5.1"
+      }
+    },
+    "05-module/02-lecture-io": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "5.2"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "5.2"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 4,
+        "theme": "5.2"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "5.2"
+      }
+    },
+    "05-module/03-lecture-buffering": {
+      "pz-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "5.3"
+      },
+      "pz-25": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "5.3"
+      },
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "5.3"
+      },
+      "kmp-24": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "5.3"
+      }
+    },
+    "05-module/04-lecture-device-mgmt": {
+      "pz-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "5.4"
+      },
+      "pz-25": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "5.4"
+      },
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 4,
+        "theme": "5.4"
+      },
+      "kmp-24": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "5.4"
+      }
+    },
+    "05-module/05-lab-devices": {
+      "pz-24": {
+        "labNumber": 12,
+        "hours": 2
+      },
+      "pz-25": {
+        "labNumber": 12,
+        "hours": 2
+      },
+      "kmp-23": {
+        "labNumber": 6,
+        "hours": 2
+      },
+      "kmp-24": {
+        "labNumber": 13,
+        "hours": 2
+      }
+    },
+    "06-module/01-lecture-mobile-os": {
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 6,
+        "theme": "6.1"
+      }
+    },
+    "06-module/02-lecture-specialized-os": {
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 4,
+        "theme": "6.2"
+      }
+    },
+    "06-module/03-lecture-government-os": {
+      "kmp-23": {
+        "delivery": "lecture",
+        "hours": 2,
+        "theme": "6.3"
+      }
+    },
+    "06-module/04-lecture-os-popularity": {
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "6.4"
+      }
+    },
+    "06-module/05-lecture-special-devices": {
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 4,
+        "theme": "6.5"
+      }
+    },
+    "06-module/06-lecture-os-trends": {
+      "kmp-23": {
+        "delivery": "self-study",
+        "hours": 2,
+        "theme": "6.6"
+      }
+    },
+    "01-module/30-lab-install-os": {
+      "kmp-24": {
+        "labNumber": 11,
+        "hours": 4
+      }
+    },
+    "05-module/06-lab-disk-fs": {
+      "kmp-24": {
+        "labNumber": 14,
+        "hours": 4
+      }
+    }
+  }
+}

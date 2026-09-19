@@ -83,10 +83,10 @@ preview: "Алгоритм DES: структура, раунди, S-блоки, 
     │ R₁₆ (32) L₁₆(32)│  ← Зверніть увагу: порядок змінено!
     └────────┬────────┘
              │
-    ┌─────────────────┐
-    │ Кінцева         │
+    ┌──────────────────┐
+    │ Кінцева          │
     │ перестановка IP⁻¹│
-    └────────┬────────┘
+    └────────┬─────────┘
              │
              ▼
      64-біт шифротекст
@@ -96,8 +96,8 @@ preview: "Алгоритм DES: структура, раунди, S-блоки, 
 
 **IP** (Initial Permutation) переставляє 64 біти входу за фіксованою таблицею.
 
-```python
-IP = [
+```cpp
+const int IP[64] = {
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
     62, 54, 46, 38, 30, 22, 14, 6,
@@ -106,10 +106,10 @@ IP = [
     59, 51, 43, 35, 27, 19, 11, 3,
     61, 53, 45, 37, 29, 21, 13, 5,
     63, 55, 47, 39, 31, 23, 15, 7
-]
-# Біт 58 входу → біт 1 виходу
-# Біт 50 входу → біт 2 виходу
-# ...
+};
+// Біт 58 входу → біт 1 виходу
+// Біт 50 входу → біт 2 виходу
+// ...
 ```
 
 **Навіщо?** Історично — для оптимізації апаратної реалізації на 8-бітних процесорах. Криптографічного значення не має.
@@ -132,7 +132,7 @@ IP = [
             │                 │   S-блоки     │ 48 → 32 біт
             │                 │ S₁ S₂ ... S₈  │
             │                 └───────┬───────┘
-            │                         │
+            │                                 │
             │                 ┌───────┴───────┐
             │                 │ Permutation P │ 32 → 32 біт
             │                 └───────┬───────┘
@@ -155,8 +155,8 @@ IP = [
        └── Біти на межах груп дублюються
 ```
 
-```python
-E = [
+```cpp
+const int E[48] = {
     32,  1,  2,  3,  4,  5,
      4,  5,  6,  7,  8,  9,
      8,  9, 10, 11, 12, 13,
@@ -165,7 +165,7 @@ E = [
     20, 21, 22, 23, 24, 25,
     24, 25, 26, 27, 28, 29,
     28, 29, 30, 31, 32,  1
-]
+};
 ```
 
 ## S-блоки — серце DES
@@ -223,8 +223,8 @@ S-блоки — єдиний нелінійний елемент DES. Без н
 
 Після S-блоків 32 біти переставляються:
 
-```python
-P = [
+```cpp
+const int P[32] = {
     16,  7, 20, 21,
     29, 12, 28, 17,
      1, 15, 23, 26,
@@ -233,7 +233,7 @@ P = [
     32, 27,  3,  9,
     19, 13, 30,  6,
     22, 11,  4, 25
-]
+};
 ```
 
 ## Генерація підключів
@@ -273,11 +273,11 @@ P = [
 
 ### Таблиці зсувів
 
-```python
-# Кількість позицій зсуву для кожного раунду
-SHIFTS = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
-# Раунди 1, 2, 9, 16 — зсув на 1
-# Решта — зсув на 2
+```cpp
+// Кількість позицій зсуву для кожного раунду
+const int SHIFTS[16] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };
+// Раунди 1, 2, 9, 16 — зсув на 1
+// Решта — зсув на 2
 ```
 
 ## Дешифрування DES
@@ -291,49 +291,45 @@ SHIFTS = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
 
 ## Реалізація DES (спрощена)
 
-```python
-def des_round(L: bytes, R: bytes, K: bytes) -> tuple:
-    """Один раунд DES."""
-    # Розширення
-    E_R = expand(R)  # 32 → 48 біт
+```cpp
+#include <cstdint>
+#include <vector>
 
-    # XOR з ключем
-    xored = xor_bytes(E_R, K)
+uint64_t permute(uint64_t input, const int* table, int outputBits, int inputBits);
+uint64_t expand(uint32_t half);                   // 32 → 48 біт
+uint32_t applySBoxes(uint64_t value48);           // 48 → 32 біт
+std::vector<uint64_t> generateSubkeys(uint64_t key);
 
-    # S-блоки
-    S_out = apply_sboxes(xored)  # 48 → 32 біт
+// Один раунд мережі Фейстеля:
+// L(i+1) = R(i), R(i+1) = L(i) XOR F(R(i), K(i))
+void desRound(uint32_t& left, uint32_t& right, uint64_t subkey) {
+    uint64_t expanded = expand(right);             // розширення 32 → 48
+    uint64_t mixed = expanded ^ subkey;            // додавання раундового ключа
+    uint32_t substituted = applySBoxes(mixed);     // S-блоки 48 → 32
+    uint32_t permuted = static_cast<uint32_t>(permute(substituted, P, 32, 32));
 
-    # Перестановка P
-    P_out = permute(S_out, P_TABLE)
+    uint32_t newRight = left ^ permuted;
+    left = right;
+    right = newRight;
+}
 
-    # XOR з L
-    new_R = xor_bytes(L, P_out)
+// Шифрування одного 64-бітного блоку
+uint64_t desEncrypt(uint64_t plaintext, uint64_t key) {
+    std::vector<uint64_t> subkeys = generateSubkeys(key);
 
-    return R, new_R  # L_{i+1} = R_i, R_{i+1} = L_i ⊕ F(R_i, K_i)
+    uint64_t block = permute(plaintext, IP, 64, 64);   // початкова перестановка
 
+    uint32_t left  = static_cast<uint32_t>(block >> 32);
+    uint32_t right = static_cast<uint32_t>(block & 0xFFFFFFFFULL);
 
-def des_encrypt(plaintext: bytes, key: bytes) -> bytes:
-    """Шифрування одного блоку DES."""
-    # Генеруємо підключі
-    subkeys = generate_subkeys(key)
+    for (int round = 0; round < 16; ++round) {
+        desRound(left, right, subkeys[round]);
+    }
 
-    # Початкова перестановка
-    block = permute(plaintext, IP)
-
-    # Розділяємо на L і R
-    L, R = block[:4], block[4:]
-
-    # 16 раундів
-    for i in range(16):
-        L, R = des_round(L, R, subkeys[i])
-
-    # Міняємо місцями перед фінальною перестановкою
-    block = R + L
-
-    # Кінцева перестановка
-    ciphertext = permute(block, IP_INV)
-
-    return ciphertext
+    // Половини міняються місцями перед кінцевою перестановкою
+    block = (static_cast<uint64_t>(right) << 32) | left;
+    return permute(block, IP_INV, 64, 64);
+}
 ```
 
 ## Криптоаналіз DES
@@ -449,34 +445,34 @@ Matsui (1993) — апроксимація S-блоків лінійними ф�
 ## 💼 Real World: DES та блочні шифри в індустрії
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 DES/3DES У РЕАЛЬНОМУ СВІТІ                      │
-│                                                                 │
+┌────────────────────────────────────────────────────────────────┐
+│                 DES/3DES У РЕАЛЬНОМУ СВІТІ                     │
+│                                                                │
 │   🏦 БАНКІВСЬКА СФЕРА (Legacy systems)                         │
 │   • ATM мережі досі використовують 3DES                        │
 │   • POS термінали (старі версії)                               │
-│   • SWIFT міжбанківські перекази (в процесі міграції)         │
-│                                                                 │
+│   • SWIFT міжбанківські перекази (в процесі міграції)          │
+│                                                                │
 │   💳 ПЛАТІЖНІ СИСТЕМИ                                          │
 │   • EMV чіпи (3DES для PIN verification)                       │
 │   • Магнітні смуги (DES encryption)                            │
 │   • HSM (Hardware Security Modules)                            │
-│                                                                 │
+│                                                                │
 │   📡 ТЕЛЕКОМУНІКАЦІЇ                                           │
-│   • GSM A5/1 (базується на концепціях DES)                    │
-│   • Супутникове ТВ (умовний доступ)                           │
-│                                                                 │
+│   • GSM A5/1 (базується на концепціях DES)                     │
+│   • Супутникове ТВ (умовний доступ)                            │
+│                                                                │
 │   🔐 ЧОМУ ВИВЧАТИ DES СЬОГОДНІ?                                │
 │   • Розуміння принципів блочного шифрування                    │
-│   • Мережа Фейстеля використовується в багатьох шифрах        │
+│   • Мережа Фейстеля використовується в багатьох шифрах         │
 │   • Legacy системи потребують підтримки                        │
-│   • Криптоаналіз DES → основа сучасних методів                │
-│                                                                 │
+│   • Криптоаналіз DES → основа сучасних методів                 │
+│                                                                │
 │   ✅ СУЧАСНА АЛЬТЕРНАТИВА: AES                                 │
 │   • 128/192/256-біт ключі                                      │
 │   • Швидший за 3DES                                            │
 │   • Стандарт з 2001 року                                       │
-└─────────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Історичний вплив DES
@@ -491,29 +487,29 @@ Matsui (1993) — апроксимація S-блоків лінійними ф�
 ## 🎯 Career Spotlight
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 КАР'ЄРНІ МОЖЛИВОСТІ                             │
-│                                                                 │
-│   Cryptography Engineer                                         │
+┌───────────────────────────────────────────────────────────────┐
+│                 КАР'ЄРНІ МОЖЛИВОСТІ                           │
+│                                                               │
+│   Cryptography Engineer                                       │
 │   ├── Зарплата: $140,000 - $220,000/рік                       │
 │   ├── Навички: DES/AES internals, math, implementation        │
 │   └── Компанії: Apple, Google, Microsoft, Cloudflare          │
-│                                                                 │
-│   Hardware Security Engineer (HSM)                              │
+│                                                               │
+│   Hardware Security Engineer (HSM)                            │
 │   ├── Зарплата: $130,000 - $200,000/рік                       │
 │   ├── Навички: 3DES/AES, FIPS compliance, embedded            │
 │   └── Компанії: Thales, nCipher, AWS CloudHSM                 │
-│                                                                 │
-│   Security Researcher                                           │
+│                                                               │
+│   Security Researcher                                         │
 │   ├── Зарплата: $120,000 - $180,000/рік                       │
 │   ├── Навички: Криптоаналіз, side-channel attacks             │
 │   └── Компанії: NCC Group, Trail of Bits, academia            │
-│                                                                 │
-│   Payment Security Specialist                                   │
+│                                                               │
+│   Payment Security Specialist                                 │
 │   ├── Зарплата: $100,000 - $160,000/рік                       │
 │   ├── Навички: PCI-DSS, 3DES, EMV, tokenization               │
 │   └── Компанії: Visa, Mastercard, Stripe, Square              │
-└─────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ## 📚 Resources
@@ -525,46 +521,46 @@ Matsui (1993) — апроксимація S-блоків лінійними ф�
 
 ### Інструменти
 - **OpenSSL**: `openssl des3 -e -in file -out file.enc`
-- **Python**: `from Crypto.Cipher import DES3`
+- **C++**: Crypto++ — `CryptoPP::DES_EDE3::Encryption`
 - **CyberChef**: візуальний DES/3DES
 
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 DES QUICK REFERENCE                             │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   Параметри DES:                                                │
+┌────────────────────────────────────────────────────────────────┐
+│                 DES QUICK REFERENCE                            │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│   Параметри DES:                                               │
 │   • Блок: 64 біт (8 байт)                                      │
 │   • Ключ: 64 біт (56 ефективних + 8 парності)                  │
 │   • Раунди: 16                                                 │
 │   • Підключ: 48 біт                                            │
-│                                                                 │
+│                                                                │
 │   Структура раунду Фейстеля:                                   │
 │   L_i = R_{i-1}                                                │
-│   R_i = L_{i-1} ⊕ F(R_{i-1}, K_i)                             │
-│                                                                 │
-│   Функція F:                                                    │
+│   R_i = L_{i-1} ⊕ F(R_{i-1}, K_i)                              │
+│                                                                │
+│   Функція F:                                                   │
 │   F = P(S(E(R) ⊕ K))                                           │
 │   • E: розширення 32→48 біт                                    │
 │   • S: 8 S-блоків (6→4 біт кожен)                              │
 │   • P: перестановка 32 біт                                     │
-│                                                                 │
+│                                                                │
 │   S-блок: вхід b1b2b3b4b5b6                                    │
 │   • Рядок = b1b6 (0-3)                                         │
 │   • Стовпець = b2b3b4b5 (0-15)                                 │
-│                                                                 │
-│   3DES (EDE):                                                   │
+│                                                                │
+│   3DES (EDE):                                                  │
 │   C = E_K3(D_K2(E_K1(P)))                                      │
-│   • 3-key: K1≠K2≠K3, 168 біт (ефективно ~112)                 │
-│   • 2-key: K1=K3≠K2, 112 біт (ефективно ~80)                  │
-│                                                                 │
-│   OpenSSL команди:                                              │
+│   • 3-key: K1≠K2≠K3, 168 біт (ефективно ~112)                  │
+│   • 2-key: K1=K3≠K2, 112 біт (ефективно ~80)                   │
+│                                                                │
+│   OpenSSL команди:                                             │
 │   openssl des3 -e -in plain.txt -out cipher.bin                │
 │   openssl des3 -d -in cipher.bin -out plain.txt                │
-│   openssl enc -des-ede3-cbc -e -in file -out file.enc         │
-└─────────────────────────────────────────────────────────────────┘
+│   openssl enc -des-ede3-cbc -e -in file -out file.enc          │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## ❓ Питання для самоперевірки
@@ -595,119 +591,85 @@ Matsui (1993) — апроксимація S-блоків лінійними ф�
 
 Дослідіть внутрішню структуру DES — S-блоки, які є "серцем" шифру. Це те, що роблять справжні криптографи!
 
-```python
-#!/usr/bin/env python3
-"""
-DES практичне завдання: аналіз S-блоків та структури.
-"""
+```cpp
+// Аналіз S-блоків та простору ключів DES
+#include <iostream>
+#include <iomanip>
+#include <bitset>
+#include <cmath>
 
-# S-блок S1 з DES
-S1 = [
-    [14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
-    [0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8],
-    [4, 1, 14, 8, 13, 6, 2, 11, 15, 12, 9, 7, 3, 10, 5, 0],
-    [15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13]
-]
+// S-блок S1 з DES
+const int S1[4][16] = {
+    { 14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7 },
+    {  0, 15,  7,  4, 14,  2, 13,  1, 10,  6, 12, 11,  9,  5,  3,  8 },
+    {  4,  1, 14,  8, 13,  6,  2, 11, 15, 12,  9,  7,  3, 10,  5,  0 },
+    { 15, 12,  8,  2,  4,  9,  1,  7,  5, 11,  3, 14, 10,  0,  6, 13 }
+};
 
+// Рядок задають крайні біти b1 і b6, стовпець — середні b2..b5
+int sboxLookup(const int sbox[4][16], int input6bit) {
+    int row = ((input6bit >> 5) & 1) * 2 + (input6bit & 1);
+    int col = (input6bit >> 1) & 0x0F;
+    return sbox[row][col];
+}
 
-def sbox_lookup(sbox, input_6bit):
-    """
-    Виконує lookup в S-блоці.
+// Лавинний ефект: зміна одного біта входу має змінювати кілька бітів виходу
+void analyzeAvalanche(const int sbox[4][16]) {
+    std::cout << "Аналіз лавинного ефекту S-блоку S1:\n";
+    std::cout << "--------------------------------------------------\n";
 
-    Args:
-        sbox: S-блок (4x16 таблиця)
-        input_6bit: 6-бітний вхід (рядок '010101' або int 0-63)
+    int totalChanges = 0, tests = 0;
 
-    Returns:
-        4-бітний вихід (int 0-15)
-    """
-    if isinstance(input_6bit, str):
-        bits = input_6bit
-    else:
-        bits = format(input_6bit, '06b')
+    for (int input = 0; input < 64; ++input) {       // 6 біт = 64 значення
+        int original = sboxLookup(sbox, input);
 
-    # Рядок: біти b1 та b6
-    row = int(bits[0] + bits[5], 2)
-    # Стовпець: біти b2, b3, b4, b5
-    col = int(bits[1:5], 2)
+        for (int bit = 0; bit < 6; ++bit) {          // по черзі змінюємо кожен біт
+            int flipped = input ^ (1 << bit);
+            int changed = std::bitset<4>(original ^ sboxLookup(sbox, flipped)).count();
+            totalChanges += changed;
+            ++tests;
+        }
+    }
 
-    return sbox[row][col]
+    std::cout << "Середня кількість змінених бітів виходу: "
+              << std::fixed << std::setprecision(2)
+              << static_cast<double>(totalChanges) / tests << "\n";
+    std::cout << "Ідеал для 4-бітного виходу: 2.00 біта\n";
+}
 
+// Оцінка стійкості до повного перебору
+void keySpaceAnalysis() {
+    const double KEYS_PER_SECOND = 1e12;   // трильйон ключів за секунду
 
-def analyze_sbox_avalanche(sbox):
-    """
-    Аналізує лавинний ефект S-блоку:
-    зміна 1 біта входу має змінювати кілька бітів виходу.
-    """
-    print("Аналіз лавинного ефекту S-блоку S1:")
-    print("-" * 50)
+    double desKeys = std::pow(2.0, 56);
+    double desDays = desKeys / KEYS_PER_SECOND / 3600 / 24;
 
-    total_changes = 0
-    tests = 0
+    std::cout << "\nПростір ключів DES:\n";
+    std::cout << "  Біт ключа:     56\n";
+    std::cout << "  Усього ключів: 2^56 = " << std::scientific << desKeys << "\n";
+    std::cout << "  Час перебору:  " << std::fixed << std::setprecision(1)
+              << desDays << " днів — DES ламається за години на спеціалізованому обладнанні\n";
 
-    for input_val in range(64):  # 6 біт = 64 значення
-        original_output = sbox_lookup(sbox, input_val)
+    double aesYears = std::pow(2.0, 256) / KEYS_PER_SECOND / 3600 / 24 / 365;
+    std::cout << "\nПорівняння з AES-256:\n";
+    std::cout << "  Простір ключів: 2^256\n";
+    std::cout << "  Час перебору:   " << std::scientific << aesYears
+              << " років — більше за вік Всесвіту\n";
+}
 
-        # Змінюємо кожен біт по черзі
-        for bit_pos in range(6):
-            flipped = input_val ^ (1 << (5 - bit_pos))
-            new_output = sbox_lookup(sbox, flipped)
+int main() {
+    int testInput = 0b011001;   // приклад з лекції
 
-            # Рахуємо скільки бітів виходу змінилось
-            diff = original_output ^ new_output
-            bits_changed = bin(diff).count('1')
-            total_changes += bits_changed
-            tests += 1
+    std::cout << "=== Тест S-блоку S1 ===\n";
+    std::cout << "Вхід:     " << std::bitset<6>(testInput) << "\n";
+    std::cout << "Рядок:    " << (((testInput >> 5) & 1) * 2 + (testInput & 1)) << "\n";
+    std::cout << "Стовпець: " << ((testInput >> 1) & 0x0F) << "\n";
+    std::cout << "Вихід:    " << std::bitset<4>(sboxLookup(S1, testInput)) << "\n\n";
 
-    avg_changes = total_changes / tests
-    print(f"Середня кількість змінених бітів виходу: {avg_changes:.2f}")
-    print(f"Ідеал для 4-бітного виходу: 2.0 біт")
-
-
-def brute_force_des_key_space():
-    """
-    Демонструє розмір простору ключів DES.
-    """
-    key_bits = 56
-    total_keys = 2 ** key_bits
-
-    print(f"\nПростір ключів DES:")
-    print(f"  Біт ключа: {key_bits}")
-    print(f"  Всього ключів: {total_keys:,}")
-    print(f"  У експоненційній формі: 2^{key_bits}")
-
-    # Час на перебір
-    keys_per_second = 10**12  # 1 трильйон ключів/сек (сучасний кластер)
-    seconds = total_keys / keys_per_second
-    hours = seconds / 3600
-    days = hours / 24
-
-    print(f"\n  При швидкості {keys_per_second:,} ключів/сек:")
-    print(f"  Час перебору: {days:.1f} днів = {hours:.0f} годин")
-    print(f"  (DES зламано за години!)")
-
-    # Порівняння з AES
-    print(f"\n  Порівняння з AES-256:")
-    aes_keys = 2 ** 256
-    aes_years = aes_keys / keys_per_second / 3600 / 24 / 365
-    print(f"  AES-256 простір: 2^256")
-    print(f"  Час перебору: {aes_years:.2e} років (більше віку Всесвіту)")
-
-
-# Запуск аналізу
-if __name__ == "__main__":
-    # Тест S-блоку
-    print("=== S-блок S1 тест ===")
-    test_input = "011001"  # приклад з лекції
-    result = sbox_lookup(S1, test_input)
-    print(f"Вхід: {test_input}")
-    print(f"Рядок: {test_input[0]}{test_input[5]} = {int(test_input[0]+test_input[5], 2)}")
-    print(f"Стовпець: {test_input[1:5]} = {int(test_input[1:5], 2)}")
-    print(f"Вихід: {result} = {format(result, '04b')}")
-
-    print()
-    analyze_sbox_avalanche(S1)
-    brute_force_des_key_space()
+    analyzeAvalanche(S1);
+    keySpaceAnalysis();
+    return 0;
+}
 ```
 
 **Завдання:**

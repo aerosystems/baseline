@@ -1,19 +1,20 @@
 ---
-title: "Шифри перестановки"
+title: "Використання шифру простої перестановки при розв'язанні задачі захисту інформації (прості шифруючі таблиці, шифруючі таблиці з ключовим словом). Програмна реалізація"
+shortTitle: "Шифри перестановки"
 type: lab
 order: 8
 labNumber: 3
 subject: pmzi
 duration: "2 академічні години"
 equipment:
-  - "ПК з встановленим C++ компілятором або Python 3"
+  - "ПК з встановленим C++ компілятором (MSVC, MinGW або GCC)"
   - "Середовище розробки (Visual Studio, VS Code)"
 preview: "Реалізація шифрів перестановки з використанням таблиць."
 ---
 
 **Мета:** вивчити принципи шифрування методом перестановки. Реалізувати прості та складні шифруючі таблиці.
 
-**Обладнання:** ПК з встановленим C++ компілятором або Python 3; Середовище розробки (Visual Studio, VS Code).
+**Обладнання:** ПК з встановленим C++ компілятором (MSVC, MinGW або GCC); Середовище розробки (Visual Studio, VS Code).
 
 **Тривалість:** 2 академічні години.
 
@@ -23,7 +24,7 @@ preview: "Реалізація шифрів перестановки з вико
 |--------|------|
 | **Знання** | Лекція 7: Шифруючі таблиці. Магічні квадрати |
 | **Навички** | Робота з двовимірними масивами |
-| **Середовище** | ПК з встановленим C++ компілятором або Python 3 |
+| **Середовище** | ПК з встановленим C++ компілятором (MSVC, MinGW або GCC) |
 
 ## Теоретичні відомості
 
@@ -51,17 +52,23 @@ preview: "Реалізація шифрів перестановки з вико
 Текст записується в таблицю по рядках, читається по стовпцях:
 
 ```
-Текст: "HELLO WORLD"
-Ширина таблиці: 4
+Текст: "HELLO WORLD" → без пробілів HELLOWORLD (10 літер)
+Ширина таблиці: 4 → потрібно 12 комірок, доповнюємо двома X
 
-Запис по рядках:        Читання по стовпцях:
+Запис по рядках:
 ┌───┬───┬───┬───┐
-│ H │ E │ L │ L │       H O R   →  HOREL WLD LO
-│ O │ W │ O │ R │       E W L
-│ L │ D │ · │ · │       L O ·
-└───┴───┴───┴───┘       L R ·
+│ H │ E │ L │ L │
+│ O │ W │ O │ R │
+│ L │ D │ X │ X │
+└───┴───┴───┴───┘
 
-Шифротекст: HOWL EWOD LLR (без пробілів: HOWLEWODLLR)
+Читання по стовпцях:
+Стовпець 1: H O L
+Стовпець 2: E W D
+Стовпець 3: L O X
+Стовпець 4: L R X
+
+Шифротекст: HOL EWD LOX LRX (без пробілів: HOLEWDLOXLRX)
 ```
 ### 3 Шифрування з ключовим словом
 
@@ -88,7 +95,7 @@ preview: "Реалізація шифрів перестановки з вико
 Стовпець 5 (T): CW
 Стовпець 6 (Y): TD
 
-Шифротекст: AAKNАATTCWTD
+Шифротекст: AAKNAATTCWTD
 ```
 ### 4 Подвійна перестановка
 
@@ -119,236 +126,294 @@ preview: "Реалізація шифрів перестановки з вико
       │R │O │L │
       └──┴──┴──┘
 
-Шифротекст: OLWEHLLROLL
+Шифротекст (читання по рядках): OLWEHLROL
 ```
 ## Приклад виконання
 
-### Крок 1. Проста перестановка (Python)
+### Крок 1. Проста перестановка
 
-```python
-import math
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cctype>
 
-def simple_transposition_encrypt(plaintext: str, columns: int) -> str:
-    """Проста шифруюча таблиця (запис по рядках, читання по стовпцях)."""
-    # Видаляємо пробіли
-    text = plaintext.replace(' ', '').upper()
+// Прибирає пробіли та переводить у верхній регістр
+std::string normalize(const std::string& text) {
+    std::string result;
+    for (char c : text) {
+        if (!std::isspace(static_cast<unsigned char>(c))) {
+            result += static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        }
+    }
+    return result;
+}
 
-    # Доповнюємо до кратної довжини
-    padding = (columns - len(text) % columns) % columns
-    text += 'X' * padding
+// Зашифрування: запис по рядках, читання по стовпцях
+std::string simpleEncrypt(const std::string& plaintext, int columns) {
+    std::string text = normalize(plaintext);
 
-    # Кількість рядків
-    rows = len(text) // columns
+    // Доповнюємо до довжини, кратної кількості стовпців
+    while (text.size() % columns != 0) {
+        text += 'X';
+    }
 
-    # Створюємо таблицю
-    table = []
-    for i in range(rows):
-        table.append(list(text[i * columns:(i + 1) * columns]))
+    int rows = static_cast<int>(text.size()) / columns;
+    std::string ciphertext;
 
-    # Читаємо по стовпцях
-    ciphertext = ''
-    for col in range(columns):
-        for row in range(rows):
-            ciphertext += table[row][col]
+    for (int col = 0; col < columns; ++col) {
+        for (int row = 0; row < rows; ++row) {
+            ciphertext += text[row * columns + col];
+        }
+    }
 
-    return ciphertext
+    return ciphertext;
+}
 
-def simple_transposition_decrypt(ciphertext: str, columns: int) -> str:
-    """Дешифрування простої перестановки."""
-    rows = len(ciphertext) // columns
+// Розшифрування: запис по стовпцях, читання по рядках
+std::string simpleDecrypt(const std::string& ciphertext, int columns) {
+    int rows = static_cast<int>(ciphertext.size()) / columns;
+    std::vector<std::string> table(rows, std::string(columns, ' '));
 
-    # Записуємо по стовпцях
-    table = [['' for _ in range(columns)] for _ in range(rows)]
-    idx = 0
-    for col in range(columns):
-        for row in range(rows):
-            table[row][col] = ciphertext[idx]
-            idx += 1
+    size_t idx = 0;
+    for (int col = 0; col < columns; ++col) {
+        for (int row = 0; row < rows; ++row) {
+            table[row][col] = ciphertext[idx++];
+        }
+    }
 
-    # Читаємо по рядках
-    plaintext = ''
-    for row in table:
-        plaintext += ''.join(row)
+    std::string plaintext;
+    for (const std::string& row : table) {
+        plaintext += row;
+    }
 
-    return plaintext
+    return plaintext;
+}
 
-# Демонстрація
-plaintext = "HELLO WORLD"
-columns = 4
+int main() {
+    std::string plaintext = "HELLO WORLD";
+    int columns = 4;
 
-print("=== Проста перестановка ===")
-print(f"Відкритий текст: {plaintext}")
-print(f"Кількість стовпців: {columns}")
+    std::cout << "=== Проста перестановка ===\n";
+    std::cout << "Відкритий текст:    " << plaintext << "\n";
+    std::cout << "Кількість стовпців: " << columns << "\n";
 
-ciphertext = simple_transposition_encrypt(plaintext, columns)
-print(f"Шифротекст: {ciphertext}")
+    std::string ciphertext = simpleEncrypt(plaintext, columns);
+    std::cout << "Шифротекст:         " << ciphertext << "\n";
+    std::cout << "Розшифровано:       " << simpleDecrypt(ciphertext, columns) << "\n";
 
-decrypted = simple_transposition_decrypt(ciphertext, columns)
-print(f"Розшифровано: {decrypted}")
+    return 0;
+}
 ```
-### Крок 2. Перестановка з ключовим словом
 
-```python
-def get_key_order(keyword: str) -> list:
-    """Визначає порядок стовпців за алфавітним порядком літер ключа."""
-    # Створюємо пари (літера, індекс)
-    pairs = [(c, i) for i, c in enumerate(keyword.upper())]
-    # Сортуємо за алфавітом
-    sorted_pairs = sorted(pairs, key=lambda x: x[0])
-    # Повертаємо порядок
-    order = [0] * len(keyword)
-    for new_pos, (_, old_pos) in enumerate(sorted_pairs):
-        order[old_pos] = new_pos
-    return order
-
-def keyword_transposition_encrypt(plaintext: str, keyword: str) -> str:
-    """Шифрування з ключовим словом."""
-    text = plaintext.replace(' ', '').upper()
-    key_len = len(keyword)
-
-    # Доповнення
-    padding = (key_len - len(text) % key_len) % key_len
-    text += 'X' * padding
-
-    rows = len(text) // key_len
-    order = get_key_order(keyword)
-
-    # Створюємо таблицю
-    table = []
-    for i in range(rows):
-        table.append(list(text[i * key_len:(i + 1) * key_len]))
-
-    # Читаємо в порядку ключа
-    ciphertext = ''
-    for target_col in range(key_len):
-        # Знаходимо стовпець з порядковим номером target_col
-        actual_col = order.index(target_col)
-        for row in range(rows):
-            ciphertext += table[row][actual_col]
-
-    return ciphertext
-
-def keyword_transposition_decrypt(ciphertext: str, keyword: str) -> str:
-    """Дешифрування з ключовим словом."""
-    key_len = len(keyword)
-    rows = len(ciphertext) // key_len
-    order = get_key_order(keyword)
-
-    # Записуємо в порядку ключа
-    table = [['' for _ in range(key_len)] for _ in range(rows)]
-    idx = 0
-
-    for target_col in range(key_len):
-        actual_col = order.index(target_col)
-        for row in range(rows):
-            table[row][actual_col] = ciphertext[idx]
-            idx += 1
-
-    # Читаємо по рядках
-    plaintext = ''
-    for row in table:
-        plaintext += ''.join(row)
-
-    return plaintext
-
-# Демонстрація
-keyword = "CRYPTO"
-plaintext = "ATTACK AT DAWN"
-
-print("\n=== Перестановка з ключовим словом ===")
-print(f"Ключ: {keyword}")
-print(f"Порядок: {get_key_order(keyword)}")
-print(f"Відкритий текст: {plaintext}")
-
-ciphertext = keyword_transposition_encrypt(plaintext, keyword)
-print(f"Шифротекст: {ciphertext}")
-
-decrypted = keyword_transposition_decrypt(ciphertext, keyword)
-print(f"Розшифровано: {decrypted}")
-```
-### Крок 3. Подвійна перестановка
-
-```python
-def double_transposition_encrypt(plaintext: str, row_key: str, col_key: str) -> str:
-    """Подвійна перестановка (рядки і стовпці)."""
-    text = plaintext.replace(' ', '').upper()
-    rows = len(row_key)
-    cols = len(col_key)
-
-    # Доповнення
-    padding = (rows * cols - len(text) % (rows * cols)) % (rows * cols)
-    text += 'X' * padding
-
-    row_order = get_key_order(row_key)
-    col_order = get_key_order(col_key)
-
-    # Створюємо таблицю
-    table = []
-    idx = 0
-    for _ in range(rows):
-        row = []
-        for _ in range(cols):
-            if idx < len(text):
-                row.append(text[idx])
-                idx += 1
-            else:
-                row.append('X')
-        table.append(row)
-
-    # Перестановка рядків
-    new_table = [None] * rows
-    for i, order in enumerate(row_order):
-        new_table[order] = table[i]
-
-    # Перестановка стовпців
-    final_table = []
-    for row in new_table:
-        new_row = [None] * cols
-        for j, order in enumerate(col_order):
-            new_row[order] = row[j]
-        final_table.append(new_row)
-
-    # Читаємо по рядках
-    ciphertext = ''
-    for row in final_table:
-        ciphertext += ''.join(row)
-
-    return ciphertext
-
-# Демонстрація
-row_key = "KEY"
-col_key = "CAT"
-plaintext = "HELLOWORL"
-
-print("\n=== Подвійна перестановка ===")
-print(f"Ключ рядків: {row_key}")
-print(f"Ключ стовпців: {col_key}")
-print(f"Відкритий текст: {plaintext}")
-
-ciphertext = double_transposition_encrypt(plaintext, row_key, col_key)
-print(f"Шифротекст: {ciphertext}")
-```
-**Очікуваний результат:**
+Результат роботи програми:
 
 ```
 === Проста перестановка ===
-Відкритий текст: HELLO WORLD
+Відкритий текст:    HELLO WORLD
 Кількість стовпців: 4
-Шифротекст: HOWLEWODLLRX
-Розшифровано: HELLOWORLDXX
-
-=== Перестановка з ключовим словом ===
-Ключ: CRYPTO
-Порядок: [0, 3, 5, 2, 4, 1]
-Відкритий текст: ATTACK AT DAWN
-Шифротекст: AAKNАATTCWTDXX
-
-=== Подвійна перестановка ===
-Ключ рядків: KEY
-Ключ стовпців: CAT
-Відкритий текст: HELLOWORL
-Шифротекст: OLWEHLLRL
+Шифротекст:         HOLEWDLOXLRX
+Розшифровано:       HELLOWORLDXX
 ```
+
+### Крок 2. Перестановка з ключовим словом
+
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <numeric>
+#include <algorithm>
+#include <cctype>
+
+// Порядок стовпців за алфавітним порядком літер ключа:
+// order[i] — номер стовпця i у послідовності читання
+std::vector<int> getKeyOrder(const std::string& keyword) {
+    int n = static_cast<int>(keyword.size());
+    std::vector<int> idx(n);
+    std::iota(idx.begin(), idx.end(), 0);
+
+    // Стабільне сортування: однакові літери зберігають порядок появи
+    std::stable_sort(idx.begin(), idx.end(), [&keyword](int a, int b) {
+        return std::toupper(static_cast<unsigned char>(keyword[a])) <
+               std::toupper(static_cast<unsigned char>(keyword[b]));
+    });
+
+    std::vector<int> order(n);
+    for (int pos = 0; pos < n; ++pos) {
+        order[idx[pos]] = pos;
+    }
+    return order;
+}
+
+std::string normalize(const std::string& text) {
+    std::string result;
+    for (char c : text) {
+        if (!std::isspace(static_cast<unsigned char>(c))) {
+            result += static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        }
+    }
+    return result;
+}
+
+std::string keywordEncrypt(const std::string& plaintext, const std::string& keyword) {
+    std::string text = normalize(plaintext);
+    int keyLen = static_cast<int>(keyword.size());
+
+    while (text.size() % keyLen != 0) {
+        text += 'X';
+    }
+
+    int rows = static_cast<int>(text.size()) / keyLen;
+    std::vector<int> order = getKeyOrder(keyword);
+    std::string ciphertext;
+
+    // Стовпці читаються в порядку, заданому ключем
+    for (int target = 0; target < keyLen; ++target) {
+        int col = static_cast<int>(
+            std::find(order.begin(), order.end(), target) - order.begin());
+        for (int row = 0; row < rows; ++row) {
+            ciphertext += text[row * keyLen + col];
+        }
+    }
+
+    return ciphertext;
+}
+
+std::string keywordDecrypt(const std::string& ciphertext, const std::string& keyword) {
+    int keyLen = static_cast<int>(keyword.size());
+    int rows = static_cast<int>(ciphertext.size()) / keyLen;
+    std::vector<int> order = getKeyOrder(keyword);
+    std::vector<std::string> table(rows, std::string(keyLen, ' '));
+
+    size_t idx = 0;
+    for (int target = 0; target < keyLen; ++target) {
+        int col = static_cast<int>(
+            std::find(order.begin(), order.end(), target) - order.begin());
+        for (int row = 0; row < rows; ++row) {
+            table[row][col] = ciphertext[idx++];
+        }
+    }
+
+    std::string plaintext;
+    for (const std::string& row : table) {
+        plaintext += row;
+    }
+    return plaintext;
+}
+
+int main() {
+    std::string keyword = "CIPHER";
+    std::string plaintext = "TRANSPOSITION CIPHER";
+
+    std::vector<int> order = getKeyOrder(keyword);
+    std::cout << "Ключове слово:   " << keyword << "\n";
+    std::cout << "Порядок стовпців:";
+    for (int value : order) {
+        std::cout << " " << value;
+    }
+    std::cout << "\n";
+
+    std::string ciphertext = keywordEncrypt(plaintext, keyword);
+    std::cout << "Відкритий текст: " << plaintext << "\n";
+    std::cout << "Шифротекст:      " << ciphertext << "\n";
+    std::cout << "Розшифровано:    " << keywordDecrypt(ciphertext, keyword) << "\n";
+
+    return 0;
+}
+```
+
+Результат роботи програми:
+
+```
+Ключове слово:   CIPHER
+Порядок стовпців: 0 3 4 2 1 5
+Відкритий текст: TRANSPOSITION CIPHER
+Шифротекст:      TONRSIHXNTPXRSCXAIIXPOEX
+Розшифровано:    TRANSPOSITIONCIPHERXXXXX
+```
+
+### Крок 3. Подвійна перестановка
+
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <numeric>
+#include <algorithm>
+#include <cctype>
+
+std::vector<int> getKeyOrder(const std::string& keyword);  // з кроку 2
+std::string normalize(const std::string& text);            // з кроку 2
+
+// Подвійна перестановка: спершу переставляються рядки, потім стовпці
+std::string doubleEncrypt(const std::string& plaintext,
+                          const std::string& rowKey,
+                          const std::string& colKey) {
+    int rows = static_cast<int>(rowKey.size());
+    int cols = static_cast<int>(colKey.size());
+    std::string text = normalize(plaintext);
+
+    while (static_cast<int>(text.size()) < rows * cols) {
+        text += 'X';
+    }
+
+    // Заповнюємо таблицю по рядках
+    std::vector<std::string> table(rows, std::string(cols, ' '));
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            table[r][c] = text[r * cols + c];
+        }
+    }
+
+    // Перестановка рядків за ключем rowKey
+    std::vector<int> rowOrder = getKeyOrder(rowKey);
+    std::vector<std::string> byRows(rows);
+    for (int r = 0; r < rows; ++r) {
+        byRows[rowOrder[r]] = table[r];
+    }
+
+    // Перестановка стовпців за ключем colKey
+    std::vector<int> colOrder = getKeyOrder(colKey);
+    std::vector<std::string> result(rows, std::string(cols, ' '));
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            result[r][colOrder[c]] = byRows[r][c];
+        }
+    }
+
+    std::string ciphertext;
+    for (const std::string& row : result) {
+        ciphertext += row;
+    }
+    return ciphertext;
+}
+
+int main() {
+    std::string rowKey = "KEY";
+    std::string colKey = "CAT";
+    std::string plaintext = "HELLOWORL";
+
+    std::cout << "=== Подвійна перестановка ===\n";
+    std::cout << "Ключ рядків:     " << rowKey << "\n";
+    std::cout << "Ключ стовпців:   " << colKey << "\n";
+    std::cout << "Відкритий текст: " << plaintext << "\n";
+    std::cout << "Шифротекст:      " << doubleEncrypt(plaintext, rowKey, colKey) << "\n";
+
+    return 0;
+}
+```
+
+Результат роботи програми:
+
+```
+=== Подвійна перестановка ===
+Ключ рядків:     KEY
+Ключ стовпців:   CAT
+Відкритий текст: HELLOWORL
+Шифротекст:      OLWEHLROL
+```
+
 ## Порядок виконання роботи
 
 1. Отримати в викладача номер індивідуального варіанта.
@@ -402,13 +467,36 @@ print(f"Шифротекст: {ciphertext}")
 
 ## Контрольні запитання
 
+Запитання згруповано за рівнями навчальних досягнень. Для позитивної оцінки студент має відповісти на запитання середнього рівня, оцінка «добре» потребує відповідей достатнього рівня, оцінка «відмінно» — високого.
+
+### Середній рівень (репродуктивний)
+
 1. Чим шифри перестановки відрізняються від шифрів заміни?
-2. Як працює шифрування з ключовим словом?
-3. Що дає подвійна перестановка для стійкості?
-4. Як визначається порядок стовпців за ключовим словом?
-5. Чому шифри перестановки вразливі до аналізу частот?
-6. Як доповнюється текст, якщо він не кратний довжині ключа?
-7. Скільки можливих перестановок для таблиці 5×5?
+2. Як виконується шифрування простою шифруючою таблицею?
+3. Як визначається порядок стовпців за ключовим словом?
+4. Як доповнюється текст, якщо його довжина не кратна довжині ключа?
+5. Що таке подвійна перестановка?
+6. Скільки можливих перестановок існує для таблиці 5×5?
+7. Чи змінює шифр перестановки склад літер тексту?
+8. Які дані потрібні для розшифрування тексту, зашифрованого шифруючою таблицею?
+
+### Достатній рівень (конструктивно-варіативний)
+
+1. Чому шифри перестановки не піддаються класичному частотному аналізу окремих літер?
+2. Що дає подвійна перестановка для стійкості порівняно з одинарною?
+3. Як символи-заповнювачі можуть видати довжину ключа криптоаналітику?
+4. Запишіть алгоритм розшифрування тексту, зашифрованого таблицею з ключовим словом.
+5. Як однакові літери в ключовому слові впливають на порядок стовпців і як цю неоднозначність усувають?
+6. Чому аналіз частот біграм ефективніший проти шифрів перестановки, ніж аналіз частот літер?
+7. Як визначити ймовірну довжину ключа, маючи лише шифротекст?
+8. Чим магічний квадрат як спосіб перестановки відрізняється від шифруючої таблиці з ключем?
+
+### Високий рівень (творчий)
+
+1. Запропонуйте алгоритм автоматичного зламу шифру простої перестановки за наявності достатнього обсягу шифротексту.
+2. Поясніть, чому комбінація заміни й перестановки стійкіша за кожен із цих методів окремо, і наведіть приклад такої комбінації в сучасних шифрах.
+3. Оцініть реальну стійкість подвійної перестановки з ключами довжиною 8 і 10 символів: скільки варіантів має перебрати криптоаналітик?
+4. Сформулюйте, які властивості тексту зберігає шифр перестановки, і поясніть, як саме ці властивості використовує криптоаналітик.
 
 ## Критерії оцінювання
 

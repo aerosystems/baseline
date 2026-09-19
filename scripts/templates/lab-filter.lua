@@ -23,6 +23,7 @@ local SKIPPED_SECTIONS = {
   ['Cheat sheet'] = true,
   ['Шпаргалка'] = true,
   ['Додаткові ресурси'] = true,
+  ['Приклад звіту'] = true,
 }
 
 local function is_skipped(header)

@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "build:full": "npm run generate:labs && npm run build",
     "generate:labs": "node scripts/generate-docx.js",
+    "verify:examples": "node scripts/verify-examples.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
