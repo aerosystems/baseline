@@ -1,17 +1,20 @@
 import { useTranslation } from 'react-i18next';
-import type { Lesson, LabFrontmatter } from '@/types/content';
+import type { Lesson, LabFrontmatter, ProgramItem } from '@/types/content';
 
 interface LabNodeProps {
   lesson: Lesson;
+  program?: ProgramItem;
+  restrictedTo?: string[];
   onClick: () => void;
 }
 
-export function LabNode({ lesson, onClick }: LabNodeProps) {
+export function LabNode({ lesson, program, restrictedTo, onClick }: LabNodeProps) {
   const { t } = useTranslation();
 
   const title = lesson.frontmatter.shortTitle || lesson.frontmatter.title;
-  // Роботи, передбачені лише окремими програмами, позначаються в роадмапі
-  const audience = (lesson.frontmatter as LabFrontmatter).audience;
+  // Номер і години беруться з обраної програми: та сама робота має різний
+  // номер у різних групах (№11 у ПЗ, №5 у КМП-23, №12 у КМП-24)
+  const labNumber = program?.labNumber ?? (lesson.frontmatter as LabFrontmatter).labNumber;
 
   return (
     <div className="relative flex items-center">
@@ -44,19 +47,31 @@ export function LabNode({ lesson, onClick }: LabNodeProps) {
           className="text-left text-sm transition-colors hover:opacity-80"
           style={{ color: 'var(--muted)' }}
         >
-          {title}
+          {labNumber ? `ЛР №${labNumber}. ` : ''}{title}
         </button>
-        {audience?.map(program => (
+        {program?.hours && (
           <span
-            key={program}
-            className="text-xs ml-2 px-1.5 py-0.5 rounded uppercase tracking-wide"
+            className="text-xs ml-2 px-2 py-0.5 rounded"
+            style={{
+              backgroundColor: 'var(--card)',
+              border: '1px solid var(--border)',
+              color: 'var(--muted)',
+            }}
+          >
+            {program.hours} год
+          </span>
+        )}
+        {restrictedTo?.map(badge => (
+          <span
+            key={badge}
+            className="text-xs ml-2 px-1.5 py-0.5 rounded"
             style={{
               color: 'var(--muted)',
               backgroundColor: 'var(--card)',
               border: '1px solid var(--border)',
             }}
           >
-            {program}
+            {badge}
           </span>
         ))}
         {!lesson.isStub && (

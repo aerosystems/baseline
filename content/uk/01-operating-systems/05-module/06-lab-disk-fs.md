@@ -5,8 +5,6 @@ type: lab
 order: 6
 labNumber: 14
 subject: "os"
-audience:
-  - "kmp"
 duration: "4 академічні години"
 equipment:
   - "ПК або віртуальна машина з додатковим диском"

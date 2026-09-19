@@ -10,7 +10,33 @@ export interface LessonFrontmatter {
   preview: string;
 }
 
-export type Audience = 'pz' | 'kmp';
+/** Ідентифікатор програми, якій призначено модуль (див. _programs.json) */
+export type Audience = string;
+
+/**
+ * Навчальна програма конкретної групи. Одна дисципліна викладається за кількома
+ * програмами одночасно, і вони відрізняються не змістом, а номерами лабораторних,
+ * годинами та формою подачі теми (лекція чи самостійне опрацювання).
+ */
+export interface Program {
+  id: string;         // pz-24, kmp-23 …
+  title: string;      // як група зветься в розкладі
+  semester: number;
+  students?: number;
+}
+
+/** Те, чим програма відрізняється для конкретного матеріалу */
+export interface ProgramItem {
+  delivery?: 'lecture' | 'self-study';
+  labNumber?: number;
+  hours?: number;
+  theme?: string;     // номер теми в РНП
+}
+
+export interface ProgramsJson {
+  programs: Program[];
+  lessons: Record<string, Record<string, ProgramItem>>;
+}
 
 export interface LabFrontmatter extends LessonFrontmatter {
   type: 'lab';
@@ -18,7 +44,6 @@ export interface LabFrontmatter extends LessonFrontmatter {
   duration?: string;
   equipment?: string[];
   subject?: Subject;
-  audience?: Audience[];  // Робота лише для окремих програм (напр. тільки КМП)
 }
 
 export interface Lesson {
@@ -28,11 +53,14 @@ export interface Lesson {
   content: string;
   readingTime: number;
   isStub: boolean;
+  /** Дані з РНП по програмах; матеріалу немає в програмі, якщо ключа немає */
+  byProgram?: Record<string, ProgramItem>;
 }
 
 export interface ModuleJson {
   title: string;
   order: number;
+  audience?: Audience[];  // Модуль передбачений лише окремими програмами
 }
 
 export interface Module {
@@ -51,6 +79,7 @@ export interface Course {
   slug: string;
   title: string;
   description?: string;
+  programs?: Program[];
   modules: Module[];
   labs?: Lesson[];  // Лабораторні роботи з labs/ директорії
   grading?: Lesson;  // Критерії оцінювання курсу (_grading.md)

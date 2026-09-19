@@ -1,5 +1,8 @@
-import type { Course } from '@/types/content';
+import { useEffect, useState } from 'react';
+import type { Course, Lesson } from '@/types/content';
 import { ModuleBadge } from './ModuleBadge';
+import { ProgramSelector } from './ProgramSelector';
+import { readSelectedProgram, writeSelectedProgram } from '@/lib/selectedProgram';
 import { LectureNode } from './LectureNode';
 import { LabNode } from './LabNode';
 import { EventNode } from './EventNode';
@@ -12,8 +15,42 @@ interface RoadmapProps {
 }
 
 export function Roadmap({ course, onLessonClick, onGradingClick }: RoadmapProps) {
+  const programs = course.programs ?? [];
+  const [programId, setProgramId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = readSelectedProgram(course.slug);
+    if (saved && programs.some(program => program.id === saved)) setProgramId(saved);
+  }, [course.slug, programs]);
+
+  const selectProgram = (next: string | null) => {
+    setProgramId(next);
+    writeSelectedProgram(course.slug, next);
+  };
+
+  // Матеріалу немає в програмі — у цієї групи його не буде взагалі
+  const inProgram = (lesson: Lesson) =>
+    !programId || !lesson.byProgram || Boolean(lesson.byProgram[programId]);
+
+  // Робота, передбачена не всіма програмами: у режимі «всі матеріали» варто
+  // бачити, кому саме її видають
+  const restrictedTo = (lesson: Lesson) => {
+    if (programId || !lesson.byProgram || programs.length < 2) return undefined;
+
+    const ids = Object.keys(lesson.byProgram);
+    if (ids.length === programs.length) return undefined;
+
+    return programs.filter(program => ids.includes(program.id)).map(program => program.title);
+  };
+
+  const modules = course.modules
+    .map(module => ({ ...module, lessons: module.lessons.filter(inProgram) }))
+    .filter(module => module.lessons.length > 0);
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      <ProgramSelector programs={programs} selected={programId} onSelect={selectProgram} />
+
       {/* Roadmap with rail */}
       <div className="relative" style={{ paddingLeft: '40px' }}>
         {/* Vertical rail - starts and ends at module badge dots */}
@@ -29,7 +66,7 @@ export function Roadmap({ course, onLessonClick, onGradingClick }: RoadmapProps)
         />
 
         {/* Modules */}
-        {course.modules.map((module, moduleIndex) => (
+        {modules.map((module, moduleIndex) => (
           <div key={module.slug} className={moduleIndex > 0 ? 'mt-12' : ''}>
             {/* Module badge - dot centered on rail */}
             <div className="relative mb-6">
@@ -47,12 +84,14 @@ export function Roadmap({ course, onLessonClick, onGradingClick }: RoadmapProps)
             <div className="space-y-4">
               {module.lessons.map(lesson => {
                 const handleClick = () => onLessonClick(course.slug, module.slug, lesson.slug);
+                const program = programId ? lesson.byProgram?.[programId] : undefined;
 
                 if (lesson.frontmatter.type === 'lecture') {
                   return (
                     <LectureNode
                       key={lesson.slug}
                       lesson={lesson}
+                      program={program}
                       onClick={handleClick}
                     />
                   );
@@ -63,6 +102,8 @@ export function Roadmap({ course, onLessonClick, onGradingClick }: RoadmapProps)
                     <LabNode
                       key={lesson.slug}
                       lesson={lesson}
+                      program={program}
+                      restrictedTo={restrictedTo(lesson)}
                       onClick={handleClick}
                     />
                   );

@@ -5,8 +5,6 @@ type: lab
 order: 30
 labNumber: 11
 subject: "os"
-audience:
-  - "kmp"
 duration: "4 академічні години"
 equipment:
   - "ПК або віртуальна машина (VirtualBox, Hyper-V)"
