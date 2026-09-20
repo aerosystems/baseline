@@ -8,8 +8,8 @@
  * their variant already written in, so nobody has to guess the path or the
  * assignment.
  *
- * The roster lives in reports/<course>/labs/<group>/roster.json and is reused by
- * every later assignment of that group.
+ * The group list lives in reports/<course>/labs/<group>/students.json and is
+ * reused by every later assignment of that group.
  *
  * Usage:
  *   node scripts/open-assignment.mjs --course=02-software-security-methods \
@@ -104,16 +104,16 @@ function main() {
   const { title, variants } = findLab(args.course, args.group, lab);
 
   const groupDir = join(REPORTS, args.course, 'labs', args.group);
-  const rosterPath = join(groupDir, 'roster.json');
-  if (!existsSync(rosterPath)) throw new Error(`no roster at ${relative(ROOT, rosterPath)}`);
+  const listPath = join(groupDir, 'students.json');
+  if (!existsSync(listPath)) throw new Error(`no student list at ${relative(ROOT, listPath)}`);
 
-  const roster = JSON.parse(readFileSync(rosterPath, 'utf8'));
+  const group = JSON.parse(readFileSync(listPath, 'utf8'));
   const labDir = join(groupDir, String(lab).padStart(2, '0'));
 
   let created = 0;
-  for (const student of roster.students) {
+  for (const student of group.students) {
     // A student who has not registered a GitHub account yet is placed by their
-    // roster number, and the folder is renamed once the login is known
+    // number in the group, and the folder is renamed once the login is known
     const folder = student.github ?? `student-${String(student.number).padStart(2, '0')}`;
     const dir = join(labDir, folder);
 
@@ -144,8 +144,14 @@ function main() {
   }
 
   console.log(`\n${title} — lab ${lab}, group ${args.group}`);
-  console.log(`Folders created: ${created} of ${roster.students.length}`);
+  console.log(`Folders created: ${created} of ${group.students.length}`);
   console.log(`Path: ${relative(ROOT, labDir)}`);
 }
 
-main();
+try {
+  main();
+} catch (error) {
+  // The teacher runs this by hand: a message is more useful than a stack trace
+  console.error(`[error] ${error.message}`);
+  process.exit(1);
+}

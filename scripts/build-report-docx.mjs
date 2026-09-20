@@ -49,7 +49,7 @@ const DISCIPLINE = {
  * PZ-25 is already F2 under the new classifier, KMP is 123. The values come from
  * _programs.json, where they were copied from the curricula.
  *
- * XX is the student's position in the group roster, not the task variant — the
+ * XX is the student's position in the group list, not the task variant — the
  * two usually coincide but not always. Two digits; without a number XX is left
  * in place so that it is visible on the title page.
  */
@@ -197,7 +197,7 @@ function buildReport(reportPath) {
   const lab = findLab(data);
   const report = {
     ...data,
-    // the roster position falls back to the variant: in most groups they match
+    // the position in the group falls back to the variant: in most groups they match
     number: data.number ?? data.variant,
     groupTitle: groupEntry?.title ?? data.group,
     specialty: groupEntry?.specialty ?? '',
