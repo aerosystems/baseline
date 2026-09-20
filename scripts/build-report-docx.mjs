@@ -145,14 +145,25 @@ function titlePage(report) {
   );
 }
 
-/** Report path → course, group, student's login */
+/** Report path → course, group, lab and the student's position in the group */
 function parsePath(reportPath) {
+  const LAYOUT = ['course', null, 'group', null, 'lab', null, 'student', null];
   const parts = relative(REPORTS, reportPath).split('/');
-  // <course>/labs/<group>/<number>/<login>/report.md
-  if (parts.length !== 6 || parts[1] !== 'labs') {
-    throw new Error('path must be reports/<course>/labs/<group>/<number>/<login>/report.md');
+
+  // <course>/groups/<group>/labs/<NN>/students/<NN>/report.md
+  const shaped =
+    parts.length === LAYOUT.length &&
+    parts[1] === 'groups' && parts[3] === 'labs' && parts[5] === 'students';
+
+  if (!shaped) {
+    throw new Error(
+      'path must be reports/<course>/groups/<group>/labs/<NN>/students/<NN>/report.md'
+    );
   }
-  return { course: parts[0], group: parts[2], number: parts[3], login: parts[4] };
+
+  return Object.fromEntries(
+    LAYOUT.map((name, index) => name && [name, parts[index]]).filter(Boolean)
+  );
 }
 
 /**
@@ -187,8 +198,19 @@ function buildReport(reportPath) {
   for (const field of ['course', 'group', 'lab', 'student']) {
     if (!data[field]) throw new Error(`frontmatter has no "${field}" field`);
   }
-  if (data.course !== location.course || data.group !== location.group) {
-    throw new Error('frontmatter does not match the path: course or group differs');
+  // A report filed in the wrong folder would be built under somebody else's
+  // number, so the path and the frontmatter have to tell the same story
+  const pad = value => String(value).padStart(2, '0');
+  const mismatch = [
+    ['course', data.course, location.course],
+    ['group', data.group, location.group],
+    ['lab', pad(data.lab), location.lab],
+    ['student', pad(data.number ?? location.student), location.student]
+  ].find(([, stated, inPath]) => String(stated) !== inPath);
+
+  if (mismatch) {
+    const [field, stated, inPath] = mismatch;
+    throw new Error(`frontmatter says ${field} ${stated}, the path says ${inPath}`);
   }
 
   const programs = JSON.parse(readFileSync(join(CONTENT, data.course, '_programs.json'), 'utf8'));
@@ -197,8 +219,8 @@ function buildReport(reportPath) {
   const lab = findLab(data);
   const report = {
     ...data,
-    // the position in the group falls back to the variant: in most groups they match
-    number: data.number ?? data.variant,
+    // the folder is the position in the group, so the path is the source of it
+    number: Number(location.student),
     groupTitle: groupEntry?.title ?? data.group,
     specialty: groupEntry?.specialty ?? '',
     abbr: programs.abbr ?? ''
@@ -227,7 +249,10 @@ function buildReport(reportPath) {
   ].join('\n');
 
   const work = mkdtempSync(join(tmpdir(), 'report-'));
-  const outputPath = join(dirname(reportPath), `ЛР${String(data.lab).padStart(2, '0')}_${location.login}.docx`);
+  const outputPath = join(
+    dirname(reportPath),
+    `ЛР${String(data.lab).padStart(2, '0')}_${location.student}.docx`
+  );
 
   try {
     const sourcePath = join(work, 'report.md');
