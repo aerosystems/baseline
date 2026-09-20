@@ -158,14 +158,21 @@ function parsePath(reportPath) {
 /**
  * A stub is a report the student has not written yet: opening an assignment
  * creates one per student, and those must not turn into documents.
+ *
+ * The test is structural rather than a word count: a stub holds nothing but the
+ * task comment, the section headings and empty numbered items. One line of real
+ * writing anywhere makes it a report, however short.
  */
 function isStub(body) {
-  const text = body
+  return body
     .replace(/<!--[\s\S]*?-->/g, '')      // the task in a comment
-    .replace(/^#{1,6}\s.*$/gm, '')         // section headings
-    .replace(/^\s*\d+\s*$/gm, '');        // empty numbered items
-
-  return text.split(/\s+/).filter(Boolean).length < 15;
+    .split('\n')
+    .map(line => line.trim())
+    .every(line =>
+      line === '' ||
+      /^#{1,6}\s/.test(line) ||           // a section heading
+      /^\d+$/.test(line)                  // a numbered item with no text
+    );
 }
 
 function buildReport(reportPath) {
@@ -227,6 +234,7 @@ function buildReport(reportPath) {
     writeFileSync(sourcePath, source);
 
     convert(sourcePath, outputPath, {
+      dateFrom: reportPath,
       referenceDoc: TEMPLATE,
       layout: LAYOUT,
       cwd: ROOT,

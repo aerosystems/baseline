@@ -9,7 +9,7 @@
  */
 
 import { spawnSync } from 'child_process';
-import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -62,7 +62,26 @@ export function stretchTable(table, tableWidth) {
  * items (Pandoc shares the Compact style with table cells) and full-width
  * tables (Pandoc sizes them from the markdown source).
  */
-export function applyReferenceFormatting(docxPath, { tableWidth, list }) {
+/**
+ * Timestamp every file inside the package gets before it is zipped again.
+ *
+ * A .docx is a zip, and zip stores the modification time of each entry. Without
+ * this the repack writes the current time into every entry, so a regenerated
+ * document differs byte for byte from the previous one even when its content is
+ * identical — and all 56 guides show up as changed on every run.
+ */
+function freezeTimestamps(directory, epoch) {
+  const stamp = new Date(Number(epoch) * 1000);
+  const pad = value => String(value).padStart(2, '0');
+
+  // touch -t expects CCYYMMDDhhmm.ss
+  const formatted = `${stamp.getFullYear()}${pad(stamp.getMonth() + 1)}${pad(stamp.getDate())}` +
+                    `${pad(stamp.getHours())}${pad(stamp.getMinutes())}.${pad(stamp.getSeconds())}`;
+
+  run('find', [directory, '-exec', 'touch', '-t', formatted, '{}', '+']);
+}
+
+export function applyReferenceFormatting(docxPath, { tableWidth, list, epoch }) {
   const work = mkdtempSync(join(tmpdir(), 'docx-format-'));
 
   try {
@@ -111,6 +130,8 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list }) {
       writeFileSync(numberingPath, patched);
     }
 
+    if (epoch) freezeTimestamps(work, epoch);
+
     run('zip', ['-r', '-q', '-X', 'patched.docx', '.', '-x', 'patched.docx'], { cwd: work });
     copyFileSync(join(work, 'patched.docx'), docxPath);
   } finally {
@@ -118,8 +139,30 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list }) {
   }
 }
 
+/**
+ * Timestamp Pandoc writes into the document properties.
+ *
+ * Without it every run produces a new timestamp, so regenerating the guides
+ * marks all 56 files as changed while their content is identical. Taking the
+ * date of the last commit that touched the source keeps the document honest and
+ * the output reproducible: unchanged material, unchanged file.
+ */
+function sourceDateEpoch(sourcePath) {
+  const log = spawnSync('git', ['log', '-1', '--format=%ct', '--', sourcePath], { encoding: 'utf8' });
+  const committed = log.status === 0 ? log.stdout.trim() : '';
+
+  if (committed) return committed;
+
+  // Not in git yet (a freshly written report): fall back to the file itself
+  try {
+    return String(Math.floor(statSync(sourcePath).mtimeMs / 1000));
+  } catch {
+    return String(Math.floor(Date.now() / 1000));
+  }
+}
+
 /** Converts markdown to .docx against a reference document and patches the result */
-export function convert(inputPath, outputPath, { referenceDoc, filter, metadata = {}, layout, cwd, resourcePath }) {
+export function convert(inputPath, outputPath, { referenceDoc, filter, metadata = {}, layout, cwd, resourcePath, dateFrom }) {
   const args = [inputPath, '-o', outputPath, ...PANDOC_ARGS, `--reference-doc=${referenceDoc}`];
 
   if (filter) args.push(`--lua-filter=${filter}`);
@@ -130,6 +173,8 @@ export function convert(inputPath, outputPath, { referenceDoc, filter, metadata 
     args.push('--metadata', `${key}=${value}`);
   }
 
-  run('pandoc', args, { cwd });
-  applyReferenceFormatting(outputPath, layout);
+  const epoch = sourceDateEpoch(dateFrom ?? inputPath);
+
+  run('pandoc', args, { cwd, env: { ...process.env, SOURCE_DATE_EPOCH: epoch } });
+  applyReferenceFormatting(outputPath, { ...layout, epoch });
 }

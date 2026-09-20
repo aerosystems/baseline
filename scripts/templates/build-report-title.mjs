@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Rebuilds scripts/templates/report-title.xml from the title-page sample in data/.
+ * Rebuilds scripts/templates/report-title-<course>.xml from the samples in data/.
  *
  * Run it after the sample itself changes (a new year, a different teacher in the
  * signature). The script drops the authoring note that carries the only image and

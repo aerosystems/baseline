@@ -267,6 +267,7 @@ function generateDocx(lab, program) {
 
   try {
     convert(sourcePath, outputPath, {
+      dateFrom: filePath,
       referenceDoc: TEMPLATE_PATH,
       filter: FILTER_PATH,
       layout: LAYOUT,
