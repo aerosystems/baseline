@@ -1,5 +1,6 @@
 {
   "_source": "Побудовано з робочих навчальних програм у data/РНП_ОС_*.docx",
+  "abbr": "ОС",
   "programs": [
     {
       "id": "pz-24",
@@ -31,31 +32,36 @@
       "id": "pz-24-1-9",
       "title": "ПЗ-24-1/9",
       "program": "pz-24",
-      "students": 26
+      "students": 26,
+      "specialty": "121"
     },
     {
       "id": "pz-25-1-9",
       "title": "ПЗ-25-1/9",
       "program": "pz-25",
-      "students": 29
+      "students": 29,
+      "specialty": "F2"
     },
     {
       "id": "kmp-23-1-9",
       "title": "КМП-23-1/9",
       "program": "kmp-23",
-      "students": 24
+      "students": 24,
+      "specialty": "123"
     },
     {
       "id": "kmp-24-2-9",
       "title": "КМП-24-2/9",
       "program": "kmp-24",
-      "students": 25
+      "students": 25,
+      "specialty": "123"
     },
     {
       "id": "kmp-24-3-9",
       "title": "КМП-24-3/9",
       "program": "kmp-24",
-      "students": 31
+      "students": 31,
+      "specialty": "123"
     }
   ],
   "lessons": {

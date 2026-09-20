@@ -1,150 +1,74 @@
 # baseline
 
-Сайт курсу, навчальні матеріали й звіти студентів в одному репозиторії.
+Course site for a Ukrainian technical college: lectures, labs and student reports
+live in one repository as markdown, and everything printable is generated from it.
 
-| Каталог | Що лежить |
-|---------|-----------|
-| `content/uk/<курс>/` | лекції, лабораторні, самостійні теми — джерело сайту й методичок |
-| `public/labs/` | згенеровані методичні вказівки .docx по групах |
-| `reports/` | звіти студентів і згенеровані з них .docx |
-| `scripts/` | генерація .docx, перевірка прикладів коду |
-| `data/` | робочі навчальні програми, зразки оформлення, титулка звіту |
+The site is a static SPA on GitHub Pages — there is no backend. Two pipelines turn
+the same markdown into Word documents in the format the college requires: teaching
+guides for the teacher and lab reports for the students.
+
+| Directory | Contents |
+|-----------|----------|
+| `content/uk/<course>/` | lectures, labs and self-study topics — the source of both the site and the guides |
+| `public/labs/` | generated teaching guides (.docx), one set per group |
+| `reports/` | student reports and the .docx built from them — see [reports/README.md](reports/README.md) |
+| `scripts/` | .docx generation and verification of the code examples |
+| `data/` | curricula, formatting samples, the report title page |
 
 ```bash
-npm run dev               # сайт локально
-npm run generate:labs     # методичні вказівки .docx з content/
-npm run verify:examples   # збірка й запуск прикладів коду з матеріалів
+npm run dev               # run the site locally
+npm run build             # type-check and build the site
+npm run generate:labs     # teaching guides (.docx) from content/
+npm run verify:examples   # build and run every code example in the materials
+npm run build:report -- reports/<path>/report.md   # build one student report
 ```
 
----
+## Courses and curricula
 
-# Як здавати лабораторні
+Two subjects are taught to five groups at once, and the groups do not follow the
+same curriculum. The same lab is number 11 for one group and number 5 for another,
+takes four hours here and two hours there, and a topic read as a lecture to one
+group is self-study for the next.
 
-Звіт пишеться у markdown, а .docx стандартного зразка — з титулкою, полями й
-підписами — збирається автоматично. Word відкривати не треба.
+That difference lives in `content/uk/<course>/_programs.json`, built from the
+curricula in `data/`. A material carries no group-specific data of its own: the
+roadmap, the guides and the report title pages all read the numbers from there.
+Adding a group is one entry in that file.
 
-## Для студента
+## Content
 
-Усе робиться в браузері, встановлювати git не потрібно.
+Every lecture, lab and self-study topic is a markdown file with frontmatter that
+states its type, its position in the module and — for labs — the equipment and the
+official title from the curriculum. Sections follow a fixed skeleton, and a few
+markup rules exist only because the .docx conversion depends on them: a blank line
+before every list and table, a caption paragraph above each table, code in fenced
+blocks with a language.
 
-**1. Перейти на гілку своєї лабораторної.** Угорі сторінки репозиторію — перемикач
-гілок. Оберіть ту, яку назвав викладач:
+Code examples in the materials are not decorative. `npm run verify:examples`
+extracts every C++ block, builds and runs it, and compares the real output with
+what the material claims. Blocks of one topic complement each other, and a missing
+implementation is looked up across the subject — the same way a student would
+follow "take sha256 from lab 7". The same command checks markup defects that have
+bitten before: Cyrillic inside Latin words, hashes of the wrong length, ragged
+ASCII frames.
 
-```
-lab/01-operating-systems/pz-24-1-9/03
-```
+## Documents
 
-Це важливо зробити **перед** створенням файлу: ваша гілка має відгалужитися саме
-від неї.
+Both pipelines share `scripts/lib/docx.mjs`: Pandoc plus the post-processing that
+a reference document cannot carry (list geometry, full-width tables). They differ
+only in the reference document and the page geometry.
 
-**2. Створити файл звіту.** **Add file → Create new file**. У полі імені вставити
-шлях, підставивши свою групу, номер роботи й свій логін GitHub:
+- **Teaching guides** — `npm run generate:labs`. One set per group, with that
+  group's lab number on the title and its hours in the text.
+- **Student reports** — built in CI when a pull request is merged into a `lab/**`
+  branch. The title page comes from the sample in `data/` as a raw OOXML template;
+  the topic, the aim and the equipment are taken from the lab material, so a
+  student writes only the procedure, the answers and the conclusion.
 
-```
-reports/01-operating-systems/labs/pz-24-1-9/03/ivanenko-ii/report.md
-```
+Pandoc is required for both: `brew install pandoc` or `apt install pandoc`.
 
-Косі риски GitHub перетворить на теки сам.
+## Language
 
-**3. Заповнити звіт** за шаблоном:
-
-```markdown
----
-course: 01-operating-systems
-group: pz-24-1-9
-lab: 3
-student: "Іваненко Іван Іванович"
-variant: 7
----
-
-## Хід роботи
-
-1 Перша дія з поясненням, що і навіщо робилося.
-
-2 Друга дія.
-
-![Рисунок 1 - Вміст каталогу після виконання команди](screens/01-dir.png)
-
-## Відповіді на контрольні питання
-
-1 Текст питання?
-
-Відповідь.
-
-## Висновок
-
-Що саме опановано за роботу.
-```
-
-Тему, мету й обладнання писати не треба — конвеєр візьме їх із самої лабораторної.
-
-**4. Зберегти у свою гілку.** Унизу сторінки — **Commit changes**, обрати
-**Create a new branch**, назвати гілку так:
-
-```
-report/01-operating-systems/pz-24-1-9/03/ivanenko-ii
-```
-
-Далі **Propose changes**. У вікні пул-реквесту **перевірте гілку ліворуч (base)**:
-там має стояти `lab/01-operating-systems/pz-24-1-9/03`, а не `main`. Якщо стоїть `main` —
-оберіть потрібну зі списку й натисніть **Create pull request**.
-
-**5. Додати скріншоти й код.** Перейти у свою гілку `report/…`, відкрити свою теку
-й **Add file → Upload files**. Скріншоти — у підтеку `screens/`, вихідники
-програми — у `src/`. Пул-реквест підхопить їх сам.
-
-**6. Захист і приймання.** Викладач дивиться роботу в пул-реквесті й лишає
-зауваження коментарями до рядків — правити їх треба у своїй гілці. Коли роботу
-прийнято й пул-реквест злито, конвеєр збирає `ЛР03_ivanenko-ii.docx` і кладе його
-поряд зі звітом. Оцінка виставляється після усного захисту за контрольними
-запитаннями з роботи.
-
-### Іменування гілок
-
-| Гілка | Чия | Для чого |
-|-------|-----|----------|
-| `lab/<курс>/<група>/<NN>` | викладача | одна лабораторна однієї групи |
-| `report/<курс>/<група>/<NN>/<логін>` | ваша | ваша робота |
-
-Гілки з префіксом `lab/` створює тільки викладач. Ваша гілка завжди починається
-з `report/`.
-
-### Три правила
-
-- **Скріншот — це вікно програми, а не весь екран.** Обріжте до терміналу чи вікна
-  застосунку: репозиторій відкритий, і в кадр не мають потрапляти чужі листи,
-  месенджери й сторонні файли.
-- **Розмір зображення — до 500 КБ.** PNG зі скріншотом терміналу важить менше.
-- **Жодних паролів і ключів** у скріншотах і в коді, навіть навчальних.
-
-### Що робити, коли
-
-| Ситуація | Дія |
-|----------|-----|
-| помилився у шляху | перейменувати файл у своїй гілці, PR оновиться сам |
-| треба щось виправити після PR | правити у своїй гілці — PR підхоплює зміни |
-| .docx не з'явився | він збирається після того, як викладач прийме роботу, а не одразу |
-| робота на двох студентів | у кожного своя тека й свій PR, у звіті вказати співавтора |
-
-## Для викладача
-
-**Відкриття роботи.** Створити гілку лабораторної від `main` і назвати номер
-студентам:
-
-```
-lab/01-operating-systems/pz-24-1-9/03
-```
-
-Згодом це робитиме workflow `open-assignment` — він ще й створить теки з
-заготовками й роздасть варіанти; імена гілок і шляхи лишаться ті самі.
-
-**Перевірка.** Пул-реквести в цю гілку — черга робіт саме цієї лабораторної.
-Зауваження — звичайними коментарями до рядків звіту; студент бачить їх там само,
-де писав текст.
-
-**Приймання.** Merge пул-реквесту означає «роботу прийнято»: конвеєр збирає .docx
-і кладе його поряд зі звітом у гілці лабораторної.
-
-**Закриття.** Коли здала вся група — злити `lab/…` у `main`. Туди потрапляє вся
-лабораторна разом із документами, і сайт передеплоюється один раз на групу, а не
-на кожного студента.
+Code, comments and tooling output are in English. Ukrainian is the language of the
+content: the materials, the site interface, the generated documents and the
+instructions for students.

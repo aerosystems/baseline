@@ -27,6 +27,7 @@ import {
 import { join, basename, dirname } from 'path';
 import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
+import { convert, run } from './lib/docx.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -37,16 +38,6 @@ const OUTPUT_DIR = join(ROOT_DIR, 'public', 'labs');
 const TEMPLATE_DIR = join(__dirname, 'templates');
 const TEMPLATE_PATH = join(TEMPLATE_DIR, 'lab-template.docx');
 const FILTER_PATH = join(TEMPLATE_DIR, 'lab-filter.lua');
-
-// Markdown reader extensions and writer options shared by every conversion.
-// Highlighting is off: the reference guides print code in plain black.
-const PANDOC_ARGS = [
-  '--from=markdown+yaml_metadata_block+pipe_tables+fenced_code_blocks+task_lists',
-  '--to=docx',
-  '--wrap=none',
-  '--standalone',
-  '--no-highlight'
-];
 
 // List geometry of the reference guides (twips): 2 cm indent, 0.75 cm hanging,
 // dash bullets. Pandoc builds its own numbering definitions and ignores the
@@ -61,6 +52,9 @@ const LIST_GEOMETRY = {
 // from the markdown source and leaves narrow ones auto-width, so every table is
 // stretched to the text width afterwards, keeping its column proportions.
 const TABLE_WIDTH = 9637;
+
+// Geometry patched into the finished file: text width and list indents
+const LAYOUT = { tableWidth: TABLE_WIDTH, list: LIST_GEOMETRY };
 
 // Course directory to subject code mapping
 const SUBJECT_MAP = {
@@ -138,7 +132,7 @@ function parseFrontmatter(content) {
  */
 function generateOutputName(frontmatter, subject, labNumber) {
   const subjectName = SUBJECT_NAMES[subject] || subject.toUpperCase();
-  // Номер беремо з програми; якщо програм немає — з frontmatter
+  // The number comes from the curriculum; without curricula, from the frontmatter
   const labNum = labNumber || frontmatter.labNumber || frontmatter.order || 1;
   const title = frontmatter.shortTitle || frontmatter.title || 'Untitled';
 
@@ -179,8 +173,8 @@ function findAllMdFiles(dir) {
  * Discovers all lab files across course modules
  */
 /**
- * Навчальні програми курсу. Одна робота має різний номер і різні години в різних
- * групах, тому методичні вказівки генеруються окремим комплектом на кожну програму.
+ * Curricula of a course. One lab has a different number and different hours in
+ * different groups, so guides are generated as a separate set per curriculum.
  */
 function loadPrograms(lang, courseDir) {
   const path = join(CONTENT_DIR, lang, courseDir, '_programs.json');
@@ -221,7 +215,7 @@ function findLabFiles() {
         // Only process files with type: lab
         if (frontmatter.type !== 'lab') continue;
 
-        // Ключ у _programs.json — «модуль/слаг», як у дереві контенту
+        // The key in _programs.json is "module/slug", as in the content tree
         const relative = filePath.slice(coursePath.length + 1).replace(/\.md$/, '');
 
         labs.push({
@@ -241,134 +235,6 @@ function findLabFiles() {
 }
 
 /**
- * Stretches a table to the text width, keeping the column proportions Pandoc
- * derived from the markdown source.
- */
-function stretchTable(table) {
-  const columns = [...table.matchAll(/<w:gridCol w:w="([\d.]+)"\s*\/>/g)].map(m =>
-    parseFloat(m[1])
-  );
-
-  const total = columns.reduce((sum, width) => sum + width, 0);
-  if (!total) return table;
-
-  const scaled = columns.map(width => Math.round((width / total) * TABLE_WIDTH));
-  scaled[scaled.length - 1] += TABLE_WIDTH - scaled.reduce((sum, w) => sum + w, 0);
-
-  let index = 0;
-  let out = table.replace(
-    /<w:gridCol w:w="[\d.]+"\s*\/>/g,
-    () => `<w:gridCol w:w="${scaled[index++]}"/>`
-  );
-
-  out = out.replace(
-    /<w:tblW[^/]*\/>/,
-    `<w:tblW w:type="dxa" w:w="${TABLE_WIDTH}"/>`
-  );
-
-  return out.includes('<w:tblLayout')
-    ? out
-    : out.replace('</w:tblPr>', '<w:tblLayout w:type="fixed"/></w:tblPr>');
-}
-
-/**
- * Applies the parts of the reference layout that the reference document cannot
- * carry: list indents and bullets (Pandoc writes numbering.xml itself),
- * justified list items (Pandoc shares the Compact style with table cells) and
- * full-width tables (Pandoc sizes them from the markdown source).
- */
-function applyReferenceFormatting(docxPath) {
-  const work = mkdtempSync(join(tmpdir(), 'lab-docx-'));
-
-  try {
-    run('unzip', ['-o', '-q', docxPath, '-d', work]);
-
-    const documentPath = join(work, 'word', 'document.xml');
-    const document = readFileSync(documentPath, 'utf8')
-      .replace(
-        /<w:pPr>(?:(?!<\/w:pPr>)[\s\S])*?<\/w:pPr>/g,
-        (properties) =>
-          properties.includes('<w:numPr>') && !properties.includes('<w:jc ')
-            ? properties.replace('</w:pPr>', '<w:jc w:val="both"/></w:pPr>')
-            : properties
-      )
-      .replace(/<w:tbl>[\s\S]*?<\/w:tblGrid>/g, stretchTable);
-
-    writeFileSync(documentPath, document);
-
-    const numberingPath = join(work, 'word', 'numbering.xml');
-    const { left, hanging, bullet } = LIST_GEOMETRY;
-    // Checkbox markers of task lists carry meaning; every other bullet glyph
-    // Pandoc picks (•, ◦, ▪, Symbol font) becomes the dash of the guides.
-    const CHECKBOXES = ['☐', '☑', '☒'];
-
-    const patched = !existsSync(numberingPath) ? null : readFileSync(numberingPath, 'utf8').replace(
-      /<w:lvl\b[^>]*w:ilvl="(\d+)"[^>]*>[\s\S]*?<\/w:lvl>/g,
-      (level, ilvl) => {
-        const depth = parseInt(ilvl, 10);
-        const isBullet = level.includes('<w:numFmt w:val="bullet"');
-
-        let out = level.replace(
-          /<w:ind\b[^/]*\/>/,
-          `<w:ind w:left="${left + depth * 567}" w:hanging="${hanging}"/>`
-        );
-
-        out = out.replace(/<w:lvlText w:val="([^"]*)"\s*\/>/, (match, glyph) =>
-          isBullet && !CHECKBOXES.includes(glyph)
-            ? `<w:lvlText w:val="${bullet}"/>`
-            : match
-        );
-
-        // Symbol / Wingdings are only there for Pandoc's own bullet glyphs.
-        return out.replace(/<w:rFonts\b[^/]*w:ascii="(Symbol|Wingdings)"[^/]*\s*\/>/, '');
-      }
-    );
-
-    if (patched !== null) {
-      writeFileSync(numberingPath, patched);
-    }
-
-    run('zip', ['-r', '-q', '-X', 'patched.docx', '.', '-x', 'patched.docx'], { cwd: work });
-    copyFileSync(join(work, 'patched.docx'), docxPath);
-  } finally {
-    rmSync(work, { recursive: true, force: true });
-  }
-}
-
-/**
- * Runs a command, throwing on a non-zero exit status
- */
-function run(command, args, options = {}) {
-  const result = spawnSync(command, args, { encoding: 'utf8', ...options });
-
-  if (result.status !== 0) {
-    throw new Error(`${command}: ${(result.stderr || result.stdout || '').trim()}`);
-  }
-
-  return result.stdout;
-}
-
-/**
- * Converts a markdown file to .docx through Pandoc
- */
-function convert(inputPath, outputPath, metadata = {}) {
-  const args = [
-    inputPath,
-    '-o', outputPath,
-    ...PANDOC_ARGS,
-    `--reference-doc=${TEMPLATE_PATH}`,
-    `--lua-filter=${FILTER_PATH}`
-  ];
-
-  for (const [key, value] of Object.entries(metadata)) {
-    args.push('--metadata', `${key}=${value}`);
-  }
-
-  run('pandoc', args, { cwd: ROOT_DIR });
-  applyReferenceFormatting(outputPath);
-}
-
-/**
  * Converts a single lab markdown file to .docx
  *
  * The heading of the guide comes from the frontmatter rather than the body:
@@ -378,7 +244,7 @@ function convert(inputPath, outputPath, metadata = {}) {
 function generateDocx(lab, program) {
   const { path: filePath, subject, frontmatter } = lab;
 
-  // Методичні вказівки кожної групи лежать у власному підкаталозі
+  // Each group's guides live in their own subdirectory
   const outputSubDir = program ? join(OUTPUT_DIR, subject, program.id) : join(OUTPUT_DIR, subject);
   if (!existsSync(outputSubDir)) {
     mkdirSync(outputSubDir, { recursive: true });
@@ -388,8 +254,8 @@ function generateDocx(lab, program) {
   const outputName = generateOutputName(frontmatter, subject, labNum);
   const outputPath = join(outputSubDir, `${outputName}.docx`);
 
-  // Години теж різні в різних групах, а в тексті роботи вони стоять абзацом
-  // «Тривалість: …» — підставляємо значення з програми
+  // Hours differ between groups too, and the lab text states them in a
+  // "Тривалість: …" paragraph — substitute the value from the curriculum
   let sourcePath = filePath;
   const hours = program?.item.hours;
   if (hours) {
@@ -401,8 +267,14 @@ function generateDocx(lab, program) {
 
   try {
     convert(sourcePath, outputPath, {
-      title: `Лабораторна робота №${labNum}`,
-      subtitle: frontmatter.title || ''
+      referenceDoc: TEMPLATE_PATH,
+      filter: FILTER_PATH,
+      layout: LAYOUT,
+      cwd: ROOT_DIR,
+      metadata: {
+        title: `Лабораторна робота №${labNum}`,
+        subtitle: frontmatter.title || ''
+      }
     });
 
     const label = program ? `${subject}/${program.id}` : subject;
@@ -417,7 +289,7 @@ function generateDocx(lab, program) {
   }
 }
 
-/** «4 академічні години», «2 академічні години», «6 академічних годин» */
+/** Ukrainian plural for academic hours: "4 академічні години", "6 академічних годин" */
 function academicHours(hours) {
   const form = hours >= 5 ? 'академічних годин' : 'академічні години';
   return `${hours} ${form}`;
@@ -461,8 +333,14 @@ function generateGradingDocs() {
 
       try {
         convert(gradingPath, outputPath, {
-          title: frontmatter.title || 'Критерії оцінювання',
-          subtitle: ''
+          referenceDoc: TEMPLATE_PATH,
+          filter: FILTER_PATH,
+          layout: LAYOUT,
+          cwd: ROOT_DIR,
+          metadata: {
+            title: frontmatter.title || 'Критерії оцінювання',
+            subtitle: ''
+          }
         });
 
         written.push(outputPath);
@@ -489,7 +367,7 @@ function removeStaleDocs(written) {
     for (const name of readdirSync(dir)) {
       const path = join(dir, name);
 
-      // Підкаталоги — це комплекти окремих груп
+      // Subdirectories are the per-group sets
       if (statSync(path).isDirectory()) {
         sweep(path, `${label}/${name}`);
         continue;
@@ -535,7 +413,7 @@ function main() {
   const written = [];
   let failed = 0;
 
-  // Кеш програм на курс, щоб не читати _programs.json для кожної роботи
+  // Cache curricula per course so _programs.json is not read for every lab
   const programsCache = new Map();
 
   for (const lab of labs) {
@@ -545,8 +423,8 @@ function main() {
     }
     const programs = programsCache.get(cacheKey);
 
-    // Роботу видають кожній групі з її номером і годинами; якщо курс не має
-    // окремих програм, лишається один комплект із даними frontmatter
+    // A lab is issued to each group with its own number and hours; a course
+    // without separate curricula keeps one set built from the frontmatter
     const variants = programs
       ? programs.programs
           .filter(program => programs.lessons[lab.key]?.[program.id])
@@ -554,7 +432,7 @@ function main() {
       : [null];
 
     if (!variants.length) {
-      console.log(`[skip] ${lab.filename} — немає в жодній програмі`);
+      console.log(`[skip] ${lab.filename} — not part of any curriculum`);
       continue;
     }
 

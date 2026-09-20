@@ -1,0 +1,52 @@
+name: Student reports
+
+# The build is tied to accepting the work rather than to student pushes: the
+# .docx is produced when a pull request is merged into the lab branch.
+#
+# paths is narrowed to report.md on purpose — the pipeline commits the .docx into
+# that same branch, and without the filter it would retrigger itself.
+on:
+  push:
+    branches:
+      - 'lab/**'
+    paths:
+      - 'reports/**/report.md'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build .docx from reports
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # history is needed: only changed reports are built
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
+      - name: Build reports
+        run: node scripts/build-report-docx.mjs --changed --since="${{ github.event.before }}"
+
+      - name: Commit the documents
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -- 'reports/**/*.docx'
+          if git diff --cached --quiet; then
+            echo "No new documents."
+            exit 0
+          fi
+
+          git commit -m "Reports: build .docx [skip ci]"
+          git push origin HEAD:"${GITHUB_REF_NAME}"

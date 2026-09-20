@@ -147,7 +147,7 @@ function parseLesson(filePath: string, rawContent: string): Lesson | null {
   };
 }
 
-// Критерії оцінювання лежать на рівні курсу: /content/uk/<course>/_grading.md
+// Grading criteria live at course level: /content/uk/<course>/_grading.md
 export const GRADING_SLUG = 'grading';
 
 function parseGradingLesson(lang: string, courseSlug: string): Lesson | null {
@@ -197,8 +197,8 @@ export function buildContentTree(): ContentTree {
     for (const [courseSlug, modules] of Object.entries(courses)) {
       const courseJson = getJsonContent<CourseJson>(`/content/${lang}/${courseSlug}/course.json`);
 
-      // Номери лабораторних, години й форма подачі різні в різних групах,
-      // тому вони лежать окремо — у _programs.json, побудованому з РНП
+      // Lab numbers, hours and delivery differ between groups, so they live
+      // separately in _programs.json, built from the curricula
       const programsJson = getJsonContent<ProgramsJson>(`/content/${lang}/${courseSlug}/_programs.json`);
 
       const course: Course = {

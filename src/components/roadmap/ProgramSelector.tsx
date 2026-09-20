@@ -7,9 +7,9 @@ interface ProgramSelectorProps {
 }
 
 /**
- * Перемикач навчальної програми. Одна дисципліна викладається кільком групам за
- * різними РНП: у них різні номери лабораторних, години й форма подачі теми.
- * Вибір групи показує роадмапу такою, якою її бачить саме ця група.
+ * Curriculum switcher. One subject is taught to several groups under different
+ * curricula: lab numbers, hours and the delivery of a topic differ between them.
+ * Picking a group shows the roadmap as that group sees it.
  */
 export function ProgramSelector({ programs, selected, onSelect }: ProgramSelectorProps) {
   if (programs.length < 2) return null;

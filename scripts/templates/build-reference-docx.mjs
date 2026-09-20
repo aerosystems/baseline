@@ -25,7 +25,23 @@ import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT = join(__dirname, 'lab-template.docx');
+
+// The two documents differ only in margins and line spacing:
+//   lab    — guides, margins 20/14.2/20/28.4 mm, line 1.3
+//   report — student report, margins 20/10/20/25 mm, line 1.5
+//            (data/Зразок оформлення для звіту.docx.pdf)
+const PROFILES = {
+  lab: {
+    output: 'lab-template.docx',
+    line: 312,
+    margins: { top: 1134, right: 851, bottom: 1134, left: 1418 }
+  },
+  report: {
+    output: 'report-template.docx',
+    line: 360,
+    margins: { top: 1134, right: 567, bottom: 1134, left: 1418 }
+  }
+};
 
 // --- style spec (twips) ----------------------------------------------------
 
@@ -34,7 +50,7 @@ const CODE_FONT = 'Courier New';
 const BODY_SIZE = 28;   // 14pt
 const TABLE_SIZE = 24;  // 12pt
 const CODE_SIZE = 18;   // 9pt
-const LINE = 312;       // 1.3 line spacing
+let LINE = 312;         // line spacing of the profile being built
 const CODE_LINE = 200;  // single spacing in code blocks
 const INDENT = 709;     // 1.25 cm first line indent
 const LIST_LEFT = 1134; // 2 cm — used by BlockText
@@ -69,7 +85,7 @@ const subHeading = (id, name, before) => `
 <w:pPr><w:keepNext/>${spacing(before, 0, LINE)}<w:ind w:firstLine="${INDENT}"/><w:jc w:val="left"/></w:pPr>
 <w:rPr>${fonts(BODY_FONT)}<w:b/><w:bCs/><w:sz w:val="${BODY_SIZE}"/><w:szCs w:val="${BODY_SIZE}"/></w:rPr></w:style>`;
 
-const STYLES = {
+const buildStyles = () => ({
   Normal: `
 <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/>
 <w:pPr>${spacing(0, 0, LINE)}<w:jc w:val="left"/></w:pPr></w:style>`,
@@ -147,12 +163,16 @@ ${spacing(120, 120, CODE_LINE)}<w:ind w:left="${CODE_INSET}" w:right="${CODE_INS
 <w:tblCellMar><w:top w:w="40" w:type="dxa"/><w:left w:w="70" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:right w:w="70" w:type="dxa"/></w:tblCellMar></w:tblPr>
 <w:tblStylePr w:type="firstRow"><w:pPr><w:jc w:val="center"/></w:pPr><w:rPr><w:b/><w:bCs/></w:rPr>
 <w:tcPr><w:vAlign w:val="center"/></w:tcPr></w:tblStylePr></w:style>`,
-};
+});
 
-const DOC_DEFAULTS = `<w:docDefaults><w:rPrDefault><w:rPr>${fonts(BODY_FONT)}<w:sz w:val="${BODY_SIZE}"/><w:szCs w:val="${BODY_SIZE}"/><w:lang w:val="uk-UA"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr>${spacing(0, 0, LINE)}</w:pPr></w:pPrDefault></w:docDefaults>`;
+const docDefaults = () => `<w:docDefaults><w:rPrDefault><w:rPr>${fonts(BODY_FONT)}<w:sz w:val="${BODY_SIZE}"/><w:szCs w:val="${BODY_SIZE}"/><w:lang w:val="uk-UA"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr>${spacing(0, 0, LINE)}</w:pPr></w:pPrDefault></w:docDefaults>`;
 
-// A4 with the margins used by the reference documents
-const SECT_PR = '<w:sectPr><w:pgSz w:w="11906" w:h="16838" w:orient="portrait"/><w:pgMar w:top="1134" w:right="851" w:bottom="1134" w:left="1418" w:header="708" w:footer="708" w:gutter="0"/><w:pgNumType w:start="1"/><w:docGrid w:linePitch="360"/></w:sectPr>';
+// A4 with the margins of the selected profile
+const sectPr = ({ top, right, bottom, left }) =>
+  `<w:sectPr><w:pgSz w:w="11906" w:h="16838" w:orient="portrait"/>` +
+  `<w:pgMar w:top="${top}" w:right="${right}" w:bottom="${bottom}" w:left="${left}" ` +
+  `w:header="708" w:footer="708" w:gutter="0"/>` +
+  `<w:pgNumType w:start="1"/><w:docGrid w:linePitch="360"/></w:sectPr>`;
 
 // --- build -----------------------------------------------------------------
 
@@ -165,9 +185,9 @@ function run(cmd, args, opts = {}) {
 }
 
 function patchStyles(xml) {
-  let out = xml.replace(/<w:docDefaults>[\s\S]*?<\/w:docDefaults>/, DOC_DEFAULTS);
+  let out = xml.replace(/<w:docDefaults>[\s\S]*?<\/w:docDefaults>/, docDefaults());
 
-  for (const [id, definition] of Object.entries(STYLES)) {
+  for (const [id, definition] of Object.entries(buildStyles())) {
     const existing = new RegExp(
       `<w:style [^>]*w:styleId="${id}"[^>]*>[\\s\\S]*?</w:style>`
     );
@@ -183,30 +203,39 @@ function patchStyles(xml) {
   return out;
 }
 
-const work = mkdtempSync(join(tmpdir(), 'lab-template-'));
+function buildTemplate(profile) {
+  LINE = profile.line;
 
-try {
-  const base = join(work, 'base.docx');
-  writeFileSync(base, run('pandoc', ['--print-default-data-file', 'reference.docx'], {
-    encoding: 'buffer',
-  }));
-  run('unzip', ['-o', '-q', base, '-d', join(work, 'docx')]);
+  const work = mkdtempSync(join(tmpdir(), 'reference-docx-'));
 
-  const stylesPath = join(work, 'docx', 'word', 'styles.xml');
-  writeFileSync(stylesPath, patchStyles(readFileSync(stylesPath, 'utf8')));
+  try {
+    const base = join(work, 'base.docx');
+    writeFileSync(base, run('pandoc', ['--print-default-data-file', 'reference.docx'], {
+      encoding: 'buffer',
+    }));
+    run('unzip', ['-o', '-q', base, '-d', join(work, 'docx')]);
 
-  const docPath = join(work, 'docx', 'word', 'document.xml');
-  const document = readFileSync(docPath, 'utf8').replace(
-    /<w:sectPr[\s\S]*?<\/w:sectPr>/,
-    SECT_PR
-  );
-  writeFileSync(docPath, document);
+    const stylesPath = join(work, 'docx', 'word', 'styles.xml');
+    writeFileSync(stylesPath, patchStyles(readFileSync(stylesPath, 'utf8')));
 
-  const built = join(work, 'lab-template.docx');
-  run('zip', ['-r', '-q', '-X', built, '.'], { cwd: join(work, 'docx') });
-  copyFileSync(built, OUTPUT);
+    const docPath = join(work, 'docx', 'word', 'document.xml');
+    const document = readFileSync(docPath, 'utf8').replace(
+      /<w:sectPr[\s\S]*?<\/w:sectPr>/,
+      sectPr(profile.margins)
+    );
+    writeFileSync(docPath, document);
 
-  console.log(`[ok] ${OUTPUT}`);
-} finally {
-  rmSync(work, { recursive: true, force: true });
+    const output = join(__dirname, profile.output);
+    const built = join(work, profile.output);
+    run('zip', ['-r', '-q', '-X', built, '.'], { cwd: join(work, 'docx') });
+    copyFileSync(built, output);
+
+    console.log(`[ok] ${output}`);
+  } finally {
+    rmSync(work, { recursive: true, force: true });
+  }
+}
+
+for (const profile of Object.values(PROFILES)) {
+  buildTemplate(profile);
 }

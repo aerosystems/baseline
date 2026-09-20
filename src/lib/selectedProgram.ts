@@ -1,14 +1,14 @@
 const PROGRAM_STORAGE_KEY = 'baseline.program';
 
 /**
- * Обрана в роадмапі навчальна програма. Зберігається в браузері викладача,
- * бо це його налаштування перегляду, а не властивість контенту.
+ * The curriculum selected in the roadmap. Kept in the browser: it is a viewing
+ * preference of whoever opened the site, not a property of the content.
  */
 export function readSelectedProgram(courseSlug: string): string | null {
   try {
     return localStorage.getItem(`${PROGRAM_STORAGE_KEY}.${courseSlug}`);
   } catch {
-    return null;   // приватний режим або заблоковані дані сайту
+    return null;   // private mode or site data blocked
   }
 }
 
@@ -18,6 +18,6 @@ export function writeSelectedProgram(courseSlug: string, programId: string | nul
     if (programId) localStorage.setItem(key, programId);
     else localStorage.removeItem(key);
   } catch {
-    // збереження не обов'язкове
+    // persisting is optional
   }
 }

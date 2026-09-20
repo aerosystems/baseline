@@ -28,8 +28,8 @@ const SUBJECT_NAMES: Record<string, string> = {
 };
 
 // Generates path to the .docx file for a lab or for the grading criteria.
-// Методичні вказівки лежать окремим комплектом на кожну групу, бо номер роботи
-// й години в різних програмах різні.
+// Guides are generated as a separate set per group, because the lab number and
+// the hours differ between curricula.
 function generateDocxPath(lesson: Lesson, courseSlug?: string, programId?: string | null): string | undefined {
   const subject = courseSlug ? SUBJECT_MAP[courseSlug] : undefined;
   if (!subject) return undefined;
@@ -43,7 +43,7 @@ function generateDocxPath(lesson: Lesson, courseSlug?: string, programId?: strin
   if (lesson.frontmatter.type !== 'lab') return undefined;
   const labFm = lesson.frontmatter as LabFrontmatter;
 
-  // Програму обирають у роадмапі; якщо не обрано — беремо першу, яка має цю роботу
+  // The curriculum is picked in the roadmap; with none picked, take the first one that has this lab
   const programs = lesson.byProgram;
   const program = programs
     ? (programId && programs[programId] ? programId : Object.keys(programs)[0])
@@ -79,7 +79,7 @@ export function LecturePage({ lesson, module, isFallback, anchor, onBack }: Lect
     [courseSlug]
   );
 
-  // Години роботи задає програма групи: та сама робота буває на 4 і на 2 години
+  // Hours come from the group's curriculum: the same lab can be 4 or 2 hours
   const programHours = useMemo(() => {
     const hours = programId ? lesson.byProgram?.[programId]?.hours : undefined;
     if (!hours) return undefined;
