@@ -4,6 +4,7 @@ import { CoursesLanding } from '@/components/landing/CoursesLanding';
 import { Roadmap } from '@/components/roadmap/Roadmap';
 import { LecturePage } from '@/components/lecture/LecturePage';
 import { useHashRouter } from '@/hooks/useHashRouter';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { buildContentTree, getLessonWithFallback } from '@/lib/content';
 
 export function App() {
@@ -14,6 +15,42 @@ export function App() {
   // Always use Ukrainian
   const language = 'uk';
   const courses = contentTree[language] || [];
+
+  // Compute document title based on current route
+  const documentTitle = useMemo(() => {
+    if (route.type === 'lesson' && route.course && route.module && route.slug) {
+      const lessonData = getLessonWithFallback(
+        contentTree,
+        language,
+        route.course,
+        route.module,
+        route.slug
+      );
+      if (lessonData) {
+        const course = courses.find(c => c.slug === route.course);
+        const courseTitle = course?.title || route.course;
+        return `${lessonData.lesson.frontmatter.title} — ${courseTitle} — Baseline`;
+      }
+    }
+
+    if (route.type === 'grading' && route.course) {
+      const course = courses.find(c => c.slug === route.course);
+      if (course?.grading) {
+        return `${course.grading.frontmatter.title} — ${course.title} — Baseline`;
+      }
+    }
+
+    if (route.type === 'course' && route.course) {
+      const course = courses.find(c => c.slug === route.course);
+      if (course) {
+        return `${course.title} — Baseline`;
+      }
+    }
+
+    return 'Baseline';
+  }, [route, contentTree, courses, language]);
+
+  useDocumentTitle(documentTitle);
 
   // Render lesson page
   if (route.type === 'lesson' && route.course && route.module && route.slug) {
