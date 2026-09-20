@@ -27,7 +27,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT = join(ROOT, 'content', 'uk');
 const REPORTS = join(ROOT, 'reports');
 const TEMPLATE = join(ROOT, 'scripts', 'templates', 'report-template.docx');
-const TITLE_TEMPLATE = join(ROOT, 'scripts', 'templates', 'report-title.xml');
+const TITLE_TEMPLATES = join(ROOT, 'scripts', 'templates');
 
 // Text width of a report: A4 minus the 25 and 10 mm margins
 const LAYOUT = {
@@ -43,18 +43,28 @@ const DISCIPLINE = {
 };
 
 /**
- * Work code on the title page: ФКЗЕ. <specialty><subject><variant>. <NN>ЛР
+ * Work code on the title page: ФКЗЕ. <specialty><subject><number>. <NN>ЛР
  *
  * The specialty depends on the group rather than the subject: PZ-24 is 121,
  * PZ-25 is already F2 under the new classifier, KMP is 123. The values come from
  * _programs.json, where they were copied from the curricula.
  *
- * The variant is two digits; when a report states no variant, XX is left in
- * place so that it is visible on the title page.
+ * XX is the student's position in the group roster, not the task variant — the
+ * two usually coincide but not always. Two digits; without a number XX is left
+ * in place so that it is visible on the title page.
  */
-function workCode({ specialty, abbr, variant, lab }) {
-  const variantCode = variant ? String(variant).padStart(2, '0') : 'XX';
-  return `ФКЗЕ. ${specialty}${abbr}${variantCode}. ${String(lab).padStart(2, '0')}ЛР`;
+function workCode({ specialty, abbr, number, lab }) {
+  const position = number ? String(number).padStart(2, '0') : 'XX';
+  return `ФКЗЕ. ${specialty}${abbr}${position}. ${String(lab).padStart(2, '0')}ЛР`;
+}
+
+/**
+ * Academic year as the title pages spell it: "2026 - 2027" for a year that
+ * starts in September.
+ */
+function academicYear(date = new Date()) {
+  const start = date.getMonth() >= 8 ? date.getFullYear() : date.getFullYear() - 1;
+  return `${start} - ${start + 1}`;
 }
 
 function fail(message) {
@@ -119,10 +129,16 @@ function titlePage(report) {
     group: report.groupTitle,
     teacher: report.teacher ?? TEACHER,
     year: report.year ?? new Date().getFullYear(),
+    academicYear: report.academicYear ?? academicYear(),
     code: workCode(report)
   };
 
-  const xml = readFileSync(TITLE_TEMPLATE, 'utf8').replace(/^<!--[\s\S]*?-->\s*/, '');
+  // Each course has its own title page: the discipline, the code and the year
+  // are spelled differently in the samples
+  const template = join(TITLE_TEMPLATES, `report-title-${report.course}.xml`);
+  if (!existsSync(template)) throw new Error(`no title page for course ${report.course}`);
+
+  const xml = readFileSync(template, 'utf8').replace(/^<!--[\s\S]*?-->\s*/, '');
 
   return xml.replace(/{{(\w+)}}/g, (match, key) =>
     key in values ? escapeXml(values[key]) : match
@@ -139,9 +155,27 @@ function parsePath(reportPath) {
   return { course: parts[0], group: parts[2], number: parts[3], login: parts[4] };
 }
 
+/**
+ * A stub is a report the student has not written yet: opening an assignment
+ * creates one per student, and those must not turn into documents.
+ */
+function isStub(body) {
+  const text = body
+    .replace(/<!--[\s\S]*?-->/g, '')      // the task in a comment
+    .replace(/^#{1,6}\s.*$/gm, '')         // section headings
+    .replace(/^\s*\d+\s*$/gm, '');        // empty numbered items
+
+  return text.split(/\s+/).filter(Boolean).length < 15;
+}
+
 function buildReport(reportPath) {
   const location = parsePath(reportPath);
   const { data, body } = parseFrontmatter(readFileSync(reportPath, 'utf8'));
+
+  if (isStub(body)) {
+    console.log(`[skip] ${relative(ROOT, reportPath)} — stub, nothing to build`);
+    return null;
+  }
 
   for (const field of ['course', 'group', 'lab', 'student']) {
     if (!data[field]) throw new Error(`frontmatter has no "${field}" field`);
@@ -156,6 +190,8 @@ function buildReport(reportPath) {
   const lab = findLab(data);
   const report = {
     ...data,
+    // the roster position falls back to the variant: in most groups they match
+    number: data.number ?? data.variant,
     groupTitle: groupEntry?.title ?? data.group,
     specialty: groupEntry?.specialty ?? '',
     abbr: programs.abbr ?? ''

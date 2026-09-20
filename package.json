@@ -9,6 +9,7 @@
     "build:full": "npm run generate:labs && npm run build",
     "generate:labs": "node scripts/generate-docx.js",
     "build:report": "node scripts/build-report-docx.mjs",
+    "open:assignment": "node scripts/open-assignment.mjs",
     "verify:examples": "node scripts/verify-examples.mjs",
     "lint": "eslint .",
     "preview": "vite preview"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Course, Lesson } from '@/types/content';
 import { ModuleBadge } from './ModuleBadge';
 import { ProgramSelector } from './ProgramSelector';
@@ -15,7 +15,8 @@ interface RoadmapProps {
 }
 
 export function Roadmap({ course, onLessonClick, onGradingClick }: RoadmapProps) {
-  const programs = course.programs ?? [];
+  // A new array every render would restart the effect below on each one
+  const programs = useMemo(() => course.programs ?? [], [course.programs]);
   const [programId, setProgramId] = useState<string | null>(null);
 
   useEffect(() => {

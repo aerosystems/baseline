@@ -1,0 +1,151 @@
+#!/usr/bin/env node
+/**
+ * Opens a lab assignment: creates a directory and a report stub for every
+ * student of a group.
+ *
+ * The teacher runs this on a `lab/**` branch, reviews the result and merges it.
+ * From that moment every student has a folder of their own with the task of
+ * their variant already written in, so nobody has to guess the path or the
+ * assignment.
+ *
+ * The roster lives in reports/<course>/labs/<group>/roster.json and is reused by
+ * every later assignment of that group.
+ *
+ * Usage:
+ *   node scripts/open-assignment.mjs --course=02-software-security-methods \
+ *                                    --group=pz-23-1-9 --lab=3
+ */
+
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, statSync } from 'fs';
+import { join, dirname, relative } from 'path';
+import { fileURLToPath } from 'url';
+
+import { parseFrontmatter } from './lib/frontmatter.mjs';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const CONTENT = join(ROOT, 'content', 'uk');
+const REPORTS = join(ROOT, 'reports');
+
+/** The lab a number refers to in this group, and its variants */
+function findLab(course, group, lab) {
+  const programs = JSON.parse(readFileSync(join(CONTENT, course, '_programs.json'), 'utf8'));
+
+  const groupEntry = programs.groups?.find(entry => entry.id === group);
+  if (!groupEntry) throw new Error(`group "${group}" is not listed in the curricula of ${course}`);
+
+  const key = Object.entries(programs.lessons).find(
+    ([, byProgram]) => byProgram[groupEntry.program]?.labNumber === lab
+  )?.[0];
+  if (!key) throw new Error(`the curriculum of ${group} has no lab number ${lab}`);
+
+  const [module, slug] = key.split('/');
+  const path = join(CONTENT, course, module, `${slug}.md`);
+  const { data, body } = parseFrontmatter(readFileSync(path, 'utf8'));
+
+  // The variants table of the lab: its rows are handed out to the students
+  const section = body.slice(body.indexOf('## Варіанти індивідуальних завдань'));
+  const rows = section
+    .split('\n')
+    .filter(line => /^\|\s*\d+\s*\|/.test(line))
+    .map(line => line.split('|').slice(1, -1).map(cell => cell.trim()));
+
+  return { title: data.shortTitle ?? data.title, group: groupEntry, variants: rows };
+}
+
+/** Stub of a report: everything known in advance is already filled in */
+function reportStub({ course, group, lab, student, labTitle, variant }) {
+  const task = variant.length > 1
+    ? `Варіант ${variant[0]}: ${variant.slice(1).join(' — ')}`
+    : `Варіант ${variant[0]}`;
+
+  return `---
+course: ${course}
+group: ${group}
+lab: ${lab}
+student: "${student.name}"
+number: ${student.number}
+variant: ${variant[0]}
+---
+
+<!--
+  ${labTitle}
+  ${task}
+
+  Тему, мету й обладнання писати не треба — конвеєр візьме їх із лабораторної.
+  Знімки екрана кладіть у assets/, вихідний код — у src/.
+  Покрокова інструкція — reports/README.md
+-->
+
+## Хід роботи
+
+1 
+
+## Відповіді на контрольні питання
+
+1 
+
+## Висновок
+
+`;
+}
+
+function main() {
+  const args = Object.fromEntries(
+    process.argv.slice(2)
+      .filter(arg => arg.startsWith('--'))
+      .map(arg => arg.slice(2).split('='))
+  );
+
+  for (const key of ['course', 'group', 'lab']) {
+    if (!args[key]) throw new Error(`--${key} is required`);
+  }
+
+  const lab = Number(args.lab);
+  const { title, variants } = findLab(args.course, args.group, lab);
+
+  const groupDir = join(REPORTS, args.course, 'labs', args.group);
+  const rosterPath = join(groupDir, 'roster.json');
+  if (!existsSync(rosterPath)) throw new Error(`no roster at ${relative(ROOT, rosterPath)}`);
+
+  const roster = JSON.parse(readFileSync(rosterPath, 'utf8'));
+  const labDir = join(groupDir, String(lab).padStart(2, '0'));
+
+  let created = 0;
+  for (const student of roster.students) {
+    // A student who has not registered a GitHub account yet is placed by their
+    // roster number, and the folder is renamed once the login is known
+    const folder = student.github ?? `student-${String(student.number).padStart(2, '0')}`;
+    const dir = join(labDir, folder);
+
+    if (existsSync(join(dir, 'report.md'))) {
+      console.log(`[skip] ${folder} — report.md already exists`);
+      continue;
+    }
+
+    mkdirSync(join(dir, 'assets'), { recursive: true });
+    mkdirSync(join(dir, 'src'), { recursive: true });
+
+    // Variants wrap around when a group is larger than the table
+    const variant = variants[(student.number - 1) % variants.length];
+
+    writeFileSync(join(dir, 'report.md'), reportStub({
+      course: args.course,
+      group: args.group,
+      lab,
+      student,
+      labTitle: title,
+      variant
+    }));
+
+    // Git does not track empty directories
+    writeFileSync(join(dir, 'assets', '.gitkeep'), '');
+    writeFileSync(join(dir, 'src', '.gitkeep'), '');
+    created++;
+  }
+
+  console.log(`\n${title} — lab ${lab}, group ${args.group}`);
+  console.log(`Folders created: ${created} of ${roster.students.length}`);
+  console.log(`Path: ${relative(ROOT, labDir)}`);
+}
+
+main();
