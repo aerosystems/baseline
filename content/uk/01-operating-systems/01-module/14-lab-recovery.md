@@ -60,7 +60,8 @@ PS C:\> Enable-ComputerRestore -Drive "C:\"
 PS C:\> Checkpoint-Computer -Description "Before LAB4" -RestorePointType MODIFY_SETTINGS
 
 :: Переглянути наявні точки
-PS C:\> Get-ComputerRestorePoint | Format-Table SequenceNumber, Description, CreationTime
+PS C:\> Get-ComputerRestorePoint |
+>>     Format-Table SequenceNumber, Description, CreationTime
 ```
 
 Графічний еквівалент — `SystemPropertiesProtection` (Властивості системи → Захист системи). Відкат запускають командою `rstrui` і завершують перезавантаженням; скасувати вже виконаний відкат можна тільки іншою точкою.
@@ -94,7 +95,7 @@ C:\Windows\system32> DISM /Online /Cleanup-Image /RestoreHealth
 Звіт `sfc` пишеться в `%WinDir%\Logs\CBS\CBS.log`; витягти з нього лише рядки про пошкодження зручно фільтром:
 
 ```cmd
-C:\> findstr /c:"[SR]" %WinDir%\Logs\CBS\CBS.log > "%USERPROFILE%\Desktop\sfc-report.txt"
+C:\> findstr /c:"[SR]" %WinDir%\Logs\CBS\CBS.log > "%USERPROFILE%\Desktop\sfc.txt"
 ```
 
 ### 4 Перевірка файлової системи
@@ -151,7 +152,8 @@ C:\> msconfig
 Жоден із попередніх засобів не відновлює втрачені документи. Для них існують «Історія файлів» (`FileHistory`), образ системи та звичайне копіювання скриптом — тим самим `robocopy`, з яким ви працювали в лабораторній роботі №3.
 
 ```cmd
-C:\> robocopy "%USERPROFILE%\Documents" "D:\Backup\Documents" /mir /r:1 /w:1 /log+:D:\Backup\backup.log
+C:\> robocopy "%USERPROFILE%\Documents" "D:\Backup\Documents" ^
+More? /mir /r:1 /w:1 /log+:D:\Backup\backup.log
 ```
 
 Ключ `/mir` робить дзеркало: файли, видалені в джерелі, зникають і в копії. Саме тому дзеркало не є архівом — для захисту від помилкового видалення потрібні кілька поколінь копій.
@@ -161,7 +163,8 @@ C:\> robocopy "%USERPROFILE%\Documents" "D:\Backup\Documents" /mir /r:1 /w:1 /lo
 Засіб відновлення обирають не навмання: причину збою шукають у журналах. Перегляд подій (`eventvwr`) показує критичні помилки, а PowerShell дозволяє відібрати їх за рівнем і часом.
 
 ```powershell
-PS C:\> Get-WinEvent -FilterHashtable @{LogName='System'; Level=1,2; StartTime=(Get-Date).AddDays(-7)} |
+PS C:\> Get-WinEvent -FilterHashtable @{
+>>     LogName='System'; Level=1,2; StartTime=(Get-Date).AddDays(-7)} |
 >>     Select-Object -First 10 TimeCreated, Id, ProviderName, Message
 ```
 
@@ -180,8 +183,8 @@ C:\> reagentc /info
 Windows Recovery Environment (Windows RE) and system reset configuration
 Information:
 
-    Windows RE status:         Enabled
-    Windows RE location:       \\?\GLOBALROOT\device\harddisk0\partition4\Recovery\WindowsRE
+    Windows RE status:     Enabled
+    Windows RE location:   \\?\GLOBALROOT\device\harddisk0\partition4\Recovery\WindowsRE
 ```
 
 Стан WinRE фіксують до початку роботи: якщо середовище вимкнене, відновити систему з нього не вдасться.
@@ -190,8 +193,10 @@ Information:
 
 ```powershell
 PS C:\> Enable-ComputerRestore -Drive "C:\"
-PS C:\> Checkpoint-Computer -Description "LAB4 baseline" -RestorePointType MODIFY_SETTINGS
-PS C:\> Get-ComputerRestorePoint | Format-Table SequenceNumber, Description, CreationTime
+PS C:\> Checkpoint-Computer -Description "LAB4 baseline" `
+>>     -RestorePointType MODIFY_SETTINGS
+PS C:\> Get-ComputerRestorePoint |
+>>     Format-Table SequenceNumber, Description, CreationTime
 
 SequenceNumber Description     CreationTime
 -------------- -----------     ------------
@@ -252,8 +257,8 @@ system restarts? (Y/N) y
 ### Крок 5. Журнал подій
 
 ```powershell
-PS C:\> Get-WinEvent -FilterHashtable @{LogName='System'; Id=6008,41,1001} -MaxEvents 5 |
->>     Select-Object TimeCreated, Id, ProviderName
+PS C:\> Get-WinEvent -FilterHashtable @{LogName='System'; Id=6008,41,1001} `
+>>     -MaxEvents 5 | Select-Object TimeCreated, Id, ProviderName
 
 TimeCreated           Id ProviderName
 -----------           -- ------------

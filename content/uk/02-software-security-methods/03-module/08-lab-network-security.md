@@ -290,7 +290,8 @@ ss -tuln | grep LISTEN
 
 ```cpp
 // Сканер портів. Збірка у Visual Studio: проєкт консольного застосунку,
-// у властивостях додати бібліотеку ws2_32.lib (Linker → Input → Additional Dependencies).
+// у властивостях додати бібліотеку ws2_32.lib
+// (Linker → Input → Additional Dependencies).
 #include <iostream>
 #include <string>
 #include <vector>
@@ -337,7 +338,8 @@ bool isPortOpen(const std::string& host, int port, int timeoutMs = 500) {
     // Обмежуємо час очікування, інакше сканування триватиме надто довго
 #ifdef _WIN32
     DWORD timeout = static_cast<DWORD>(timeoutMs);
-    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof(timeout));
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO,
+               reinterpret_cast<const char*>(&timeout), sizeof(timeout));
 #else
     timeval timeout{ timeoutMs / 1000, (timeoutMs % 1000) * 1000 };
     setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
@@ -348,7 +350,8 @@ bool isPortOpen(const std::string& host, int port, int timeoutMs = 500) {
     address.sin_port = htons(static_cast<unsigned short>(port));
     inet_pton(AF_INET, host.c_str(), &address.sin_addr);
 
-    bool opened = connect(sock, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0;
+    bool opened =
+        connect(sock, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == 0;
     closesocket(sock);
     return opened;
 }
@@ -414,7 +417,8 @@ sqlite3* setupDatabase() {
         "  login TEXT NOT NULL,"
         "  password TEXT NOT NULL,"
         "  role TEXT DEFAULT 'user');"
-        "INSERT INTO users (login, password, role) VALUES ('admin', 'secret123', 'admin');"
+        "INSERT INTO users (login, password, role) "
+        "VALUES ('admin', 'secret123', 'admin');"
         "INSERT INTO users (login, password, role) VALUES ('user1', 'pass1', 'user');";
 
     sqlite3_exec(db, schema, nullptr, nullptr, nullptr);
@@ -423,7 +427,8 @@ sqlite3* setupDatabase() {
 
 // ВРАЗЛИВИЙ варіант: запит склеюється з рядків, дані користувача
 // потрапляють у текст запиту й змінюють його структуру
-bool vulnerableLogin(sqlite3* db, const std::string& login, const std::string& password) {
+bool vulnerableLogin(sqlite3* db, const std::string& login,
+                     const std::string& password) {
     std::string query = "SELECT login, role FROM users WHERE login='" + login +
                         "' AND password='" + password + "'";
     std::cout << "[ВРАЗЛИВИЙ] Запит: " << query << "\n";
@@ -475,11 +480,13 @@ int main() {
     // Введене значення закриває лапку й додає умову, істинну завжди
     std::string injection = "' OR '1'='1";
     bool bypassed = vulnerableLogin(db, "admin", injection);
-    std::cout << "Результат: " << (bypassed ? "ЗАХИСТ ОБІЙДЕНО" : "доступ відхилено") << "\n";
+    std::cout << "Результат: "
+              << (bypassed ? "ЗАХИСТ ОБІЙДЕНО" : "доступ відхилено") << "\n";
 
     std::cout << "\n=== Та сама атака на параметризованому запиті ===\n";
     bool blocked = safeLogin(db, "admin", injection);
-    std::cout << "Результат: " << (blocked ? "ЗАХИСТ ОБІЙДЕНО" : "доступ відхилено") << "\n";
+    std::cout << "Результат: "
+              << (blocked ? "ЗАХИСТ ОБІЙДЕНО" : "доступ відхилено") << "\n";
 
     sqlite3_close(db);
     return 0;

@@ -255,7 +255,8 @@ std::string prepareText(const std::string& plaintext) {
     for (size_t i = 0; i < clean.size(); ++i) {
         result += clean[i];
         // однакові літери в біграмі розділяємо літерою X
-        if (result.size() % 2 == 1 && i + 1 < clean.size() && clean[i] == clean[i + 1]) {
+        if (result.size() % 2 == 1 && i + 1 < clean.size() &&
+            clean[i] == clean[i + 1]) {
             result += 'X';
         }
     }
@@ -402,7 +403,8 @@ int main() {
 
     std::string ciphertext = twoSquareEncrypt(plaintext, keyword1, keyword2);
     std::cout << "\nШифротекст:      " << ciphertext << "\n";
-    std::cout << "Розшифровано:    " << twoSquareDecrypt(ciphertext, keyword1, keyword2) << "\n";
+    std::cout << "Розшифровано:    "
+              << twoSquareDecrypt(ciphertext, keyword1, keyword2) << "\n";
 
     return 0;
 }

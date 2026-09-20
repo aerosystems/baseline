@@ -81,11 +81,74 @@ function freezeTimestamps(directory, epoch) {
   run('find', [directory, '-exec', 'touch', '-t', formatted, '{}', '+']);
 }
 
+/**
+ * Rebuilds the listings Pandoc wrote into the shape the reference documents use.
+ *
+ * Pandoc marks every run of a code block with the VerbatimChar character style,
+ * which it also uses for inline `code`. A character style outranks a paragraph
+ * style, so the Courier New of SourceCode never reached the page: listings were
+ * set in the proportional body font, and every ASCII frame and every alignment
+ * in them collapsed. Inside a listing the style is therefore dropped; inline
+ * code keeps it and stays body text, as in the samples.
+ *
+ * Pandoc also writes a listing as one paragraph with line breaks. Such a
+ * paragraph cannot be broken between pages in any controlled way, and a line
+ * too long for the column wraps back to the first column, where it reads as the
+ * next statement. The samples set one line of code as one paragraph, and so
+ * does this: pages may then break between lines, and the hanging indent of
+ * SourceCode marks a wrapped line.
+ */
+function formatListings(document, { line, lineRule }) {
+  return document.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/g, paragraph => {
+    if (!paragraph.includes('w:val="SourceCode"')) return paragraph;
+
+    const clean = paragraph
+      .replace(/<w:rStyle w:val="VerbatimChar"\s*\/>/g, '')
+      .replace(/<w:rPr>\s*<\/w:rPr>/g, '');
+
+    const split = clean.match(/^(<w:p\b[^>]*>)(?:<w:pPr>[\s\S]*?<\/w:pPr>)?([\s\S]*)<\/w:p>$/);
+    if (!split) return clean;
+
+    const [, opening, body] = split;
+    const lines = body.split(/<w:r>\s*<w:br\s*\/>\s*<\/w:r>/);
+
+    return lines
+      .map((code, index) => {
+        // The 6 pt above and below belong to the listing, not to each of its
+        // lines; between the lines only the line spacing of the style remains.
+        const spacing =
+          `<w:spacing w:before="${index === 0 ? 120 : 0}" ` +
+          `w:after="${index === lines.length - 1 ? 120 : 0}" ` +
+          `w:line="${line}" w:lineRule="${lineRule}"/>`;
+
+        return `${opening}<w:pPr><w:pStyle w:val="SourceCode"/>${spacing}</w:pPr>${code}</w:p>`;
+      })
+      .join('');
+  });
+}
+
+/**
+ * Line spacing of a listing, read from the SourceCode style of the reference
+ * document so that it stays defined in one place only — the style builder in
+ * scripts/templates/build-reference-docx.mjs.
+ */
+function listingStyle(stylesXml) {
+  const style = stylesXml.match(/<w:style [^>]*w:styleId="SourceCode"[\s\S]*?<\/w:style>/)?.[0] ?? '';
+  const spacing = style.match(/<w:spacing\b[^>]*\/>/)?.[0] ?? '';
+
+  return {
+    line: spacing.match(/w:line="(\d+)"/)?.[1] ?? '240',
+    lineRule: spacing.match(/w:lineRule="(\w+)"/)?.[1] ?? 'auto'
+  };
+}
+
 export function applyReferenceFormatting(docxPath, { tableWidth, list, epoch }) {
   const work = mkdtempSync(join(tmpdir(), 'docx-format-'));
 
   try {
     run('unzip', ['-o', '-q', docxPath, '-d', work]);
+
+    const listing = listingStyle(readFileSync(join(work, 'word', 'styles.xml'), 'utf8'));
 
     const documentPath = join(work, 'word', 'document.xml');
     const document = readFileSync(documentPath, 'utf8')
@@ -98,7 +161,7 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list, epoch }) 
       )
       .replace(/<w:tbl>[\s\S]*?<\/w:tblGrid>/g, table => stretchTable(table, tableWidth));
 
-    writeFileSync(documentPath, document);
+    writeFileSync(documentPath, formatListings(document, listing));
 
     const numberingPath = join(work, 'word', 'numbering.xml');
     const { left, hanging, bullet } = list;

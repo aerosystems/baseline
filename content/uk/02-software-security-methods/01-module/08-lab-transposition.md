@@ -398,7 +398,8 @@ int main() {
     std::cout << "Ключ рядків:     " << rowKey << "\n";
     std::cout << "Ключ стовпців:   " << colKey << "\n";
     std::cout << "Відкритий текст: " << plaintext << "\n";
-    std::cout << "Шифротекст:      " << doubleEncrypt(plaintext, rowKey, colKey) << "\n";
+    std::cout << "Шифротекст:      "
+              << doubleEncrypt(plaintext, rowKey, colKey) << "\n";
 
     return 0;
 }

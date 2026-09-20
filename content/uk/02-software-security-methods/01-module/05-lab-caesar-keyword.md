@@ -267,7 +267,8 @@ int main() {
 
     std::cout << "Афінний шифр: a=" << a << ", b=" << b << "\n";
     std::cout << "Перевірка:    gcd(" << a << ", " << N << ") = " << gcd(a, N) << "\n";
-    std::cout << "Обернений:    " << a << "^-1 mod " << N << " = " << modInverse(a, N) << "\n\n";
+    std::cout << "Обернений:    " << a << "^-1 mod " << N
+              << " = " << modInverse(a, N) << "\n\n";
 
     std::cout << "Відкритий текст:  " << plaintext << "\n";
 

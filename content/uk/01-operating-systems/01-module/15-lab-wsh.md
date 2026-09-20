@@ -103,7 +103,8 @@ stream.Close
 ' Обхід каталогу
 Set folder = fso.GetFolder("C:\LAB5\src")
 For Each file In folder.Files
-    WScript.Echo file.Name & " — " & file.Size & " байт, змінено " & file.DateLastModified
+    WScript.Echo file.Name & " — " & file.Size & " байт, змінено " & _
+                 file.DateLastModified
 Next
 ```
 
@@ -152,9 +153,11 @@ For Each item In items
     WScript.Echo "Пам'ять: " & Int(item.TotalVisibleMemorySize / 1024) & " МБ"
 Next
 
-Set items = wmi.ExecQuery("SELECT Name, ProcessId, WorkingSetSize FROM Win32_Process WHERE Name = 'explorer.exe'")
+Set items = wmi.ExecQuery("SELECT Name, ProcessId, WorkingSetSize " & _
+                          "FROM Win32_Process WHERE Name = 'explorer.exe'")
 For Each item In items
-    WScript.Echo item.Name & " PID=" & item.ProcessId & " " & Int(item.WorkingSetSize / 1048576) & " МБ"
+    WScript.Echo item.Name & " PID=" & item.ProcessId & " " & _
+                 Int(item.WorkingSetSize / 1048576) & " МБ"
 Next
 ```
 
@@ -200,11 +203,12 @@ C:\...\LAB5> cscript //nologo hello.vbs Студент
 ```vbscript
 ' inventory.vbs
 Option Explicit
-Dim fso, folder, file, stream, total
+Dim fso, folder, file, stream, total, base
 
 Set fso = CreateObject("Scripting.FileSystemObject")
-Set folder = fso.GetFolder(fso.GetParentFolderName(WScript.ScriptFullName) & "\src")
-Set stream = fso.CreateTextFile(fso.GetParentFolderName(WScript.ScriptFullName) & "\out\inventory.txt", True, True)
+base = fso.GetParentFolderName(WScript.ScriptFullName)
+Set folder = fso.GetFolder(base & "\src")
+Set stream = fso.CreateTextFile(base & "\out\inventory.txt", True, True)
 
 total = 0
 For Each file In folder.Files

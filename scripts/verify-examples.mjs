@@ -467,10 +467,19 @@ function fixDiagrams(text) {
   return [result.join('\n'), fixed];
 }
 
+// A .docx has no horizontal scroll bar the way the site has: a code line wider
+// than the column wraps, and an ASCII frame or an aligned comment breaks with
+// it. The column takes 89 characters of Courier New 9pt on A4 (text width
+// 9637 twips at 0.6 em per character); 88 leaves a character of slack.
+// Materials that are never printed — lectures, self-study topics — are not
+// bound by it.
+const CODE_WIDTH = 88;
+
 /** Markup defects already seen in the materials */
 function lintFile(path, text) {
   const problems = [];
   const relative = path.slice(CONTENT.length + 1);
+  const printed = /^type:\s*lab\s*$/m.test(text);
   let inCode = false;
 
   text.split('\n').forEach((line, index) => {
@@ -495,6 +504,14 @@ function lintFile(path, text) {
 
     if (inCode && /^[A-Za-z].*[а-яё]{4,}/.test(line) && /[ыъэё]/.test(line)) {
       problems.push({ number, kind: 'foreign-language output', detail: line.trim().slice(0, 50) });
+    }
+
+    if (inCode && printed && [...line].length > CODE_WIDTH) {
+      problems.push({
+        number,
+        kind: 'code line too wide for the page',
+        detail: `${[...line].length} characters, ${CODE_WIDTH} fit`
+      });
     }
   });
 

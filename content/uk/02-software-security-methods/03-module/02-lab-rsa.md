@@ -333,7 +333,8 @@ private:
 
         e_ = 65537;                       // типовий відкритий експонент
         if (e_ >= phi_) e_ = 17;          // для навчальних малих ключів
-        while (gcdValue(static_cast<long long>(e_), static_cast<long long>(phi_)) != 1) {
+        while (gcdValue(static_cast<long long>(e_),
+                        static_cast<long long>(phi_)) != 1) {
             e_ += 2;
         }
 
@@ -407,8 +408,10 @@ int main() {
     std::cout << "   phi(n) = (p-1)(q-1) = " << rsa.phi() << "\n";
     std::cout << "   e = " << rsa.publicExponent() << "\n";
     std::cout << "   d = " << rsa.privateExponent() << "\n";
-    std::cout << "   Відкритий ключ: (" << rsa.publicExponent() << ", " << rsa.modulus() << ")\n";
-    std::cout << "   Закритий ключ:  (" << rsa.privateExponent() << ", " << rsa.modulus() << ")\n";
+    std::cout << "   Відкритий ключ: (" << rsa.publicExponent()
+              << ", " << rsa.modulus() << ")\n";
+    std::cout << "   Закритий ключ:  (" << rsa.privateExponent()
+              << ", " << rsa.modulus() << ")\n";
     std::cout << "   Перевірка: e * d mod phi(n) = "
               << (rsa.publicExponent() * rsa.privateExponent()) % rsa.phi() << "\n";
 

@@ -203,7 +203,8 @@ public:
     static std::string toHex(const Bytes& data) {
         std::ostringstream out;
         for (unsigned char byte : data) {
-            out << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
+            out << std::hex << std::setw(2) << std::setfill('0')
+                << static_cast<int>(byte);
         }
         return out.str();
     }
@@ -264,9 +265,11 @@ int main() {
     std::cout << "Хеш:        " << stored.hash.substr(0, 32) << "...\n\n";
 
     std::cout << "Правильний пароль: "
-              << (PasswordManager::verifyPassword(password, stored) ? "доступ надано" : "відмова") << "\n";
+              << (PasswordManager::verifyPassword(password, stored)
+                    ? "доступ надано" : "відмова") << "\n";
     std::cout << "Хибний пароль:     "
-              << (PasswordManager::verifyPassword("wrong", stored) ? "доступ надано" : "відмова") << "\n";
+              << (PasswordManager::verifyPassword("wrong", stored)
+                    ? "доступ надано" : "відмова") << "\n";
 
     // Та сама сіль двічі не повторюється, тому однакові паролі
     // дають різні хеші — райдужні таблиці стають марними
@@ -433,7 +436,8 @@ public:
     }
 
     // Крок 2: дія клієнта — обчислення відповіді на виклик
-    static std::string computeResponse(const std::string& challenge, const std::string& password) {
+    static std::string computeResponse(const std::string& challenge,
+                                       const std::string& password) {
         return sha256(challenge + sha256(password));
     }
 
@@ -459,7 +463,8 @@ int main() {
 
     std::cout << "\n=== Успішна автентифікація ===\n";
     std::string challenge = server.requestLogin("student");
-    std::string response = ChallengeResponseAuth::computeResponse(challenge, "S3cret!Pass");
+    std::string response =
+        ChallengeResponseAuth::computeResponse(challenge, "S3cret!Pass");
     std::cout << "[CLIENT] Відповідь: " << response.substr(0, 16) << "...\n";
     server.verifyResponse("student", response);
 
@@ -469,7 +474,8 @@ int main() {
 
     std::cout << "\n=== Хибний пароль ===\n";
     challenge = server.requestLogin("student");
-    server.verifyResponse("student", ChallengeResponseAuth::computeResponse(challenge, "wrong"));
+    server.verifyResponse(
+        "student", ChallengeResponseAuth::computeResponse(challenge, "wrong"));
 
     return 0;
 }
@@ -590,7 +596,8 @@ private:
 };
 
 int main() {
-    Bytes secret = { 'S','t','u','d','e','n','t','S','e','c','r','e','t','K','e','y','1','2','3','4' };
+    Bytes secret = { 'S','t','u','d','e','n','t','S','e','c',
+                     'r','e','t','K','e','y','1','2','3','4' };
     TOTP totp(secret);
 
     std::string code = totp.generate();
@@ -598,8 +605,10 @@ int main() {
     std::cout << "Поточний код:     " << code << "\n";
     std::cout << "Дійсний ще:       " << totp.secondsLeft() << " с\n\n";
 
-    std::cout << "Перевірка коду:   " << (totp.verify(code) ? "прийнято" : "відхилено") << "\n";
-    std::cout << "Перевірка \"000000\": " << (totp.verify("000000") ? "прийнято" : "відхилено") << "\n\n";
+    std::cout << "Перевірка коду:   "
+              << (totp.verify(code) ? "прийнято" : "відхилено") << "\n";
+    std::cout << "Перевірка \"000000\": "
+              << (totp.verify("000000") ? "прийнято" : "відхилено") << "\n\n";
 
     std::cout << "Код для сусідніх інтервалів (демонстрація вікна допуску):\n";
     std::time_t now = std::time(nullptr);
