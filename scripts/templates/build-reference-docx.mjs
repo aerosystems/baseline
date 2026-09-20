@@ -11,7 +11,8 @@
  *   body      Times New Roman 14pt, line 1.3, justified, first line indent 1.25 cm
  *   headings  level 2 — centered bold; level 3+ — left bold with body indent
  *   code      Courier New 9pt, line 200, left aligned, in a one-cell table
- *             that frames the listing; wrapped lines get a hanging indent
+ *             that frames and fills the listing; wrapped lines get a hanging
+ *             indent
  *   tables    Times New Roman 12pt, single borders, bold centered header row
  *   lists     see LIST_GEOMETRY in scripts/generate-docx.js — Pandoc builds its
  *             own numbering definitions, so list geometry is patched afterwards
@@ -58,6 +59,8 @@ const LIST_LEFT = 1134; // 2 cm — used by BlockText
 const CODE_WRAP = 340;  // offset of a wrapped code line, so it is not read as the next line
 const CODE_PAD = 113;   // 0.2 cm between the frame of a listing and its text
 const CODE_FRAME = 'BFBFBF';  // frame of a listing
+const CODE_FILL = 'F4F4F4';   // fill of a listing — the print equivalent of the
+                              // dark code block the site shows
 
 const fonts = (name) =>
   `<w:rFonts w:ascii="${name}" w:hAnsi="${name}" w:cs="${name}" w:eastAsia="${name}"/>`;
@@ -141,6 +144,7 @@ const buildStyles = () => ({
 <w:style w:type="table" w:customStyle="1" w:styleId="SourceCodeTable"><w:name w:val="Source Code Table"/><w:basedOn w:val="TableNormal"/><w:qFormat/>
 <w:tblPr><w:tblInd w:w="0" w:type="dxa"/>
 <w:tblBorders>${['top', 'left', 'bottom', 'right'].map(side => `<w:${side} w:val="single" w:sz="4" w:space="0" w:color="${CODE_FRAME}"/>`).join('')}</w:tblBorders>
+<w:shd w:val="clear" w:color="auto" w:fill="${CODE_FILL}"/>
 <w:tblCellMar><w:top w:w="${CODE_PAD}" w:type="dxa"/><w:left w:w="${CODE_PAD}" w:type="dxa"/><w:bottom w:w="${CODE_PAD}" w:type="dxa"/><w:right w:w="${CODE_PAD}" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>`,
 
   // Inline `code` keeps the body font, as in the reference documents.

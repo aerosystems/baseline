@@ -103,10 +103,10 @@ function freezeTimestamps(directory, epoch) {
  * consecutive paragraphs into one box, and the previewers this document is
  * opened in draw a rule under every line instead. The frame itself is defined
  * once, by the SourceCodeTable style of the reference document, and written
- * into every table as well: a table style is another thing those previewers
- * skip.
+ * into every table as well — and its fill into the cell, where every renderer
+ * looks for it — because a table style is another thing those previewers skip.
  */
-function formatListings(document, { line, lineRule, width, borders, cellMargins }) {
+function formatListings(document, { line, lineRule, width, borders, fill, cellMargins }) {
   // A table carries no spacing of its own, so the air above and below the frame
   // is an empty paragraph of an exact height
   const spacer =
@@ -136,10 +136,10 @@ function formatListings(document, { line, lineRule, width, borders, cellMargins 
     return spacer +
       '<w:tbl><w:tblPr><w:tblStyle w:val="SourceCodeTable"/>' +
       `<w:tblW w:type="dxa" w:w="${width}"/><w:tblInd w:w="0" w:type="dxa"/>` +
-      `${borders}<w:tblLayout w:type="fixed"/>${cellMargins}` +
+      `${borders}${fill}<w:tblLayout w:type="fixed"/>${cellMargins}` +
       '<w:tblLook w:val="0000" w:firstRow="0" w:lastRow="0" w:firstColumn="0" w:lastColumn="0" w:noHBand="1" w:noVBand="1"/>' +
       `</w:tblPr><w:tblGrid><w:gridCol w:w="${width}"/></w:tblGrid>` +
-      `<w:tr><w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${width}"/></w:tcPr>${lines}</w:tc></w:tr></w:tbl>` +
+      `<w:tr><w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${width}"/>${fill}</w:tcPr>${lines}</w:tc></w:tr></w:tbl>` +
       spacer;
   });
 }
@@ -148,7 +148,8 @@ function formatListings(document, { line, lineRule, width, borders, cellMargins 
  * How a listing is set, read from the reference document so that it stays
  * defined in one place only — the style builder in
  * scripts/templates/build-reference-docx.mjs. The line spacing comes from the
- * SourceCode paragraph style, the frame and the padding from SourceCodeTable.
+ * SourceCode paragraph style, the frame, the fill and the padding from
+ * SourceCodeTable.
  */
 function listingStyle(stylesXml) {
   const style = id =>
@@ -161,6 +162,7 @@ function listingStyle(stylesXml) {
     line: spacing.match(/w:line="(\d+)"/)?.[1] ?? '240',
     lineRule: spacing.match(/w:lineRule="(\w+)"/)?.[1] ?? 'auto',
     borders: table.match(/<w:tblBorders>[\s\S]*?<\/w:tblBorders>/)?.[0] ?? '',
+    fill: table.match(/<w:shd\b[^>]*\/>/)?.[0] ?? '',
     cellMargins: table.match(/<w:tblCellMar>[\s\S]*?<\/w:tblCellMar>/)?.[0] ?? ''
   };
 }
