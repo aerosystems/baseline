@@ -313,7 +313,7 @@ set "src=%~dp0src"
 set "dst=%~dp0bak\%date:~6,4%-%date:~3,2%-%date:~0,2%"
 set "log=%~dp0logs\backup.log"
 
-call :log Початок копіювання з "%src%"
+call :log Джерело: "%src%"
 if not exist "%dst%" md "%dst%"
 
 robocopy "%src%" "%dst%" /e /njh /njs /ndl >> "%log%"
@@ -323,7 +323,7 @@ if %errorlevel% geq 8 (
     exit /b %errorlevel%
 )
 
-call :log Копію створено: "%dst%"
+call :log Призначення: "%dst%"
 endlocal
 exit /b 0
 
@@ -335,8 +335,8 @@ goto :eof
 ```cmd
 C:\...\LAB3> backup.bat
 C:\...\LAB3> type logs\backup.log
-[17.09.2026 22:03:11,45] Початок копіювання з "C:\Users\Student\Desktop\LAB3\src"
-[17.09.2026 22:03:11,63] Копію створено: "C:\Users\Student\Desktop\LAB3\bak\2026-09-17"
+[17.09.2026 22:03:11,45] Джерело: "C:\Users\Student\Desktop\LAB3\src"
+[17.09.2026 22:03:11,63] Призначення: "C:\Users\Student\Desktop\LAB3\bak\2026-09-17"
 ```
 
 Підстановка виду `%date:~6,4%` вирізає з рядка дати чотири символи, починаючи з сьомого, — так формують ім'я каталогу, що сортується за зростанням.

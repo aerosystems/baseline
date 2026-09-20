@@ -241,7 +241,8 @@ public:
     }
 
     // Перевірка: пароль хешується з тією самою сіллю й порівнюється з базою
-    static bool verifyPassword(const std::string& password, const Credentials& stored) {
+    static bool verifyPassword(const std::string& password,
+                               const Credentials& stored) {
         return constantTimeEquals(hashPassword(password, stored.salt), stored.hash);
     }
 
@@ -325,7 +326,8 @@ bool safeCompare(const std::string& a, const std::string& b) {
 
 // Вимірює середній час одного порівняння
 template <typename Compare>
-double measure(Compare compare, const std::string& secret, const std::string& attempt) {
+double measure(Compare compare, const std::string& secret,
+               const std::string& attempt) {
     const int REPEATS = 200000;
     auto start = std::chrono::high_resolution_clock::now();
 

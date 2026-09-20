@@ -287,7 +287,8 @@ std::string processBigram(const Matrix& matrix, char a, char b, int shift) {
     return result;
 }
 
-std::string playfairEncrypt(const std::string& plaintext, const std::string& keyword) {
+std::string playfairEncrypt(const std::string& plaintext,
+                            const std::string& keyword) {
     Matrix matrix = createMatrix(keyword);
     std::string text = prepareText(plaintext);
     std::string ciphertext;
@@ -298,7 +299,8 @@ std::string playfairEncrypt(const std::string& plaintext, const std::string& key
     return ciphertext;
 }
 
-std::string playfairDecrypt(const std::string& ciphertext, const std::string& keyword) {
+std::string playfairDecrypt(const std::string& ciphertext,
+                            const std::string& keyword) {
     Matrix matrix = createMatrix(keyword);
     std::string plaintext;
 

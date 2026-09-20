@@ -469,11 +469,11 @@ function fixDiagrams(text) {
 
 // A .docx has no horizontal scroll bar the way the site has: a code line wider
 // than the column wraps, and an ASCII frame or an aligned comment breaks with
-// it. The column takes 89 characters of Courier New 9pt on A4 (text width
-// 9637 twips at 0.6 em per character); 88 leaves a character of slack.
-// Materials that are never printed — lectures, self-study topics — are not
-// bound by it.
-const CODE_WIDTH = 88;
+// it. The frame of a listing takes 87 characters of Courier New 9pt on A4
+// (text width 9637 twips, less 0.2 cm of padding on each side, at 0.6 em per
+// character); 86 leaves a character of slack. Materials that are never
+// printed — lectures, self-study topics — are not bound by it.
+const CODE_WIDTH = 86;
 
 /** Markup defects already seen in the materials */
 function lintFile(path, text) {

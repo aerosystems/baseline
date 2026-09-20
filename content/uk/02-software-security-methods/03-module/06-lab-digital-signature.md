@@ -303,7 +303,8 @@ int main() {
     std::cout << "ФОРМУВАННЯ ПІДПИСУ\n";
     std::cout << "------------------------------------------------------------\n";
     std::cout << "Документ: \"" << document << "\"\n";
-    std::cout << "Хеш (обрізаний): " << truncateHash(hashToNumber(document), n) << "\n";
+    std::cout << "Хеш (обрізаний): "
+              << truncateHash(hashToNumber(document), n) << "\n";
 
     u64 signature = sign(document, d, n);
     std::cout << "Підпис S = " << signature << "\n";
@@ -332,7 +333,8 @@ int main() {
     u64 fake = signature + 1;
     std::cout << "Підроблений підпис: " << fake << "\n";
     std::cout << "Результат: "
-              << (verify(document, fake, e, n) ? "ПІДПИС ДІЙСНИЙ" : "ПІДПИС НЕДІЙСНИЙ")
+              << (verify(document, fake, e, n) ? "ПІДПИС ДІЙСНИЙ"
+                                               : "ПІДПИС НЕДІЙСНИЙ")
               << "\n";
 
     return 0;

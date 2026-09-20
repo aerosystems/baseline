@@ -82,7 +82,7 @@ function freezeTimestamps(directory, epoch) {
 }
 
 /**
- * Rebuilds the listings Pandoc wrote into the shape the reference documents use.
+ * Rebuilds the listings Pandoc wrote into the shape the printed page needs.
  *
  * Pandoc marks every run of a code block with the VerbatimChar character style,
  * which it also uses for inline `code`. A character style outranks a paragraph
@@ -97,8 +97,22 @@ function freezeTimestamps(directory, epoch) {
  * next statement. The samples set one line of code as one paragraph, and so
  * does this: pages may then break between lines, and the hanging indent of
  * SourceCode marks a wrapped line.
+ *
+ * Those paragraphs then go into a one-cell table, which is what draws the frame.
+ * Paragraph borders would do it in Word alone — it joins the borders of
+ * consecutive paragraphs into one box, and the previewers this document is
+ * opened in draw a rule under every line instead. The frame itself is defined
+ * once, by the SourceCodeTable style of the reference document, and written
+ * into every table as well: a table style is another thing those previewers
+ * skip.
  */
-function formatListings(document, { line, lineRule }) {
+function formatListings(document, { line, lineRule, width, borders, cellMargins }) {
+  // A table carries no spacing of its own, so the air above and below the frame
+  // is an empty paragraph of an exact height
+  const spacer =
+    '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="120" w:lineRule="exact"/>' +
+    '<w:rPr><w:sz w:val="4"/><w:szCs w:val="4"/></w:rPr></w:pPr></w:p>';
+
   return document.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/g, paragraph => {
     if (!paragraph.includes('w:val="SourceCode"')) return paragraph;
 
@@ -110,35 +124,44 @@ function formatListings(document, { line, lineRule }) {
     if (!split) return clean;
 
     const [, opening, body] = split;
-    const lines = body.split(/<w:r>\s*<w:br\s*\/>\s*<\/w:r>/);
+    const properties =
+      `<w:pPr><w:pStyle w:val="SourceCode"/>` +
+      `<w:spacing w:before="0" w:after="0" w:line="${line}" w:lineRule="${lineRule}"/></w:pPr>`;
 
-    return lines
-      .map((code, index) => {
-        // The 6 pt above and below belong to the listing, not to each of its
-        // lines; between the lines only the line spacing of the style remains.
-        const spacing =
-          `<w:spacing w:before="${index === 0 ? 120 : 0}" ` +
-          `w:after="${index === lines.length - 1 ? 120 : 0}" ` +
-          `w:line="${line}" w:lineRule="${lineRule}"/>`;
-
-        return `${opening}<w:pPr><w:pStyle w:val="SourceCode"/>${spacing}</w:pPr>${code}</w:p>`;
-      })
+    const lines = body
+      .split(/<w:r>\s*<w:br\s*\/>\s*<\/w:r>/)
+      .map(code => `${opening}${properties}${code}</w:p>`)
       .join('');
+
+    return spacer +
+      '<w:tbl><w:tblPr><w:tblStyle w:val="SourceCodeTable"/>' +
+      `<w:tblW w:type="dxa" w:w="${width}"/><w:tblInd w:w="0" w:type="dxa"/>` +
+      `${borders}<w:tblLayout w:type="fixed"/>${cellMargins}` +
+      '<w:tblLook w:val="0000" w:firstRow="0" w:lastRow="0" w:firstColumn="0" w:lastColumn="0" w:noHBand="1" w:noVBand="1"/>' +
+      `</w:tblPr><w:tblGrid><w:gridCol w:w="${width}"/></w:tblGrid>` +
+      `<w:tr><w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${width}"/></w:tcPr>${lines}</w:tc></w:tr></w:tbl>` +
+      spacer;
   });
 }
 
 /**
- * Line spacing of a listing, read from the SourceCode style of the reference
- * document so that it stays defined in one place only — the style builder in
- * scripts/templates/build-reference-docx.mjs.
+ * How a listing is set, read from the reference document so that it stays
+ * defined in one place only — the style builder in
+ * scripts/templates/build-reference-docx.mjs. The line spacing comes from the
+ * SourceCode paragraph style, the frame and the padding from SourceCodeTable.
  */
 function listingStyle(stylesXml) {
-  const style = stylesXml.match(/<w:style [^>]*w:styleId="SourceCode"[\s\S]*?<\/w:style>/)?.[0] ?? '';
-  const spacing = style.match(/<w:spacing\b[^>]*\/>/)?.[0] ?? '';
+  const style = id =>
+    stylesXml.match(new RegExp(`<w:style [^>]*w:styleId="${id}"[\\s\\S]*?</w:style>`))?.[0] ?? '';
+
+  const spacing = style('SourceCode').match(/<w:spacing\b[^>]*\/>/)?.[0] ?? '';
+  const table = style('SourceCodeTable');
 
   return {
     line: spacing.match(/w:line="(\d+)"/)?.[1] ?? '240',
-    lineRule: spacing.match(/w:lineRule="(\w+)"/)?.[1] ?? 'auto'
+    lineRule: spacing.match(/w:lineRule="(\w+)"/)?.[1] ?? 'auto',
+    borders: table.match(/<w:tblBorders>[\s\S]*?<\/w:tblBorders>/)?.[0] ?? '',
+    cellMargins: table.match(/<w:tblCellMar>[\s\S]*?<\/w:tblCellMar>/)?.[0] ?? ''
   };
 }
 
@@ -161,7 +184,7 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list, epoch }) 
       )
       .replace(/<w:tbl>[\s\S]*?<\/w:tblGrid>/g, table => stretchTable(table, tableWidth));
 
-    writeFileSync(documentPath, formatListings(document, listing));
+    writeFileSync(documentPath, formatListings(document, { ...listing, width: tableWidth }));
 
     const numberingPath = join(work, 'word', 'numbering.xml');
     const { left, hanging, bullet } = list;

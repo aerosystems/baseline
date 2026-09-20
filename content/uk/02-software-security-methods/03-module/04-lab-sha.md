@@ -363,7 +363,7 @@ int main() {
 
     // Тест 3: довге повідомлення (448 біт)
     std::string test3 = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
-    std::cout << "Вхід: \"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq\"\n";
+    std::cout << "Вхід: \"" << test3 << "\"\n";
     std::string expect3 =
         "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1";
     std::cout << "Хеш: " << sha256(test3) << "\n";

@@ -57,7 +57,8 @@ C:\> vssadmin list shadowstorage
 
 :: Створити точку відновлення (PowerShell, від адміністратора)
 PS C:\> Enable-ComputerRestore -Drive "C:\"
-PS C:\> Checkpoint-Computer -Description "Before LAB4" -RestorePointType MODIFY_SETTINGS
+PS C:\> Checkpoint-Computer -Description "Before LAB4" `
+>>     -RestorePointType MODIFY_SETTINGS
 
 :: Переглянути наявні точки
 PS C:\> Get-ComputerRestorePoint |
@@ -183,8 +184,8 @@ C:\> reagentc /info
 Windows Recovery Environment (Windows RE) and system reset configuration
 Information:
 
-    Windows RE status:     Enabled
-    Windows RE location:   \\?\GLOBALROOT\device\harddisk0\partition4\Recovery\WindowsRE
+    Windows RE status:   Enabled
+    Windows RE location: \\?\GLOBALROOT\device\harddisk0\partition4\Recovery\WindowsRE
 ```
 
 Стан WinRE фіксують до початку роботи: якщо середовище вимкнене, відновити систему з нього не вдасться.
