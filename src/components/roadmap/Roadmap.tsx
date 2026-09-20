@@ -28,12 +28,12 @@ export function Roadmap({ course, onLessonClick, onGradingClick }: RoadmapProps)
     writeSelectedProgram(course.slug, next);
   };
 
-  // Матеріалу немає в програмі — у цієї групи його не буде взагалі
+  // No entry for the curriculum means the group does not have this material
   const inProgram = (lesson: Lesson) =>
     !programId || !lesson.byProgram || Boolean(lesson.byProgram[programId]);
 
-  // Робота, передбачена не всіма програмами: у режимі «всі матеріали» варто
-  // бачити, кому саме її видають
+  // A lab that not every curriculum includes: in the "all materials" mode it is
+  // worth seeing which groups actually get it
   const restrictedTo = (lesson: Lesson) => {
     if (programId || !lesson.byProgram || programs.length < 2) return undefined;
 
@@ -123,7 +123,7 @@ export function Roadmap({ course, onLessonClick, onGradingClick }: RoadmapProps)
         ))}
       </div>
 
-      {/* Критерії оцінювання курсу */}
+      {/* Course grading criteria */}
       {course.grading && onGradingClick && (
         <button
           onClick={onGradingClick}

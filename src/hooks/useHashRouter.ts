@@ -30,7 +30,7 @@ function parseHash(hash: string): Route {
     return { type: 'course', course: parts[0] };
   }
 
-  // #/course-slug/grading — критерії оцінювання курсу
+  // #/course-slug/grading — course grading criteria
   if (parts.length === 2 && parts[1] === 'grading') {
     return { type: 'grading', course: parts[0], anchor };
   }

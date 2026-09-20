@@ -12,8 +12,8 @@ export function LabNode({ lesson, program, restrictedTo, onClick }: LabNodeProps
   const { t } = useTranslation();
 
   const title = lesson.frontmatter.shortTitle || lesson.frontmatter.title;
-  // Номер і години беруться з обраної програми: та сама робота має різний
-  // номер у різних групах (№11 у ПЗ, №5 у КМП-23, №12 у КМП-24)
+  // Number and hours come from the selected curriculum: the same lab is numbered
+  // differently per group (11 in PZ, 5 in KMP-23, 12 in KMP-24)
   const labNumber = program?.labNumber ?? (lesson.frontmatter as LabFrontmatter).labNumber;
 
   return (

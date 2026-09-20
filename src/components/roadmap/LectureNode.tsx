@@ -45,8 +45,8 @@ export function LectureNode({ lesson, program, onClick }: LectureNodeProps) {
           </span>
         </button>
 
-        {/* Форма подачі в обраній програмі: та сама тема буває лекцією
-            в одній групі та самостійною роботою в іншій */}
+        {/* How the topic is delivered in the selected curriculum: the same topic
+            can be a lecture for one group and self-study for another */}
         {program?.delivery && (
           <span
             className="text-xs ml-2 px-2 py-0.5 rounded"

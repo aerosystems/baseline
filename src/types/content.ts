@@ -3,34 +3,34 @@ export type LessonType = 'lecture' | 'lab' | 'seminar' | 'test' | 'final' | 'gra
 export type Subject = 'os' | 'pmzi';
 
 export interface LessonFrontmatter {
-  title: string;           // офіційне формулювання з РНП — заголовок .docx
-  shortTitle?: string;     // коротка назва для роадмапи та імені .docx
+  title: string;           // official wording from the curriculum — .docx heading
+  shortTitle?: string;     // short name for the roadmap and the .docx file name
   type: LessonType;
   order: number;
   preview: string;
 }
 
-/** Ідентифікатор програми, якій призначено модуль (див. _programs.json) */
+/** Id of the program a module belongs to (see _programs.json) */
 export type Audience = string;
 
 /**
- * Навчальна програма конкретної групи. Одна дисципліна викладається за кількома
- * програмами одночасно, і вони відрізняються не змістом, а номерами лабораторних,
- * годинами та формою подачі теми (лекція чи самостійне опрацювання).
+ * Curriculum of a single group. One subject is taught under several curricula at
+ * once; they differ not in content but in lab numbers, hours and how a topic is
+ * delivered (a lecture or self-study).
  */
 export interface Program {
   id: string;         // pz-24, kmp-23 …
-  title: string;      // як група зветься в розкладі
+  title: string;      // group name as it appears in the timetable
   semester: number;
   students?: number;
 }
 
-/** Те, чим програма відрізняється для конкретного матеріалу */
+/** What a curriculum changes for one particular material */
 export interface ProgramItem {
   delivery?: 'lecture' | 'self-study';
   labNumber?: number;
   hours?: number;
-  theme?: string;     // номер теми в РНП
+  theme?: string;     // topic number in the curriculum
 }
 
 export interface ProgramsJson {
@@ -40,7 +40,7 @@ export interface ProgramsJson {
 
 export interface LabFrontmatter extends LessonFrontmatter {
   type: 'lab';
-  labNumber?: number;  // Номер лабораторної для .docx (якщо відрізняється від order)
+  labNumber?: number;  // lab number for the .docx (when it differs from order)
   duration?: string;
   equipment?: string[];
   subject?: Subject;
@@ -53,14 +53,14 @@ export interface Lesson {
   content: string;
   readingTime: number;
   isStub: boolean;
-  /** Дані з РНП по програмах; матеріалу немає в програмі, якщо ключа немає */
+  /** Per-curriculum data; a missing key means the material is not in that curriculum */
   byProgram?: Record<string, ProgramItem>;
 }
 
 export interface ModuleJson {
   title: string;
   order: number;
-  audience?: Audience[];  // Модуль передбачений лише окремими програмами
+  audience?: Audience[];  // module belongs to certain curricula only
 }
 
 export interface Module {
@@ -81,8 +81,8 @@ export interface Course {
   description?: string;
   programs?: Program[];
   modules: Module[];
-  labs?: Lesson[];  // Лабораторні роботи з labs/ директорії
-  grading?: Lesson;  // Критерії оцінювання курсу (_grading.md)
+  labs?: Lesson[];  // labs from the labs/ directory
+  grading?: Lesson;  // course grading criteria (_grading.md)
 }
 
 export interface ContentTree {
