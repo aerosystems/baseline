@@ -19,4 +19,8 @@ dist/
 PLAN*.md
 
 /data/
-/CLAUDE.md
+
+# Quiz answer keys: the repository is public, students read it
+*.answers
+
+CLAUDE.md
