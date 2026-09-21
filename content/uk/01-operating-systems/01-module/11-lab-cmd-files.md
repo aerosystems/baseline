@@ -228,7 +228,7 @@ test folder
 
 ```
 C:\...\LAB2> cd test folder
-The system cannot find the path specified.
+C:\...\LAB2\test folder> cd ..
 ```
 
 ```
@@ -241,7 +241,7 @@ C:\Windows\Media> popd
 C:\...\LAB2>
 ```
 
-Перша спроба перейти в каталог «test folder» провалилася: без лапок cd отримав два аргументи замість одного.
+Windows CMD дозволяє використовувати пробіли в якості значення аргументу, який приймає cd «test folder» і «"test folder"» працюють однаково.
 
 ### Крок 2. Наповнення та маски
 
