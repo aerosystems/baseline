@@ -18,7 +18,7 @@
  *                                    --group=pz-23-1-9 --lab=3
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, statSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join, dirname, relative } from 'path';
 import { fileURLToPath } from 'url';
 

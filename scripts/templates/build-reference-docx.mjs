@@ -26,7 +26,12 @@ import { join, dirname } from 'path';
 import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 
+import { freezeTimestamps } from '../lib/docx.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// The earliest a zip entry can be dated; the value itself carries no meaning
+const EPOCH = Date.UTC(1980, 0, 1) / 1000;
 
 // The two documents differ only in margins and line spacing:
 //   lab    — guides, margins 20/14.2/20/28.4 mm, line 1.3
@@ -240,6 +245,16 @@ function buildTemplate(profile) {
       sectPr(profile.margins)
     );
     writeFileSync(docPath, document);
+
+    // A .docx is a zip, and a zip stores the modification time of every entry.
+    // Without freezing them a rebuild of an unchanged template differs byte for
+    // byte from the last one, so both templates show up as modified on every
+    // run. Unlike a guide or a report, a template is not a document anybody
+    // reads a date off — it is an input of the build — so the stamp is a
+    // constant rather than the date of a commit. The template then depends on
+    // this file alone, and rebuilding it twice, or on another machine, gives
+    // the same bytes.
+    freezeTimestamps(join(work, 'docx'), EPOCH);
 
     const output = join(__dirname, profile.output);
     const built = join(work, profile.output);

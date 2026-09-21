@@ -70,7 +70,7 @@ export function stretchTable(table, tableWidth) {
  * document differs byte for byte from the previous one even when its content is
  * identical — and all 56 guides show up as changed on every run.
  */
-function freezeTimestamps(directory, epoch) {
+export function freezeTimestamps(directory, epoch) {
   const stamp = new Date(Number(epoch) * 1000);
   const pad = value => String(value).padStart(2, '0');
 
@@ -235,7 +235,7 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list, epoch }) 
  * date of the last commit that touched the source keeps the document honest and
  * the output reproducible: unchanged material, unchanged file.
  */
-function sourceDateEpoch(sourcePath) {
+export function sourceDateEpoch(sourcePath) {
   const log = spawnSync('git', ['log', '-1', '--format=%ct', '--', sourcePath], { encoding: 'utf8' });
   const committed = log.status === 0 ? log.stdout.trim() : '';
 

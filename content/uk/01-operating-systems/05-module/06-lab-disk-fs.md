@@ -222,8 +222,8 @@ ls -l /mnt/data2/file.txt
 sudo blkid /dev/sdb1
 
 # Додати запис (зверніть увагу на nofail)
-echo "UUID=$(sudo blkid -s UUID -o value /dev/sdb1) /mnt/data1 ext4 defaults,nofail 0 2" \
-  | sudo tee -a /etc/fstab
+UUID=$(sudo blkid -s UUID -o value /dev/sdb1)
+echo "UUID=$UUID /mnt/data1 ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
 
 # Перевірити запис БЕЗ перезавантаження
 sudo umount /mnt/data1
