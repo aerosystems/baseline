@@ -595,7 +595,7 @@ bool verifyEcdsa(EVP_PKEY* publicKey, const std::string& message,
 
 ---
 
-## 📚 Resources
+## 🔗 Корисні ресурси
 
 ### Онлайн-практика
 

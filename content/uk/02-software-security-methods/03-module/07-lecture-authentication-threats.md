@@ -583,9 +583,9 @@ bool loginSafe(sqlite3* db, const std::string& username, const std::string& pass
 └───────────────────────────────────────────────────────────────┘
 ```
 
-## 📚 Resources
+## 🔗 Корисні ресурси
 
-### Онлайн практика
+### Онлайн-практика
 - [OWASP WebGoat](https://owasp.org/www-project-webgoat/) — вразливий застосунок для навчання
 - [PortSwigger Web Security Academy](https://portswigger.net/web-security) — безкоштовний курс
 - [HackTheBox](https://hackthebox.com/) — практичні labs

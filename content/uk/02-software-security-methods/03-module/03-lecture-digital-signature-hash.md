@@ -683,7 +683,7 @@ bool verifyHmac(const Bytes& key, const std::string& message, const Bytes& mac) 
 
 ---
 
-## 📚 Resources
+## 🔗 Корисні ресурси
 
 ### Онлайн-практика
 

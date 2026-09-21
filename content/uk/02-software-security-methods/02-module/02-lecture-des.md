@@ -512,9 +512,9 @@ Matsui (1993) — апроксимація S-блоків лінійними ф�
 └───────────────────────────────────────────────────────────────┘
 ```
 
-## 📚 Resources
+## 🔗 Корисні ресурси
 
-### Онлайн практика
+### Онлайн-практика
 - [CryptoHack - Block Ciphers](https://cryptohack.org/courses/symmetric/) — інтерактивні задачі
 - [Cryptopals Set 1](https://cryptopals.com/sets/1) — класичні криптографічні challenges
 - [CyberChef](https://gchq.github.io/CyberChef/) — DES/3DES encryption online
