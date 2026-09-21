@@ -280,7 +280,8 @@ std::string keywordEncrypt(const std::string& plaintext, const std::string& keyw
     return ciphertext;
 }
 
-std::string keywordDecrypt(const std::string& ciphertext, const std::string& keyword) {
+std::string keywordDecrypt(const std::string& ciphertext,
+                           const std::string& keyword) {
     int keyLen = static_cast<int>(keyword.size());
     int rows = static_cast<int>(ciphertext.size()) / keyLen;
     std::vector<int> order = getKeyOrder(keyword);
@@ -398,7 +399,8 @@ int main() {
     std::cout << "Ключ рядків:     " << rowKey << "\n";
     std::cout << "Ключ стовпців:   " << colKey << "\n";
     std::cout << "Відкритий текст: " << plaintext << "\n";
-    std::cout << "Шифротекст:      " << doubleEncrypt(plaintext, rowKey, colKey) << "\n";
+    std::cout << "Шифротекст:      "
+              << doubleEncrypt(plaintext, rowKey, colKey) << "\n";
 
     return 0;
 }

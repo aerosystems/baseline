@@ -255,7 +255,8 @@ std::string prepareText(const std::string& plaintext) {
     for (size_t i = 0; i < clean.size(); ++i) {
         result += clean[i];
         // однакові літери в біграмі розділяємо літерою X
-        if (result.size() % 2 == 1 && i + 1 < clean.size() && clean[i] == clean[i + 1]) {
+        if (result.size() % 2 == 1 && i + 1 < clean.size() &&
+            clean[i] == clean[i + 1]) {
             result += 'X';
         }
     }
@@ -286,7 +287,8 @@ std::string processBigram(const Matrix& matrix, char a, char b, int shift) {
     return result;
 }
 
-std::string playfairEncrypt(const std::string& plaintext, const std::string& keyword) {
+std::string playfairEncrypt(const std::string& plaintext,
+                            const std::string& keyword) {
     Matrix matrix = createMatrix(keyword);
     std::string text = prepareText(plaintext);
     std::string ciphertext;
@@ -297,7 +299,8 @@ std::string playfairEncrypt(const std::string& plaintext, const std::string& key
     return ciphertext;
 }
 
-std::string playfairDecrypt(const std::string& ciphertext, const std::string& keyword) {
+std::string playfairDecrypt(const std::string& ciphertext,
+                            const std::string& keyword) {
     Matrix matrix = createMatrix(keyword);
     std::string plaintext;
 
@@ -402,7 +405,8 @@ int main() {
 
     std::string ciphertext = twoSquareEncrypt(plaintext, keyword1, keyword2);
     std::cout << "\nШифротекст:      " << ciphertext << "\n";
-    std::cout << "Розшифровано:    " << twoSquareDecrypt(ciphertext, keyword1, keyword2) << "\n";
+    std::cout << "Розшифровано:    "
+              << twoSquareDecrypt(ciphertext, keyword1, keyword2) << "\n";
 
     return 0;
 }

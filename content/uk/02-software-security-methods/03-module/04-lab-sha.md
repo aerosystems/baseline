@@ -348,20 +348,26 @@ int main() {
     // Тест 1: порожній рядок
     std::string test1 = "";
     std::cout << "Вхід: (порожній рядок)\n";
+    std::string expect1 =
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
     std::cout << "Хеш: " << sha256(test1) << "\n";
-    std::cout << "Очік: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n\n";
+    std::cout << "Очік: " << expect1 << "\n\n";
 
     // Тест 2: "abc"
     std::string test2 = "abc";
     std::cout << "Вхід: \"abc\"\n";
+    std::string expect2 =
+        "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
     std::cout << "Хеш: " << sha256(test2) << "\n";
-    std::cout << "Очік: ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\n\n";
+    std::cout << "Очік: " << expect2 << "\n\n";
 
     // Тест 3: довге повідомлення (448 біт)
     std::string test3 = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
-    std::cout << "Вхід: \"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq\"\n";
+    std::cout << "Вхід: \"" << test3 << "\"\n";
+    std::string expect3 =
+        "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1";
     std::cout << "Хеш: " << sha256(test3) << "\n";
-    std::cout << "Очік: 248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1\n\n";
+    std::cout << "Очік: " << expect3 << "\n\n";
 
     // Демонстрація лавинного ефекту
     std::cout << "=== Лавинний ефект ===\n\n";

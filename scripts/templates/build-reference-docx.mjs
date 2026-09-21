@@ -10,7 +10,9 @@
  *   page      A4, margins 20/14.2/20/28.4 mm (top/right/bottom/left)
  *   body      Times New Roman 14pt, line 1.3, justified, first line indent 1.25 cm
  *   headings  level 2 — centered bold; level 3+ — left bold with body indent
- *   code      Courier New 9pt, line 1.0, left aligned, no indent
+ *   code      Courier New 9pt, line 200, left aligned, in a one-cell table
+ *             that frames and fills the listing; wrapped lines get a hanging
+ *             indent
  *   tables    Times New Roman 12pt, single borders, bold centered header row
  *   lists     see LIST_GEOMETRY in scripts/generate-docx.js — Pandoc builds its
  *             own numbering definitions, so list geometry is patched afterwards
@@ -24,7 +26,12 @@ import { join, dirname } from 'path';
 import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 
+import { freezeTimestamps } from '../lib/docx.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// The earliest a zip entry can be dated; the value itself carries no meaning
+const EPOCH = Date.UTC(1980, 0, 1) / 1000;
 
 // The two documents differ only in margins and line spacing:
 //   lab    — guides, margins 20/14.2/20/28.4 mm, line 1.3
@@ -54,9 +61,11 @@ let LINE = 312;         // line spacing of the profile being built
 const CODE_LINE = 200;  // single spacing in code blocks
 const INDENT = 709;     // 1.25 cm first line indent
 const LIST_LEFT = 1134; // 2 cm — used by BlockText
-const CODE_INSET = 284; // 0.5 cm between the frame of a listing and its text
-const CODE_FILL = 'F4F4F4';   // background of a listing
+const CODE_WRAP = 340;  // offset of a wrapped code line, so it is not read as the next line
+const CODE_PAD = 113;   // 0.2 cm between the frame of a listing and its text
 const CODE_FRAME = 'BFBFBF';  // frame of a listing
+const CODE_FILL = 'F4F4F4';   // fill of a listing — the print equivalent of the
+                              // dark code block the site shows
 
 const fonts = (name) =>
   `<w:rFonts w:ascii="${name}" w:hAnsi="${name}" w:cs="${name}" w:eastAsia="${name}"/>`;
@@ -66,12 +75,6 @@ const spacing = (before, after, line) =>
 
 const border = (side) => `<w:${side} w:val="single" w:sz="4" w:space="0" w:color="000000"/>`;
 const allBorders = ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(border).join('');
-
-// A listing is one paragraph with line breaks, so a frame around the paragraph
-// frames the whole listing.
-const codeFrame = ['top', 'left', 'bottom', 'right']
-  .map(side => `<w:${side} w:val="single" w:sz="4" w:space="4" w:color="${CODE_FRAME}"/>`)
-  .join('');
 
 // Paragraph style: centered bold section heading ("Теоретичні відомості")
 const sectionHeading = (id, name, before, after) => `
@@ -122,14 +125,32 @@ const buildStyles = () => ({
   Heading5: subHeading('Heading5', 'heading 5', 120),
   Heading6: subHeading('Heading6', 'heading 6', 120),
 
-  // Program listings are set apart from the body text: a light frame with a
-  // grey fill, indented from the margin, so a listing does not read as a
-  // paragraph of Courier.
+  // Listings are set in Courier New 9pt with line spacing 200, as in the
+  // reference documents; the frame around them is this project's own addition,
+  // for the sake of the site, where a code block is a block of its own.
+  //
+  // One line of code is one paragraph, as in the samples (see formatListings in
+  // scripts/lib/docx.mjs). The hanging indent is the only addition: a line too
+  // long for the column continues further right instead of at the first column,
+  // where it would read as the next statement.
   SourceCode: `
 <w:style w:type="paragraph" w:customStyle="1" w:styleId="SourceCode"><w:name w:val="Source Code"/><w:basedOn w:val="Normal"/><w:qFormat/>
-<w:pPr><w:pBdr>${codeFrame}</w:pBdr><w:shd w:val="clear" w:color="auto" w:fill="${CODE_FILL}"/>
-${spacing(120, 120, CODE_LINE)}<w:ind w:left="${CODE_INSET}" w:right="${CODE_INSET}" w:firstLine="0"/><w:jc w:val="left"/></w:pPr>
+<w:pPr>${spacing(0, 0, CODE_LINE)}<w:ind w:left="${CODE_WRAP}" w:right="0" w:hanging="${CODE_WRAP}"/><w:jc w:val="left"/></w:pPr>
 <w:rPr>${fonts(CODE_FONT)}<w:sz w:val="${CODE_SIZE}"/><w:szCs w:val="${CODE_SIZE}"/></w:rPr></w:style>`,
+
+  // The frame is a one-cell table rather than paragraph borders: Word joins the
+  // borders of consecutive paragraphs into one box, but the previewers this
+  // document is opened in draw them line by line. A table is a box everywhere,
+  // and it breaks across pages without losing its sides.
+  //
+  // No rPr and no conditional formatting here — the cell takes its font from
+  // the SourceCode paragraphs inside it, and a listing has no header row.
+  SourceCodeTable: `
+<w:style w:type="table" w:customStyle="1" w:styleId="SourceCodeTable"><w:name w:val="Source Code Table"/><w:basedOn w:val="TableNormal"/><w:qFormat/>
+<w:tblPr><w:tblInd w:w="0" w:type="dxa"/>
+<w:tblBorders>${['top', 'left', 'bottom', 'right'].map(side => `<w:${side} w:val="single" w:sz="4" w:space="0" w:color="${CODE_FRAME}"/>`).join('')}</w:tblBorders>
+<w:shd w:val="clear" w:color="auto" w:fill="${CODE_FILL}"/>
+<w:tblCellMar><w:top w:w="${CODE_PAD}" w:type="dxa"/><w:left w:w="${CODE_PAD}" w:type="dxa"/><w:bottom w:w="${CODE_PAD}" w:type="dxa"/><w:right w:w="${CODE_PAD}" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>`,
 
   // Inline `code` keeps the body font, as in the reference documents.
   VerbatimChar: `
@@ -224,6 +245,16 @@ function buildTemplate(profile) {
       sectPr(profile.margins)
     );
     writeFileSync(docPath, document);
+
+    // A .docx is a zip, and a zip stores the modification time of every entry.
+    // Without freezing them a rebuild of an unchanged template differs byte for
+    // byte from the last one, so both templates show up as modified on every
+    // run. Unlike a guide or a report, a template is not a document anybody
+    // reads a date off — it is an input of the build — so the stamp is a
+    // constant rather than the date of a commit. The template then depends on
+    // this file alone, and rebuilding it twice, or on another machine, gives
+    // the same bytes.
+    freezeTimestamps(join(work, 'docx'), EPOCH);
 
     const output = join(__dirname, profile.output);
     const built = join(work, profile.output);

@@ -176,8 +176,8 @@ tmp=$(mktemp)                     # безпечне створення тимч
 ```bash
 crontab -e                        # редагувати розклад користувача
 crontab -l                        # переглянути
-# ┌ хвилина ┌ година ┌ день ┌ місяць ┌ день тижня
-  0          3        *      *       *   /home/student/lab10/backup.sh >> /home/student/lab10/cron.log 2>&1
+# ┌ хв ┌ год ┌ день ┌ міс ┌ день тижня
+  0     3     *      *     *   /home/student/lab10/backup.sh >> lab10/cron.log 2>&1
 ```
 
 Скрипт, запущений cron, отримує мінімальне оточення: змінна `PATH` коротша, робочий каталог — домашній, графічних діалогів немає. Саме тому в скриптах для розкладу використовують абсолютні шляхи й перенаправляють вивід у журнал.
@@ -325,7 +325,8 @@ die() {
 [[ -d "$SRC" ]] || die "каталог $SRC не існує"
 mkdir -p "$DST" "$(dirname "$LOG")"
 
-log "Початок копіювання $SRC → $DST"
+log "Джерело: $SRC"
+log "Призначення: $DST"
 if cp -a "$SRC"/. "$DST"/; then
     files=$(find "$DST" -type f | wc -l)
     log "Скопійовано файлів: $files"
@@ -335,14 +336,15 @@ fi
 
 archive="$HOME/lab10/bak/backup-$(date +%F).tar.gz"
 tar -czf "$archive" -C "$DST" . || die "архівування не вдалося"
-log "Архів: $archive ($(stat -c%s "$archive") байт)"
+log "Архів: $archive ($(stat -c%s "$archive") Б)"
 ```
 
 ```bash
 student@lab-vm:~/lab10$ ./backup.sh
-[2026-09-18 12:05:11] Початок копіювання /home/student/lab10/src → /home/student/lab10/bak/2026-09-18
+[2026-09-18 12:05:11] Джерело: /home/student/lab10/src
+[2026-09-18 12:05:11] Призначення: /home/student/lab10/bak/2026-09-18
 [2026-09-18 12:05:11] Скопійовано файлів: 3
-[2026-09-18 12:05:11] Архів: /home/student/lab10/bak/backup-2026-09-18.tar.gz (6482 байт)
+[2026-09-18 12:05:11] Архів: /home/student/lab10/bak/backup-2026-09-18.tar.gz (6482 Б)
 
 student@lab-vm:~/lab10$ ./backup.sh /nonexistent
 [2026-09-18 12:06:02] ПОМИЛКА: каталог /nonexistent не існує
@@ -395,9 +397,12 @@ student@lab-vm:~/lab10$ crontab -e
 student@lab-vm:~/lab10$ crontab -l | tail -1
 0 3 * * * /home/student/lab10/backup.sh >> /home/student/lab10/logs/cron.log 2>&1
 
-student@lab-vm:~/lab10$ ( crontab -l; echo "*/2 * * * * /home/student/lab10/backup.sh >> /home/student/lab10/logs/cron.log 2>&1" ) | crontab -
+student@lab-vm:~/lab10$ ( crontab -l; \
+>     echo "*/2 * * * * /home/student/lab10/backup.sh >> logs/cron.log 2>&1" \
+> ) | crontab -
 student@lab-vm:~/lab10$ sleep 130 && tail -2 logs/cron.log
-[2026-09-18 12:14:01] Початок копіювання /home/student/lab10/src → /home/student/lab10/bak/2026-09-18
+[2026-09-18 12:14:01] Джерело: /home/student/lab10/src
+[2026-09-18 12:14:01] Призначення: /home/student/lab10/bak/2026-09-18
 [2026-09-18 12:14:01] Скопійовано файлів: 3
 ```
 

@@ -27,7 +27,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT = join(ROOT, 'content', 'uk');
 const REPORTS = join(ROOT, 'reports');
 const TEMPLATE = join(ROOT, 'scripts', 'templates', 'report-template.docx');
-const TITLE_TEMPLATE = join(ROOT, 'scripts', 'templates', 'report-title.xml');
+const TITLE_TEMPLATES = join(ROOT, 'scripts', 'templates');
 
 // Text width of a report: A4 minus the 25 and 10 mm margins
 const LAYOUT = {
@@ -43,18 +43,28 @@ const DISCIPLINE = {
 };
 
 /**
- * Work code on the title page: ФКЗЕ. <specialty><subject><variant>. <NN>ЛР
+ * Work code on the title page: ФКЗЕ. <specialty><subject><number>. <NN>ЛР
  *
  * The specialty depends on the group rather than the subject: PZ-24 is 121,
  * PZ-25 is already F2 under the new classifier, KMP is 123. The values come from
  * _programs.json, where they were copied from the curricula.
  *
- * The variant is two digits; when a report states no variant, XX is left in
- * place so that it is visible on the title page.
+ * XX is the student's position in the group list, not the task variant — the
+ * two usually coincide but not always. Two digits; without a number XX is left
+ * in place so that it is visible on the title page.
  */
-function workCode({ specialty, abbr, variant, lab }) {
-  const variantCode = variant ? String(variant).padStart(2, '0') : 'XX';
-  return `ФКЗЕ. ${specialty}${abbr}${variantCode}. ${String(lab).padStart(2, '0')}ЛР`;
+function workCode({ specialty, abbr, number, lab }) {
+  const position = number ? String(number).padStart(2, '0') : 'XX';
+  return `ФКЗЕ. ${specialty}${abbr}${position}. ${String(lab).padStart(2, '0')}ЛР`;
+}
+
+/**
+ * Academic year as the title pages spell it: "2026 - 2027" for a year that
+ * starts in September.
+ */
+function academicYear(date = new Date()) {
+  const start = date.getMonth() >= 8 ? date.getFullYear() : date.getFullYear() - 1;
+  return `${start} - ${start + 1}`;
 }
 
 function fail(message) {
@@ -119,35 +129,88 @@ function titlePage(report) {
     group: report.groupTitle,
     teacher: report.teacher ?? TEACHER,
     year: report.year ?? new Date().getFullYear(),
+    academicYear: report.academicYear ?? academicYear(),
     code: workCode(report)
   };
 
-  const xml = readFileSync(TITLE_TEMPLATE, 'utf8').replace(/^<!--[\s\S]*?-->\s*/, '');
+  // Each course has its own title page: the discipline, the code and the year
+  // are spelled differently in the samples
+  const template = join(TITLE_TEMPLATES, `report-title-${report.course}.xml`);
+  if (!existsSync(template)) throw new Error(`no title page for course ${report.course}`);
+
+  const xml = readFileSync(template, 'utf8').replace(/^<!--[\s\S]*?-->\s*/, '');
 
   return xml.replace(/{{(\w+)}}/g, (match, key) =>
     key in values ? escapeXml(values[key]) : match
   );
 }
 
-/** Report path → course, group, student's login */
+/** Report path → course, group, lab and the student's position in the group */
 function parsePath(reportPath) {
+  const LAYOUT = ['course', null, 'group', null, 'lab', null, 'student', null];
   const parts = relative(REPORTS, reportPath).split('/');
-  // <course>/labs/<group>/<number>/<login>/report.md
-  if (parts.length !== 6 || parts[1] !== 'labs') {
-    throw new Error('path must be reports/<course>/labs/<group>/<number>/<login>/report.md');
+
+  // <course>/groups/<group>/labs/<NN>/students/<NN>/report.md
+  const shaped =
+    parts.length === LAYOUT.length &&
+    parts[1] === 'groups' && parts[3] === 'labs' && parts[5] === 'students';
+
+  if (!shaped) {
+    throw new Error(
+      'path must be reports/<course>/groups/<group>/labs/<NN>/students/<NN>/report.md'
+    );
   }
-  return { course: parts[0], group: parts[2], number: parts[3], login: parts[4] };
+
+  return Object.fromEntries(
+    LAYOUT.map((name, index) => name && [name, parts[index]]).filter(Boolean)
+  );
+}
+
+/**
+ * A stub is a report the student has not written yet: opening an assignment
+ * creates one per student, and those must not turn into documents.
+ *
+ * The test is structural rather than a word count: a stub holds nothing but the
+ * task comment, the section headings and empty numbered items. One line of real
+ * writing anywhere makes it a report, however short.
+ */
+function isStub(body) {
+  return body
+    .replace(/<!--[\s\S]*?-->/g, '')      // the task in a comment
+    .split('\n')
+    .map(line => line.trim())
+    .every(line =>
+      line === '' ||
+      /^#{1,6}\s/.test(line) ||           // a section heading
+      /^\d+$/.test(line)                  // a numbered item with no text
+    );
 }
 
 function buildReport(reportPath) {
   const location = parsePath(reportPath);
   const { data, body } = parseFrontmatter(readFileSync(reportPath, 'utf8'));
 
+  if (isStub(body)) {
+    console.log(`[skip] ${relative(ROOT, reportPath)} — stub, nothing to build`);
+    return null;
+  }
+
   for (const field of ['course', 'group', 'lab', 'student']) {
     if (!data[field]) throw new Error(`frontmatter has no "${field}" field`);
   }
-  if (data.course !== location.course || data.group !== location.group) {
-    throw new Error('frontmatter does not match the path: course or group differs');
+  // A report filed in the wrong folder would be built under somebody else's
+  // number, so the path and the frontmatter have to tell the same story
+  const pad = value => String(value).padStart(2, '0');
+  const mismatch = [
+    ['course', data.course, location.course],
+    ['group', data.group, location.group],
+    ['lab', pad(data.lab), location.lab],
+    ['student', pad(data.number ?? location.student), location.student]
+  ].find(([, stated, inPath]) => String(stated) !== inPath);
+
+  if (mismatch) {
+    const [field, stated, inPath] = mismatch;
+    throw new Error(`frontmatter says ${field} ${stated}, the path says ${inPath}`);
   }
 
   const programs = JSON.parse(readFileSync(join(CONTENT, data.course, '_programs.json'), 'utf8'));
@@ -156,6 +219,8 @@ function buildReport(reportPath) {
   const lab = findLab(data);
   const report = {
     ...data,
+    // the folder is the position in the group, so the path is the source of it
+    number: Number(location.student),
     groupTitle: groupEntry?.title ?? data.group,
     specialty: groupEntry?.specialty ?? '',
     abbr: programs.abbr ?? ''
@@ -184,13 +249,17 @@ function buildReport(reportPath) {
   ].join('\n');
 
   const work = mkdtempSync(join(tmpdir(), 'report-'));
-  const outputPath = join(dirname(reportPath), `ЛР${String(data.lab).padStart(2, '0')}_${location.login}.docx`);
+  const outputPath = join(
+    dirname(reportPath),
+    `ЛР${String(data.lab).padStart(2, '0')}_${location.student}.docx`
+  );
 
   try {
     const sourcePath = join(work, 'report.md');
     writeFileSync(sourcePath, source);
 
     convert(sourcePath, outputPath, {
+      dateFrom: reportPath,
       referenceDoc: TEMPLATE,
       layout: LAYOUT,
       cwd: ROOT,

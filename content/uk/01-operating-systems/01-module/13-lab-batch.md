@@ -313,7 +313,7 @@ set "src=%~dp0src"
 set "dst=%~dp0bak\%date:~6,4%-%date:~3,2%-%date:~0,2%"
 set "log=%~dp0logs\backup.log"
 
-call :log Початок копіювання з "%src%"
+call :log Джерело: "%src%"
 if not exist "%dst%" md "%dst%"
 
 robocopy "%src%" "%dst%" /e /njh /njs /ndl >> "%log%"
@@ -323,7 +323,7 @@ if %errorlevel% geq 8 (
     exit /b %errorlevel%
 )
 
-call :log Копіювання завершено до "%dst%"
+call :log Призначення: "%dst%"
 endlocal
 exit /b 0
 
@@ -335,8 +335,8 @@ goto :eof
 ```cmd
 C:\...\LAB3> backup.bat
 C:\...\LAB3> type logs\backup.log
-[17.09.2026 22:03:11,45] Початок копіювання з "C:\Users\Student\Desktop\LAB3\src"
-[17.09.2026 22:03:11,63] Копіювання завершено до "C:\Users\Student\Desktop\LAB3\bak\2026-09-17"
+[17.09.2026 22:03:11,45] Джерело: "C:\Users\Student\Desktop\LAB3\src"
+[17.09.2026 22:03:11,63] Призначення: "C:\Users\Student\Desktop\LAB3\bak\2026-09-17"
 ```
 
 Підстановка виду `%date:~6,4%` вирізає з рядка дати чотири символи, починаючи з сьомого, — так формують ім'я каталогу, що сортується за зростанням.
@@ -347,7 +347,8 @@ C:\...\LAB3> type logs\backup.log
 на будь-якій системі, дату беруть у незалежному від локалі вигляді:
 
 ```cmd
-for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set "stamp=%%i"
+set "fmt=Get-Date -Format yyyy-MM-dd"
+for /f %%i in ('powershell -NoProfile -Command "%fmt%"') do set "stamp=%%i"
 set "dst=%~dp0bak\%stamp%"
 ```
 

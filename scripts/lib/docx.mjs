@@ -9,7 +9,7 @@
  */
 
 import { spawnSync } from 'child_process';
-import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -62,11 +62,118 @@ export function stretchTable(table, tableWidth) {
  * items (Pandoc shares the Compact style with table cells) and full-width
  * tables (Pandoc sizes them from the markdown source).
  */
-export function applyReferenceFormatting(docxPath, { tableWidth, list }) {
+/**
+ * Timestamp every file inside the package gets before it is zipped again.
+ *
+ * A .docx is a zip, and zip stores the modification time of each entry. Without
+ * this the repack writes the current time into every entry, so a regenerated
+ * document differs byte for byte from the previous one even when its content is
+ * identical — and all 56 guides show up as changed on every run.
+ */
+export function freezeTimestamps(directory, epoch) {
+  const stamp = new Date(Number(epoch) * 1000);
+  const pad = value => String(value).padStart(2, '0');
+
+  // touch -t expects CCYYMMDDhhmm.ss
+  const formatted = `${stamp.getFullYear()}${pad(stamp.getMonth() + 1)}${pad(stamp.getDate())}` +
+                    `${pad(stamp.getHours())}${pad(stamp.getMinutes())}.${pad(stamp.getSeconds())}`;
+
+  run('find', [directory, '-exec', 'touch', '-t', formatted, '{}', '+']);
+}
+
+/**
+ * Rebuilds the listings Pandoc wrote into the shape the printed page needs.
+ *
+ * Pandoc marks every run of a code block with the VerbatimChar character style,
+ * which it also uses for inline `code`. A character style outranks a paragraph
+ * style, so the Courier New of SourceCode never reached the page: listings were
+ * set in the proportional body font, and every ASCII frame and every alignment
+ * in them collapsed. Inside a listing the style is therefore dropped; inline
+ * code keeps it and stays body text, as in the samples.
+ *
+ * Pandoc also writes a listing as one paragraph with line breaks. Such a
+ * paragraph cannot be broken between pages in any controlled way, and a line
+ * too long for the column wraps back to the first column, where it reads as the
+ * next statement. The samples set one line of code as one paragraph, and so
+ * does this: pages may then break between lines, and the hanging indent of
+ * SourceCode marks a wrapped line.
+ *
+ * Those paragraphs then go into a one-cell table, which is what draws the frame.
+ * Paragraph borders would do it in Word alone — it joins the borders of
+ * consecutive paragraphs into one box, and the previewers this document is
+ * opened in draw a rule under every line instead. The frame itself is defined
+ * once, by the SourceCodeTable style of the reference document, and written
+ * into every table as well — and its fill into the cell, where every renderer
+ * looks for it — because a table style is another thing those previewers skip.
+ */
+function formatListings(document, { line, lineRule, width, borders, fill, cellMargins }) {
+  // A table carries no spacing of its own, so the air above and below the frame
+  // is an empty paragraph of an exact height
+  const spacer =
+    '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="120" w:lineRule="exact"/>' +
+    '<w:rPr><w:sz w:val="4"/><w:szCs w:val="4"/></w:rPr></w:pPr></w:p>';
+
+  return document.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/g, paragraph => {
+    if (!paragraph.includes('w:val="SourceCode"')) return paragraph;
+
+    const clean = paragraph
+      .replace(/<w:rStyle w:val="VerbatimChar"\s*\/>/g, '')
+      .replace(/<w:rPr>\s*<\/w:rPr>/g, '');
+
+    const split = clean.match(/^(<w:p\b[^>]*>)(?:<w:pPr>[\s\S]*?<\/w:pPr>)?([\s\S]*)<\/w:p>$/);
+    if (!split) return clean;
+
+    const [, opening, body] = split;
+    const properties =
+      `<w:pPr><w:pStyle w:val="SourceCode"/>` +
+      `<w:spacing w:before="0" w:after="0" w:line="${line}" w:lineRule="${lineRule}"/></w:pPr>`;
+
+    const lines = body
+      .split(/<w:r>\s*<w:br\s*\/>\s*<\/w:r>/)
+      .map(code => `${opening}${properties}${code}</w:p>`)
+      .join('');
+
+    return spacer +
+      '<w:tbl><w:tblPr><w:tblStyle w:val="SourceCodeTable"/>' +
+      `<w:tblW w:type="dxa" w:w="${width}"/><w:tblInd w:w="0" w:type="dxa"/>` +
+      `${borders}${fill}<w:tblLayout w:type="fixed"/>${cellMargins}` +
+      '<w:tblLook w:val="0000" w:firstRow="0" w:lastRow="0" w:firstColumn="0" w:lastColumn="0" w:noHBand="1" w:noVBand="1"/>' +
+      `</w:tblPr><w:tblGrid><w:gridCol w:w="${width}"/></w:tblGrid>` +
+      `<w:tr><w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${width}"/>${fill}</w:tcPr>${lines}</w:tc></w:tr></w:tbl>` +
+      spacer;
+  });
+}
+
+/**
+ * How a listing is set, read from the reference document so that it stays
+ * defined in one place only — the style builder in
+ * scripts/templates/build-reference-docx.mjs. The line spacing comes from the
+ * SourceCode paragraph style, the frame, the fill and the padding from
+ * SourceCodeTable.
+ */
+function listingStyle(stylesXml) {
+  const style = id =>
+    stylesXml.match(new RegExp(`<w:style [^>]*w:styleId="${id}"[\\s\\S]*?</w:style>`))?.[0] ?? '';
+
+  const spacing = style('SourceCode').match(/<w:spacing\b[^>]*\/>/)?.[0] ?? '';
+  const table = style('SourceCodeTable');
+
+  return {
+    line: spacing.match(/w:line="(\d+)"/)?.[1] ?? '240',
+    lineRule: spacing.match(/w:lineRule="(\w+)"/)?.[1] ?? 'auto',
+    borders: table.match(/<w:tblBorders>[\s\S]*?<\/w:tblBorders>/)?.[0] ?? '',
+    fill: table.match(/<w:shd\b[^>]*\/>/)?.[0] ?? '',
+    cellMargins: table.match(/<w:tblCellMar>[\s\S]*?<\/w:tblCellMar>/)?.[0] ?? ''
+  };
+}
+
+export function applyReferenceFormatting(docxPath, { tableWidth, list, epoch }) {
   const work = mkdtempSync(join(tmpdir(), 'docx-format-'));
 
   try {
     run('unzip', ['-o', '-q', docxPath, '-d', work]);
+
+    const listing = listingStyle(readFileSync(join(work, 'word', 'styles.xml'), 'utf8'));
 
     const documentPath = join(work, 'word', 'document.xml');
     const document = readFileSync(documentPath, 'utf8')
@@ -79,7 +186,7 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list }) {
       )
       .replace(/<w:tbl>[\s\S]*?<\/w:tblGrid>/g, table => stretchTable(table, tableWidth));
 
-    writeFileSync(documentPath, document);
+    writeFileSync(documentPath, formatListings(document, { ...listing, width: tableWidth }));
 
     const numberingPath = join(work, 'word', 'numbering.xml');
     const { left, hanging, bullet } = list;
@@ -111,6 +218,8 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list }) {
       writeFileSync(numberingPath, patched);
     }
 
+    if (epoch) freezeTimestamps(work, epoch);
+
     run('zip', ['-r', '-q', '-X', 'patched.docx', '.', '-x', 'patched.docx'], { cwd: work });
     copyFileSync(join(work, 'patched.docx'), docxPath);
   } finally {
@@ -118,8 +227,30 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list }) {
   }
 }
 
+/**
+ * Timestamp Pandoc writes into the document properties.
+ *
+ * Without it every run produces a new timestamp, so regenerating the guides
+ * marks all 56 files as changed while their content is identical. Taking the
+ * date of the last commit that touched the source keeps the document honest and
+ * the output reproducible: unchanged material, unchanged file.
+ */
+export function sourceDateEpoch(sourcePath) {
+  const log = spawnSync('git', ['log', '-1', '--format=%ct', '--', sourcePath], { encoding: 'utf8' });
+  const committed = log.status === 0 ? log.stdout.trim() : '';
+
+  if (committed) return committed;
+
+  // Not in git yet (a freshly written report): fall back to the file itself
+  try {
+    return String(Math.floor(statSync(sourcePath).mtimeMs / 1000));
+  } catch {
+    return String(Math.floor(Date.now() / 1000));
+  }
+}
+
 /** Converts markdown to .docx against a reference document and patches the result */
-export function convert(inputPath, outputPath, { referenceDoc, filter, metadata = {}, layout, cwd, resourcePath }) {
+export function convert(inputPath, outputPath, { referenceDoc, filter, metadata = {}, layout, cwd, resourcePath, dateFrom }) {
   const args = [inputPath, '-o', outputPath, ...PANDOC_ARGS, `--reference-doc=${referenceDoc}`];
 
   if (filter) args.push(`--lua-filter=${filter}`);
@@ -130,6 +261,8 @@ export function convert(inputPath, outputPath, { referenceDoc, filter, metadata 
     args.push('--metadata', `${key}=${value}`);
   }
 
-  run('pandoc', args, { cwd });
-  applyReferenceFormatting(outputPath, layout);
+  const epoch = sourceDateEpoch(dateFrom ?? inputPath);
+
+  run('pandoc', args, { cwd, env: { ...process.env, SOURCE_DATE_EPOCH: epoch } });
+  applyReferenceFormatting(outputPath, { ...layout, epoch });
 }

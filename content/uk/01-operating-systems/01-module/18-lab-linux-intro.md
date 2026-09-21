@@ -150,7 +150,8 @@ student@lab-vm:~$ pwd
 /home/student
 
 student@lab-vm:~$ ls /
-bin  boot  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+bin  boot  dev  etc  home  lib  media  mnt  opt
+proc  root  run  sbin  srv  sys  tmp  usr  var
 
 student@lab-vm:~$ ls -lh /etc/os-release
 -rw-r--r-- 1 root root 386 Feb 28  2026 /etc/os-release
@@ -208,9 +209,9 @@ student@lab-vm:~$ ps -p 1 -o pid,comm
       1 systemd
 
 student@lab-vm:~$ systemctl list-units --type=service --state=running | head -5
-  cron.service          loaded active running Regular background program processing daemon
-  dbus.service          loaded active running D-Bus System Message Bus
-  ssh.service           loaded active running OpenBSD Secure Shell server
+  cron.service      loaded active running Regular background program processing daemon
+  dbus.service      loaded active running D-Bus System Message Bus
+  ssh.service       loaded active running OpenBSD Secure Shell server
 
 student@lab-vm:~$ systemctl status cron | head -4
 ● cron.service - Regular background program processing daemon

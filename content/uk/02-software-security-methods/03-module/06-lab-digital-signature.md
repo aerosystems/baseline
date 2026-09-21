@@ -303,7 +303,8 @@ int main() {
     std::cout << "ФОРМУВАННЯ ПІДПИСУ\n";
     std::cout << "------------------------------------------------------------\n";
     std::cout << "Документ: \"" << document << "\"\n";
-    std::cout << "Хеш (обрізаний): " << truncateHash(hashToNumber(document), n) << "\n";
+    std::cout << "Хеш (обрізаний): "
+              << truncateHash(hashToNumber(document), n) << "\n";
 
     u64 signature = sign(document, d, n);
     std::cout << "Підпис S = " << signature << "\n";
@@ -312,7 +313,8 @@ int main() {
     std::cout << "ПЕРЕВІРКА ПІДПИСУ\n";
     std::cout << "------------------------------------------------------------\n";
     std::cout << "Результат: "
-              << (verify(document, signature, e, n) ? "ПІДПИС ДІЙСНИЙ" : "ПІДПИС НЕДІЙСНИЙ")
+              << (verify(document, signature, e, n) ? "ПІДПИС ДІЙСНИЙ"
+                                                   : "ПІДПИС НЕДІЙСНИЙ")
               << "\n";
 
     std::cout << "\n------------------------------------------------------------\n";
@@ -321,7 +323,8 @@ int main() {
     std::string modified = "Договір купівлі-продажу №124";  // змінено один символ
     std::cout << "Модифікований документ: \"" << modified << "\"\n";
     std::cout << "Результат: "
-              << (verify(modified, signature, e, n) ? "ПІДПИС ДІЙСНИЙ" : "ПІДПИС НЕДІЙСНИЙ")
+              << (verify(modified, signature, e, n) ? "ПІДПИС ДІЙСНИЙ"
+                                                   : "ПІДПИС НЕДІЙСНИЙ")
               << "\n";
 
     std::cout << "\n------------------------------------------------------------\n";
@@ -330,7 +333,8 @@ int main() {
     u64 fake = signature + 1;
     std::cout << "Підроблений підпис: " << fake << "\n";
     std::cout << "Результат: "
-              << (verify(document, fake, e, n) ? "ПІДПИС ДІЙСНИЙ" : "ПІДПИС НЕДІЙСНИЙ")
+              << (verify(document, fake, e, n) ? "ПІДПИС ДІЙСНИЙ"
+                                               : "ПІДПИС НЕДІЙСНИЙ")
               << "\n";
 
     return 0;

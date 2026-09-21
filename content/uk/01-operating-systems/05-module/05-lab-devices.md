@@ -261,7 +261,8 @@ student@lab-vm:~$ cat /sys/block/sda/queue/scheduler
 student@lab-vm:~$ dd if=/dev/zero of=~/test.img bs=1M count=200 2>&1 | tail -1
 209715200 bytes (210 MB, 200 MiB) copied, 0,187 s, 1,1 GB/s
 
-student@lab-vm:~$ dd if=/dev/zero of=~/test2.img bs=1M count=200 oflag=direct 2>&1 | tail -1
+student@lab-vm:~$ dd if=/dev/zero of=~/test2.img bs=1M count=200 \
+>     oflag=direct 2>&1 | tail -1
 209715200 bytes (210 MB, 200 MiB) copied, 1,94 s, 108 MB/s
 
 student@lab-vm:~$ sync && rm ~/test.img ~/test2.img
