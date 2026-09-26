@@ -112,6 +112,8 @@ exit /b 0
 | `color` | Колір тексту/фону | `color 0A` (зелений на чорному) |
 | `timeout` | Пауза N секунд | `timeout /t 5` |
 
+**Коментарі — лише з початку рядка.** І `rem`, і `::` працюють як коментар тільки тоді, коли з них починається рядок. `::` — це насправді мітка з неможливим ім'ям, яку CMD пропускає. Посеред рядка обидва — звичайні символи: `set NAME=Ivan :: ім'я` запише в змінну весь текст `Ivan :: ім'я`, а `set /a X=5+3 :: сума` завершиться помилкою *Missing operator*. Коментар після команди пишуть через `&`: `set "NAME=Ivan" & rem ім'я`. Усередині блоків у дужках — після `if` чи `for` — використовуйте тільки `rem`: `::` там може зламати розбір блоку.
+
 ```batch
 @echo off
 title Backup Script
@@ -136,9 +138,11 @@ set AGE=20
 set "MESSAGE=Hello, World!"
 
 rem УВАГА: пробіли мають значення!
-set VAR=value      :: VAR = "value"
-set VAR =value     :: "VAR " = "value" (з пробілом!)
-set "VAR=value"    :: Безпечніший варіант
+rem   set VAR=value    створює VAR зі значенням "value"
+rem   set VAR =value   створює змінну з іменем "VAR " (з пробілом у кінці!)
+rem   set VAR=value␣   значення теж отримає невидимий пробіл у кінці
+rem Лапки навколо всього присвоєння захищають від обох помилок:
+set "VAR=value"
 
 rem Використання змінної (з %)
 echo Name: %NAME%
@@ -148,14 +152,16 @@ echo %MESSAGE%
 rem Арифметика (set /a)
 set /a RESULT=5+3
 set /a RESULT=10/2
-set /a RESULT=7%%3       :: Залишок від ділення (% екранується як %%)
+rem Залишок від ділення: у batch-файлі знак % подвоюють
+set /a RESULT=7%%3
 set /a YEAR=2024
 set /a NEXT_YEAR=%YEAR%+1
 echo %YEAR% + 1 = %NEXT_YEAR%
 
 rem Введення від користувача (set /p)
-set /p USERNAME=Enter your name:
-echo Hello, %USERNAME%!
+rem USERNAME — системна змінна, тож для введення беремо інше ім'я
+set /p USER_NAME=Enter your name:
+echo Hello, %USER_NAME%!
 
 set /p AGE=Enter your age:
 set /a BIRTH_YEAR=2024-%AGE%
@@ -172,7 +178,7 @@ pause
 │                                                                │
 │   Дата та час:                                                 │
 │   %DATE%          → 15.01.2024 (формат залежить від локалі)    │
-│   %TIME%          → 14:30:25.50                                │
+│   %TIME%          → 14:30:25,50 (формат — за локаллю)          │
 │   %RANDOM%        → випадкове число 0-32767                    │
 │                                                                │
 │   Шляхи:                                                       │
@@ -191,8 +197,9 @@ pause
 │   %PROCESSOR_ARCHITECTURE% → AMD64 або x86                     │
 │                                                                │
 │   Параметри скрипта:                                           │
-│   %0              → повний шлях до batch-файлу                 │
-│   %1, %2, ... %9  → параметри командного рядка                 │
+│   %0              → ім'я, яким викликано скрипт                │
+│   %~f0            → повний шлях до batch-файлу                 │
+│   %1, %2, ... %9  → параметри (далі — через shift)             │
 │   %*              → всі параметри                              │
 │   %ERRORLEVEL%    → код повернення попередньої команди         │
 └────────────────────────────────────────────────────────────────┘
@@ -281,6 +288,11 @@ if %VALUE%==10 (
 ) else (
     echo Something else
 )
+
+rem Без лапок порівняння ламається, щойно змінна порожня:
+rem if %EMPTY%==10 перетворюється на "if ==10" — синтаксична помилка.
+rem Для рядків завжди беріть обидві частини в лапки:
+if "%VALUE%"=="10" echo Value is 10 too
 
 rem Порівняння чисел (GTR, LSS, GEQ, LEQ, EQU, NEQ)
 set /a NUM=15
@@ -478,8 +490,9 @@ for /l %%i in (1,1,5) do (
 
 rem Читання файлу рядок за рядком
 echo Lines in input.txt:
-for /f "delims=" %%line in (input.txt) do (
-    echo %%line
+rem Змінна циклу — завжди одна літера: %%L, а не %%line
+for /f "delims=" %%L in (input.txt) do (
+    echo %%L
 )
 
 rem Парсинг CSV (розділювач — кома)
@@ -494,15 +507,17 @@ for /f "skip=1 tokens=1,2 delims=," %%a in (data.csv) do (
     echo %%a - %%b
 )
 
-rem Результат команди (usebackq + backticks)
+rem Результат команди (usebackq + backticks).
+rem delims= обов'язковий: без нього for /f ріже рядок на пробілах,
+rem і файл "my notes.txt" перетвориться на "my"
 echo.
 echo Text files:
-for /f "usebackq" %%i in (`dir /b *.txt`) do (
+for /f "usebackq delims=" %%i in (`dir /b *.txt`) do (
     echo File: %%i
 )
 
 rem Альтернатива без usebackq (одинарні лапки)
-for /f %%i in ('dir /b *.txt') do (
+for /f "delims=" %%i in ('dir /b *.txt') do (
     echo File: %%i
 )
 ```
@@ -539,6 +554,9 @@ echo 2. List files
 echo 3. Create backup
 echo 4. Exit
 echo ================================
+rem Скинути змінну: якщо користувач просто натисне Enter,
+rem set /p залишить у CHOICE попереднє значення
+set "CHOICE="
 set /p CHOICE=Enter choice (1-4):
 
 if "%CHOICE%"=="1" goto sysinfo
@@ -578,6 +596,8 @@ goto menu
 echo Goodbye!
 exit /b 0
 ```
+
+Для меню з одного символу в Windows є зручніша команда `choice`: `choice /c 1234 /m "Your choice"` приймає лише дозволені клавіші, не потребує Enter і повертає номер вибору в `%ERRORLEVEL%`.
 
 ## Функції (підпрограми)
 
@@ -647,17 +667,13 @@ set DEST=D:\Backups
 set LOG_DIR=%DEST%\logs
 
 rem === Створення імені з датою ===
-rem Формат дати залежить від локалі
-for /f "tokens=1-3 delims=." %%a in ("%DATE%") do (
-    set DAY=%%a
-    set MONTH=%%b
-    set YEAR=%%c
+rem %DATE% і %TIME% залежать від локалі: 18.09.2026 на українській
+rem Windows, 09/18/2026 на англійській, а до 10:00 година в %TIME%
+rem ще й починається з пробілу. Надійніше попросити дату в PowerShell
+rem у потрібному форматі:
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd_HH-mm"') do (
+    set "TIMESTAMP=%%i"
 )
-for /f "tokens=1-2 delims=:" %%a in ("%TIME%") do (
-    set HOUR=%%a
-    set MIN=%%b
-)
-set TIMESTAMP=%YEAR%-%MONTH%-%DAY%_%HOUR%-%MIN%
 set BACKUP_DIR=%DEST%\backup_%TIMESTAMP%
 set LOG_FILE=%LOG_DIR%\backup_%TIMESTAMP%.log
 
@@ -675,7 +691,10 @@ echo Creating backup...
 robocopy "%SOURCE%" "%BACKUP_DIR%" /e /z /log:"%LOG_FILE%" /tee
 
 rem === Перевірка результату ===
-if %ERRORLEVEL% LEQ 3 (
+rem Код robocopy — набір прапорців: 1 — файли скопійовано, 2 — у приймачі
+rem є зайві файли, 4 — є розбіжності. Усе це не помилки. Помилка
+rem починається з 8 (не вдалося скопіювати) і 16 (фатальна помилка).
+if %ERRORLEVEL% LSS 8 (
     echo.
     echo ========================================
     echo Backup completed successfully!
@@ -703,8 +722,6 @@ echo     Temporary Files Cleaner
 echo ========================================
 echo.
 
-set /a TOTAL_FREED=0
-
 rem === Очищення TEMP ===
 echo Cleaning TEMP folder...
 if exist "%TEMP%" (
@@ -714,12 +731,6 @@ if exist "%TEMP%" (
     for /d %%d in ("%TEMP%\*") do (
         rd /s /q "%%d" 2>nul
     )
-)
-
-rem === Очищення Prefetch (потрібні права адміна) ===
-echo Cleaning Prefetch...
-if exist "C:\Windows\Prefetch" (
-    del /q "C:\Windows\Prefetch\*.pf" 2>nul
 )
 
 rem === Очищення кешу браузерів ===
@@ -742,6 +753,8 @@ echo ========================================
 pause
 endlocal
 ```
+
+Каталог `C:\Windows\Prefetch` у такі скрипти свідомо не включено, хоча в інтернеті його часто радять чистити «для прискорення». Файли `.pf` — це записи про те, які частини програм читаються під час запуску; Windows використовує їх, щоб наперед підвантажувати потрібне з диска. Видаливши їх, ви змусите систему заново все це вивчати — і найближчі кілька запусків програм стануть **повільнішими**, а не швидшими.
 
 ### 3. Моніторинг сервера
 
@@ -774,6 +787,8 @@ timeout /t %INTERVAL% /nobreak >nul
 goto loop
 ```
 
+Чому перевіряється рядок `TTL=`, а не просто код повернення `ping`? Бо на відповідь маршрутизатора «Destination host unreachable» ping теж повертає 0 — формально відповідь є. А `TTL=` є лише у справжній відповіді від самого хоста.
+
 ### 4. Меню з підтвердженням
 
 ```batch
@@ -793,6 +808,7 @@ echo  [4] Show disk space
 echo  [5] Exit
 echo.
 echo ========================================
+set "CHOICE="
 set /p CHOICE=Enter your choice (1-5):
 
 if "%CHOICE%"=="1" call :list_files
@@ -956,27 +972,27 @@ exit /b 0
 ├───────────────────────────────────────────────────────────────────────┤
 │                                                                       │
 │  WINDOWS SYSTEM ADMINISTRATOR                                         │
-│  ├── Зарплата: $50K-$90K USD / €45K-€80K EUR                          │
+│  ├── Зарплата: $50K-$90K (USA) | €45K-€80K (EU)                       │
 │  ├── Навички: Batch, PowerShell, Group Policy, Tasks                  │
 │  └── Де потрібно: компанії з Windows інфраструктурою                  │
 │                                                                       │
 │  IT SUPPORT ENGINEER (Level 2/3)                                      │
-│  ├── Зарплата: $40K-$70K USD / €35K-€60K EUR                          │
+│  ├── Зарплата: $40K-$70K (USA) | €35K-€60K (EU)                       │
 │  ├── Навички: Scripting для автоматизації                             │
 │  └── Шлях: Support → SysAdmin → DevOps                                │
 │                                                                       │
 │  BUILD/RELEASE ENGINEER                                               │
-│  ├── Зарплата: $60K-$100K USD / €55K-€90K EUR                         │
+│  ├── Зарплата: $60K-$100K (USA) | €50K-€90K (EU)                      │
 │  ├── Навички: Batch/PowerShell, build automation, CI/CD               │
 │  └── Роботодавці: Software companies, game studios                    │
 │                                                                       │
 │  AUTOMATION ENGINEER                                                  │
-│  ├── Зарплата: $70K-$120K USD / €60K-€100K EUR                        │
+│  ├── Зарплата: $70K-$120K (USA) | €55K-€100K (EU)                     │
 │  ├── Навички: Batch, PowerShell, Python                               │
 │  └── Сектори: Banking, Manufacturing, Logistics                       │
 │                                                                       │
 │  LEGACY SYSTEMS SPECIALIST                                            │
-│  ├── Зарплата: $80K-$130K USD / €70K-€110K EUR                        │
+│  ├── Зарплата: $80K-$130K (USA) | €60K-€110K (EU)                     │
 │  ├── Навички: Batch, COBOL, mainframe integration                     │
 │  └── Попит: банки, страхові компанії                                  │
 │                                                                       │
@@ -1093,18 +1109,10 @@ set SOURCE_DIR=%USERPROFILE%\Documents
 set BACKUP_ROOT=%USERPROFILE%\Backups
 set LOG_DIR=%BACKUP_ROOT%\logs
 
-rem === Створення timestamp ===
-for /f "tokens=1-3 delims=/" %%a in ("%DATE%") do (
-    set DAY=%%a
-    set MONTH=%%b
-    set YEAR=%%c
+rem === Створення timestamp незалежно від локалі ===
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmm"') do (
+    set "TIMESTAMP=%%i"
 )
-for /f "tokens=1-2 delims=:" %%a in ("%TIME%") do (
-    set HOUR=%%a
-    set MIN=%%b
-)
-set HOUR=%HOUR: =0%
-set TIMESTAMP=%YEAR%%MONTH%%DAY%_%HOUR%%MIN%
 set BACKUP_DIR=%BACKUP_ROOT%\backup_%TIMESTAMP%
 set LOG_FILE=%LOG_DIR%\backup_%TIMESTAMP%.log
 
@@ -1150,8 +1158,8 @@ set ROBOCOPY_EXIT=%ERRORLEVEL%
 4. Додайте аналіз результатів:
 ```batch
 rem === Аналіз результату robocopy ===
-rem Коди: 0-3 = успіх, 4+ = попередження/помилки
-if %ROBOCOPY_EXIT% LEQ 3 (
+rem Коди 0-7 = успіх (різні комбінації прапорців), 8 і вище = помилки
+if %ROBOCOPY_EXIT% LSS 8 (
     call :log "Backup completed successfully"
     color 0A
     echo.
@@ -1166,7 +1174,8 @@ if %ROBOCOPY_EXIT% LEQ 3 (
     call :log "Files backed up: !FILE_COUNT!"
     echo Files backed up: !FILE_COUNT!
 
-    rem Розмір бекапу
+    rem Розмір бекапу (рядок підсумку dir англійською; на українській
+    rem Windows замість "File(s)" шукайте "Файлів")
     for /f "tokens=3" %%a in ('dir "%BACKUP_DIR%" /s ^| findstr "File(s)"') do (
         set BACKUP_SIZE=%%a
     )
@@ -1188,7 +1197,8 @@ if %ROBOCOPY_EXIT% LEQ 3 (
 rem === Очищення старих бекапів (старше 7 днів) ===
 echo.
 echo Cleaning old backups (older than 7 days)...
-forfiles /p "%BACKUP_ROOT%" /d -7 /c "cmd /c if @isdir==TRUE rd /s /q @path" 2>nul
+rem /m "backup_*" — лише каталоги копій, щоб випадково не зачепити logs
+forfiles /p "%BACKUP_ROOT%" /m "backup_*" /d -7 /c "cmd /c if @isdir==TRUE rd /s /q @path" 2>nul
 call :log "Old backups cleaned"
 
 goto :end
@@ -1229,6 +1239,8 @@ daily-backup.bat
 rem Створити щоденне завдання о 22:00
 schtasks /create /tn "Daily Backup" /tr "%USERPROFILE%\BackupTool\daily-backup.bat" /sc daily /st 22:00
 ```
+
+Перед цим приберіть зі скрипта обидва `pause`: у запуску за розкладом натиснути клавішу нікому, і завдання «висітиме» вічно, заважаючи наступним запускам.
 
 **Очікуваний результат:**
 Batch-скрипт `daily-backup.bat`, який:
@@ -1323,7 +1335,7 @@ Batch-скрипт `daily-backup.bat`, який:
 | **Змінна** | `set VAR=value`, `%VAR%` |
 | **Введення** | `set /p VAR=Prompt: ` |
 | **Арифметика** | `set /a RESULT=5+3` |
-| **Умова** | `if %VAR%==value (...)` |
+| **Умова** | `if "%VAR%"=="value" (...)` |
 | **Існування файлу** | `if exist "file" (...)` |
 | **Визначена змінна** | `if defined VAR (...)` |
 | **Цикл по списку** | `for %%a in (...) do (...)` |
@@ -1333,7 +1345,7 @@ Batch-скрипт `daily-backup.bat`, який:
 | **Мітка** | `:label` |
 | **Перехід** | `goto :label` |
 | **Функція** | `call :function args` |
-| **Коментар** | `rem text` або `:: text` |
+| **Коментар** | `rem text` або `:: text` — лише з початку рядка; у блоках `( )` — тільки `rem` |
 
 **Поради для надійних скриптів:**
 1. Завжди починайте з `@echo off`

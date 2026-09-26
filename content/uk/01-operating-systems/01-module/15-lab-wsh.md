@@ -37,6 +37,8 @@ Windows Script Host — вбудована підсистема виконанн
 
 WSH сам мову не реалізує: він завантажує механізм мови (`VBScript` або `JScript`) і надає йому набір власних об'єктів. Тому файл `.vbs` і файл `.js` виконує та сама підсистема — різниця лише в синтаксисі.
 
+**VBScript доживає свій вік.** 2023 року Microsoft оголосила мову застарілою і прибирає її поетапно: у Windows 11 24H2 VBScript уже став «компонентом на вимогу», який поки що встановлено за замовчуванням; далі його вимкнуть за замовчуванням, а згодом видалять із системи зовсім. Головна причина — безпека: файли `.vbs` роками були одним із найпоширеніших способів доставити шкідливу програму. Навіщо тоді ця робота? У багатьох організаціях досі працюють тисячі сценаріїв WSH, і їх треба розуміти, підтримувати й переносити на PowerShell. А об'єктна модель COM, яку ви тут опануєте, лежить і під PowerShell, і під автоматизацією Office.
+
 Таблиця 1 — Два хости виконання сценаріїв
 
 | Характеристика | `wscript.exe` | `cscript.exe` |
@@ -47,6 +49,8 @@ WSH сам мову не реалізує: він завантажує меха�
 | Код повернення | недоступний у скрипті-виклику | доступний через `errorlevel` |
 
 Хост за замовчуванням задають командою `wscript //h:cscript`. Для навчальних задач зручніший `cscript`, бо вивід не доводиться закривати клацанням.
+
+**Кодування файлу сценарію.** WSH читає сценарії лише у двох кодуваннях: ANSI — однобайтовому кодуванні мови системи — та UTF-16 LE, яке Блокнот називає «Юнікод». UTF-8, у якому Блокнот зберігає файли за замовчуванням, WSH не розуміє: українські рядки в лапках перетворяться на набір символів на кшталт `РџСЂРёРІС–С‚`. Тому під час збереження `.vbs` у діалозі «Зберегти як» оберіть кодування ANSI (на системі з українською мовою) або «UTF-16 LE».
 
 ### 2 Перший сценарій і аргументи
 
@@ -90,25 +94,29 @@ Dim fso, folder, file, stream
 
 Set fso = CreateObject("Scripting.FileSystemObject")
 
+' Усі шляхи — відносно каталогу, де лежить сам сценарій (LAB5)
+Dim base
+base = fso.GetParentFolderName(WScript.ScriptFullName)
+
 ' Створення структури
-If Not fso.FolderExists("C:\LAB5\out") Then
-    fso.CreateFolder "C:\LAB5\out"
+If Not fso.FolderExists(base & "\out") Then
+    fso.CreateFolder base & "\out"
 End If
 
 ' Запис у файл
-Set stream = fso.CreateTextFile("C:\LAB5\out\report.txt", True, True)
+Set stream = fso.CreateTextFile(base & "\out\report.txt", True, True)
 stream.WriteLine "Звіт сформовано " & Now
 stream.Close
 
 ' Обхід каталогу
-Set folder = fso.GetFolder("C:\LAB5\src")
+Set folder = fso.GetFolder(base & "\src")
 For Each file In folder.Files
     WScript.Echo file.Name & " — " & file.Size & " байт, змінено " & _
                  file.DateLastModified
 Next
 ```
 
-Третій аргумент `CreateTextFile` вмикає запис у Unicode — без нього українські літери у файлі перетворяться на знаки питання. Колекція `folder.SubFolders` дає підкаталоги, а рекурсивний обхід дерева пишуть окремою процедурою, що викликає саму себе.
+Третій аргумент `CreateTextFile` вмикає запис у Unicode (UTF-16). Без нього файл пишеться в кодуванні ANSI, і на комп'ютері з іншою мовою системи українські літери перетворяться на знаки питання. Колекція `folder.SubFolders` дає підкаталоги, а рекурсивний обхід дерева пишуть окремою процедурою, що викликає саму себе.
 
 ### 5 Оболонка: оточення, запуск програм, ярлики
 
@@ -129,7 +137,7 @@ WScript.Echo Trim(exec.StdOut.ReadAll())
 
 ' Створення ярлика на робочому столі
 Set link = shell.CreateShortcut(shell.SpecialFolders("Desktop") & "\LAB5.lnk")
-link.TargetPath = "C:\LAB5"
+link.TargetPath = shell.SpecialFolders("Desktop") & "\LAB5"
 link.Description = "Навчальний каталог"
 link.Save
 ```
@@ -169,7 +177,7 @@ Next
 
 ```vbscript
 On Error Resume Next
-Set stream = fso.OpenTextFile("C:\LAB5\missing.txt", 1)
+Set stream = fso.OpenTextFile(base & "\missing.txt", 1)
 If Err.Number <> 0 Then
     WScript.Echo "Помилка " & Err.Number & ": " & Err.Description
     Err.Clear
