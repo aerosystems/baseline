@@ -25,7 +25,7 @@ preview: "Користувачі, групи, chmod, chown, umask, спеціа�
 
 | Вимога | Опис |
 |--------|------|
-| **Знання** | Лекції 1.15–1.16: файлова система Linux, права доступу |
+| **Знання** | Лекції 1.11 і 1.15: огляд ОС Linux (користувачі й права), файлова система Linux |
 | **Навички** | Лабораторна робота №7: навігація, `ls -l`, `stat`, пошук файлів |
 | **Середовище** | Ubuntu 22.04+, право sudo, два навчальні облікові записи |
 
@@ -50,7 +50,7 @@ grep student /etc/passwd
 | `/etc/passwd` | ім'я, UID, GID, домашній каталог, оболонка | читання для всіх |
 | `/etc/shadow` | хеш пароля, терміни дії | лише root |
 | `/etc/group` | групи та список їхніх учасників | читання для всіх |
-| `/etc/skel` | шаблон домашнього каталогу нового користувача | лише root |
+| `/etc/skel` | шаблон домашнього каталогу нового користувача | читання для всіх, змінює root |
 | `/etc/sudoers` | політика підвищення прав | лише root, редагувати через `visudo` |
 
 ### 2 Створення та налаштування користувачів
@@ -60,12 +60,15 @@ sudo adduser dev1                      # інтерактивно: домашн�
 sudo useradd -m -s /bin/bash dev2      # низькорівневий аналог
 sudo passwd dev2                       # задати пароль
 sudo usermod -aG developers dev1       # додати до додаткової групи
-sudo usermod -L dev2                   # заблокувати обліковий запис
+sudo usermod -L dev2                   # заблокувати пароль (додає ! перед хешем)
+sudo usermod -e 1 dev2                 # і сам обліковий запис: строк дії минув
 sudo chage -l dev1                     # терміни дії пароля
 sudo deluser --remove-home dev2        # видалити разом із домашнім каталогом
 ```
 
 Ключ `-a` в `usermod -aG` критично важливий: без нього список додаткових груп не доповнюється, а замінюється, і користувач може втратити, зокрема, членство в групі `sudo`.
+
+Блокування пароля (`usermod -L`) не заважає входити за ключем SSH: перевірка ключа не звертається до хеша в `/etc/shadow`. Щоб справді закрити обліковий запис, додатково роблять його строк дії таким, що минув (`usermod -e 1`), або встановлюють оболонку `/usr/sbin/nologin`.
 
 ### 3 Групи: основна й додаткові
 
@@ -122,15 +125,17 @@ sudo chgrp developers report.txt       # лише групу
 
 ### 5 Маска прав umask
 
-Новостворені файли не отримують права `777`: із базових значень віднімається маска `umask`. Для файлів базою є `666`, для каталогів — `777`.
+Програма, що створює файл, запитує права `666` для файлів і `777` для каталогів, а маска `umask` вказує, які біти з них **прибрати**. Це побітова операція «і не», а не віднімання: для маски `027` віднімання дало б неможливе `639`, а справжній результат — `640`.
 
 ```bash
-umask                                  # поточна маска, зазвичай 0022
-umask -S                               # у символьному вигляді
-touch a.txt && ls -l a.txt             # 644 = 666 - 022
-mkdir d && ls -ld d                    # 755 = 777 - 022
+umask                                  # поточна маска: 0022 або 0002
+umask -S                               # у символьному вигляді: u=rwx,g=rx,o=rx
+touch a.txt && ls -l a.txt             # 666 без 022 = 644
+mkdir d && ls -ld d                    # 777 без 022 = 755
 umask 077                              # приватний режим: 600 і 700
 ```
+
+В Ubuntu і Debian звичайний користувач отримує маску `0002`, а не `0022`: кожен має власну основну групу з тим самим іменем (схема user private group), тож право запису для групи нікому зайвому доступу не дає. Модуль `pam_umask` вмикає таку маску, коли ім'я користувача збігається з іменем його основної групи.
 
 ### 6 Спеціальні біти
 
@@ -163,20 +168,23 @@ setfacl -x u:dev2 report.txt           # прибрати запис
 setfacl -d -m g:developers:rwx /srv/team   # права за замовчуванням для нових файлів
 ```
 
-Файл із ACL позначається знаком `+` у виводі `ls -l`: `-rw-rw-r--+`. Це перше, на що дивляться, коли права «за таблицею» виглядають правильно, а доступ поводиться інакше.
+Файл із ACL позначається знаком `+` у виводі `ls -l`: `-rw-rw-r--+`. Це перше, на що дивляться, коли права «за таблицею» виглядають правильно, а доступ поводиться інакше. Після першого запису ACL з'являється ще й **маска** (`mask::`) — верхня межа для всіх записів, крім власника та інших; саме її показує `ls -l` на місці прав групи. Якщо команд `getfacl` і `setfacl` немає, їх встановлює пакет `acl`.
 
 ## Приклад виконання
 
 ### Крок 1. Навчальні користувачі та група
 
+Точний текст повідомлень `adduser` залежить від його версії; номери UID і GID у вас також можуть бути іншими.
+
 ```bash
-student@lab-vm:~$ sudo groupadd developers
 student@lab-vm:~$ sudo adduser dev1 --gecos "Developer One" --disabled-password
-Adding user `dev1' ...
-Creating home directory `/home/dev1' ...
-Copying files from `/etc/skel' ...
+info: Adding user `dev1' ...
+info: Adding new group `dev1' (1001) ...
+info: Creating home directory `/home/dev1' ...
+info: Copying files from `/etc/skel' ...
 
 student@lab-vm:~$ sudo adduser dev2 --gecos "Developer Two" --disabled-password
+student@lab-vm:~$ sudo groupadd developers
 student@lab-vm:~$ sudo usermod -aG developers dev1
 student@lab-vm:~$ sudo usermod -aG developers dev2
 
@@ -187,7 +195,7 @@ student@lab-vm:~$ getent group developers
 developers:x:1003:dev1,dev2
 ```
 
-Основна група `dev1` створена автоматично з тим самим іменем — така схема (user private group) унеможливлює випадковий спільний доступ через основну групу.
+Основна група `dev1` створена автоматично з тим самим іменем — така схема (user private group) унеможливлює випадковий спільний доступ через основну групу. Групу `developers` створено після користувачів навмисне: інакше вона зайняла б GID 1001, і номери UID та GID нових користувачів розійшлися б.
 
 ### Крок 2. Дослідження облікових записів
 
@@ -197,7 +205,7 @@ dev1:x:1001:1001:Developer One,,,:/home/dev1:/bin/bash
 dev2:x:1002:1002:Developer Two,,,:/home/dev2:/bin/bash
 
 student@lab-vm:~$ sudo grep dev1 /etc/shadow | cut -c1-40
-dev1:!:20349:0:99999:7:::
+dev1:!:20714:0:99999:7:::
 
 student@lab-vm:~$ awk -F: '$3 < 1000 {print $1}' /etc/passwd | head -5
 root
@@ -212,7 +220,7 @@ dev1 1001
 dev2 1002
 ```
 
-Знак оклику на місці хеша означає заблокований пароль: обліковий запис створено з `--disabled-password`, тож увійти за паролем неможливо.
+Знак оклику на місці хеша означає заблокований пароль: обліковий запис створено з `--disabled-password`, тож увійти за паролем неможливо. Число `20714` — дата останньої зміни пароля в днях від 1 січня 1970 року (тут — 18 вересня 2026-го), далі — мінімальний і максимальний строк дії пароля та за скільки днів попереджати.
 
 ### Крок 3. Права: символьний і числовий спосіб
 
@@ -220,23 +228,23 @@ dev2 1002
 student@lab-vm:~$ mkdir -p ~/lab8 && cd ~/lab8
 student@lab-vm:~/lab8$ echo "echo Привіт" > script.sh
 student@lab-vm:~/lab8$ ls -l script.sh
--rw-rw-r-- 1 student student 22 вер 18 11:15 script.sh
+-rw-rw-r-- 1 student student 18 вер 18 11:15 script.sh
 
 student@lab-vm:~/lab8$ ./script.sh
 bash: ./script.sh: Permission denied
 
 student@lab-vm:~/lab8$ chmod u+x script.sh
 student@lab-vm:~/lab8$ ls -l script.sh
--rwxrw-r-- 1 student student 22 вер 18 11:15 script.sh
+-rwxrw-r-- 1 student student 18 вер 18 11:15 script.sh
 
 student@lab-vm:~/lab8$ ./script.sh
 Привіт
 
 student@lab-vm:~/lab8$ chmod 640 script.sh && ls -l script.sh
--rw-r----- 1 student student 22 вер 18 11:15 script.sh
+-rw-r----- 1 student student 18 вер 18 11:15 script.sh
 ```
 
-Право на виконання перевіряється саме в момент запуску: файл зі скриптом лишається текстовим, але без біта `x` оболонка відмовляється його запустити.
+Право на виконання перевіряється саме в момент запуску: файл зі скриптом лишається текстовим, але без біта `x` ядро відмовляється його запустити. Розмір 18 байтів, а не 12: кожна кирилична літера в UTF-8 займає два байти, плюс символ кінця рядка. Права `rw-rw-r--` у щойно створеного файлу — наслідок маски `0002`, про яку йдеться в кроці 5.
 
 ### Крок 4. Права каталогу
 
@@ -244,6 +252,7 @@ student@lab-vm:~/lab8$ chmod 640 script.sh && ls -l script.sh
 student@lab-vm:~/lab8$ mkdir secret && echo "дані" > secret/data.txt
 student@lab-vm:~/lab8$ chmod 644 secret
 student@lab-vm:~/lab8$ ls secret
+ls: cannot access 'secret/data.txt': Permission denied
 data.txt
 
 student@lab-vm:~/lab8$ cat secret/data.txt
@@ -254,17 +263,17 @@ student@lab-vm:~/lab8$ cat secret/data.txt
 дані
 ```
 
-Каталог без біта `x` дозволяє прочитати перелік імен, але не дозволяє звернутися до вмісту файлів — права на сам файл при цьому не змінювалися.
+Каталог без біта `x` дозволяє прочитати перелік імен, але не дозволяє звернутися до самих файлів — права на файл при цьому не змінювалися. Навіть `ls` показав ім'я `data.txt` з помилкою: ім'я він прочитав з каталогу (право `r`), а щоб розфарбувати вивід за типом файлу, спробував прочитати його inode — і отримав відмову (права `x` немає).
 
 ### Крок 5. Маска umask
 
 ```bash
 student@lab-vm:~/lab8$ umask
-0022
+0002
 student@lab-vm:~/lab8$ touch default.txt && mkdir default.d
 student@lab-vm:~/lab8$ ls -ld default.txt default.d
--rw-r--r-- 1 student student    0 вер 18 11:22 default.txt
-drwxr-xr-x 2 student student 4096 вер 18 11:22 default.d
+-rw-rw-r-- 1 student student    0 вер 18 11:22 default.txt
+drwxrwxr-x 2 student student 4096 вер 18 11:22 default.d
 
 student@lab-vm:~/lab8$ umask 077
 student@lab-vm:~/lab8$ touch private.txt && mkdir private.d
@@ -272,10 +281,10 @@ student@lab-vm:~/lab8$ ls -ld private.txt private.d
 -rw------- 1 student student    0 вер 18 11:23 private.txt
 drwx------ 2 student student 4096 вер 18 11:23 private.d
 
-student@lab-vm:~/lab8$ umask 022
+student@lab-vm:~/lab8$ umask 002
 ```
 
-Маска не змінює вже створені файли — вона діє лише на ті, що створюються після її встановлення.
+Маска не змінює вже створені файли — вона діє лише на ті, що створюються після її встановлення, і лише в поточній оболонці та її дочірніх процесах.
 
 ### Крок 6. Спільний каталог команди
 
@@ -295,7 +304,7 @@ student@lab-vm:~/lab8$ sudo -u dev2 rm /srv/team/from-dev1.txt
 rm: cannot remove '/srv/team/from-dev1.txt': Operation not permitted
 ```
 
-Файл, створений `dev1`, автоматично отримав групу `developers` — це дія біта SGID. Спроба `dev2` видалити чужий файл відхилена бітом sticky, хоча права групи запис дозволяють.
+Файл, створений `dev1`, автоматично отримав групу `developers` — це дія біта SGID. Права файлу `rw-r--r--`, бо `sudo` запускає команду з маскою не м'якшою за `0022`. Спроба `dev2` видалити чужий файл відхилена бітом sticky, хоча права групи на каталог запис дозволяють. Велика `T` у `drwxrws--T` означає sticky-біт без права `x` для інших.
 
 ### Крок 7. Точковий доступ через ACL
 
@@ -308,18 +317,25 @@ student@lab-vm:~/lab8$ setfacl -m u:dev2:r report.txt
 student@lab-vm:~/lab8$ ls -l report.txt
 -rw-r-----+ 1 student student 9 вер 18 11:40 report.txt
 
-student@lab-vm:~/lab8$ getfacl report.txt | tail -4
+student@lab-vm:~/lab8$ getfacl -c report.txt
 user::rw-
 user:dev2:r--
 group::r--
+mask::r--
 other::---
 
-student@lab-vm:~/lab8$ chmod o+x ~ ~/lab8
+student@lab-vm:~/lab8$ ls -ld ~
+drwxr-x--- 22 student student 4096 вер 18 11:38 /home/student
+student@lab-vm:~/lab8$ sudo -u dev2 cat ~student/lab8/report.txt
+cat: /home/student/lab8/report.txt: Permission denied
+
+student@lab-vm:~/lab8$ chmod o+x ~
 student@lab-vm:~/lab8$ sudo -u dev2 cat ~student/lab8/report.txt
 звіт
+student@lab-vm:~/lab8$ chmod o-x ~
 ```
 
-Знак `+` у виводі `ls -l` — ознака ACL. Зверніть увагу: для доступу знадобилося ще й право `x` на батьківські каталоги — без нього дістатися файлу неможливо незалежно від ACL.
+Знак `+` у виводі `ls -l` — ознака ACL, а рядок `mask::r--` — верхня межа прав для записів ACL. Зверніть увагу: ACL на файлі не допоміг, доки `dev2` не міг пройти через домашній каталог `student` — з Ubuntu 21.04 домашні каталоги створюються з правами `750`. Право `x` на **кожен** каталог шляху обов'язкове незалежно від ACL. Наприкінці право відкликано, щоб не лишати домашній каталог відкритим.
 
 ## Порядок виконання роботи
 
@@ -343,7 +359,7 @@ student@lab-vm:~/lab8$ sudo -u dev2 cat ~student/lab8/report.txt
 
 10. Виконати додаткове завдання свого варіанта.
 
-11. Прибрати за собою: видалити навчальних користувачів і групу, якщо це передбачено варіантом, і зафіксувати результат.
+11. Прибрати за собою: повернути права домашнього каталогу (`chmod o-x ~`), видалити навчальних користувачів (`sudo deluser --remove-home dev1`) і групу (`sudo groupdel developers`), якщо це передбачено варіантом, і зафіксувати результат.
 
 12. Оформити звіт і зробити висновок.
 

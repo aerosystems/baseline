@@ -25,7 +25,7 @@ preview: "Розмітка дисків, створення файлових с�
 
 | Вимога | Опис |
 |--------|------|
-| **Знання** | Лекції про файлову систему Linux і класифікацію пристроїв |
+| **Знання** | Лекція 1.15: файлова система Linux; теми 5.1–5.4: пристрої та введення-виведення |
 | **Навички** | Робота в терміналі, права доступу, `sudo` |
 | **Середовище** | Ubuntu 22.04+ у віртуальній машині, додатковий диск 2-5 ГБ |
 
@@ -135,6 +135,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
 ### Крок 2. Створення таблиці розділів і двох розділів
 
 ```bash
+sudo apt install -y gdisk      # пакет із sgdisk, якщо його ще немає
 # Неінтерактивно: GPT, розділ 1 на 1 ГБ, розділ 2 на решту
 sudo sgdisk --zap-all /dev/sdb
 sudo sgdisk --new=1:0:+1G --typecode=1:8300 --change-name=1:data1 /dev/sdb
@@ -226,13 +227,15 @@ UUID=$(sudo blkid -s UUID -o value /dev/sdb1)
 echo "UUID=$UUID /mnt/data1 ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
 
 # Перевірити запис БЕЗ перезавантаження
+sudo findmnt --verify          # синтаксис, UUID і типи файлових систем
+sudo systemctl daemon-reload   # systemd будує з fstab юніти монтування
 sudo umount /mnt/data1
 sudo mount -a
 df -h | grep data1
 ```
 
-Команда `mount -a` — обов'язкова перевірка: якщо в записі є помилка, вона
-виявиться зараз, а не при наступному завантаженні.
+Команди `findmnt --verify` і `mount -a` — обов'язкова перевірка: якщо в записі є
+помилка, вона виявиться зараз, а не при наступному завантаженні.
 
 ### Крок 7. Діагностика
 
@@ -251,6 +254,31 @@ df -i | grep -E "Filesystem|sdb"
 Показник inode важливий окремо: розділ може мати вільні гігабайти й водночас не
 приймати нових файлів, якщо вичерпано записи inode.
 
+### Крок 8. Ті самі дії у Windows
+
+У Windows диски й томи показує оснастка «Керування дисками» (`diskmgmt.msc`),
+а з командного рядка — PowerShell або `diskpart`. Перегляд нічого не змінює:
+
+```powershell
+PS C:\> Get-Disk | Select-Object Number, FriendlyName, PartitionStyle, Size
+
+Number FriendlyName   PartitionStyle        Size
+------ ------------   --------------        ----
+     0 VBOX HARDDISK  GPT            53687091200
+     1 VBOX HARDDISK  RAW             3221225472
+
+PS C:\> Get-Volume | Select-Object DriveLetter, FileSystem, SizeRemaining
+```
+
+Диск 1 зі стилем `RAW` — порожній додатковий диск без таблиці розділів, аналог
+`sdb` у Linux. Розмітити його можна так (лише диск 1, знищує на ньому все):
+
+```powershell
+Initialize-Disk -Number 1 -PartitionStyle GPT
+New-Partition -DiskNumber 1 -Size 1GB -AssignDriveLetter |
+    Format-Volume -FileSystem NTFS -NewFileSystemLabel LABDATA1
+```
+
 ## Порядок виконання роботи
 
 1. Отримати в викладача номер індивідуального варіанта.
@@ -262,8 +290,10 @@ df -i | grep -E "Filesystem|sdb"
 7. Налаштувати автоматичне монтування одного з розділів через `/etc/fstab` з
    параметром `nofail` і перевірити запис командою `mount -a`.
 8. Виконати діагностику: перевірку файлової системи та облік inode.
-9. Виконати додаткове завдання свого варіанта.
-10. Відмонтувати розділи, прибрати запис з `/etc/fstab`, оформити звіт.
+9. За наявності Windows переглянути диски й томи командами `Get-Disk` і
+   `Get-Volume` та порівняти подання дисків із Linux.
+10. Виконати додаткове завдання свого варіанта.
+11. Відмонтувати розділи, прибрати запис з `/etc/fstab`, оформити звіт.
 
 ## Вимоги до звіту
 
