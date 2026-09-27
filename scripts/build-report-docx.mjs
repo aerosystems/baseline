@@ -17,6 +17,11 @@
  *
  *   --list=built.txt   append the path of every document built (CI preview)
  *
+ * Next to every .docx goes its PDF, converted by LibreOffice (scripts/lib/pdf.mjs)
+ * when the .docx changed; --rebuild-pdf converts every one again.
+ * Without LibreOffice the PDF is skipped with a warning, unless
+ * REPORTS_REQUIRE_PDF=1 — as in CI — makes that an error.
+ *
  * Every document is checked against the samples (scripts/lib/report-checks.mjs)
  * before it is kept; a report that fails leaves no document behind, and the
  * exit status is 1.
@@ -28,9 +33,18 @@ import { join, dirname, basename, relative, resolve, sep } from 'path';
 import { tmpdir } from 'os';
 import { fileURLToPath, pathToFileURL } from 'url';
 
-import { convert, run } from './lib/docx.mjs';
+import { convert, run, sourceDateEpoch } from './lib/docx.mjs';
+import { pdfOf, soffice, toPdf } from './lib/pdf.mjs';
 import { parseFrontmatter } from './lib/frontmatter.mjs';
-import { checkReport, reportWarnings } from './lib/report-checks.mjs';
+import { checkPdf, checkReport, reportWarnings } from './lib/report-checks.mjs';
+
+// CI sets it: there a report without its PDF is a failed report. Locally the
+// PDF is made when LibreOffice is installed and skipped with a warning if not.
+const REQUIRE_PDF = process.env.REPORTS_REQUIRE_PDF === '1';
+
+// --rebuild-pdf converts even when the .docx did not change — after a change
+// to the conversion itself (LibreOffice, fonts)
+const REBUILD_PDF = process.argv.includes('--rebuild-pdf');
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT = join(ROOT, 'content', 'uk');
@@ -303,6 +317,10 @@ function buildReport(reportPath) {
     `ЛР${String(data.lab).padStart(2, '0')}_${location.student}.docx`
   );
 
+  // The document as it was before this build: if the new one comes out the
+  // same, its PDF does not need converting again (see below)
+  const previous = existsSync(outputPath) ? readFileSync(outputPath) : null;
+
   try {
     const sourcePath = join(work, 'report.md');
     writeFileSync(sourcePath, source);
@@ -320,13 +338,14 @@ function buildReport(reportPath) {
 
     // The document is kept only if it matches the samples; a failed check
     // leaves nothing behind for the pipeline to commit
-    const problems = checkReport(outputPath, {
+    const expected = {
       body,
       student: data.student,
       signature: signature(data.student),
       lab: data.lab,
       code: workCode(report)
-    });
+    };
+    const problems = checkReport(outputPath, expected);
     if (problems.length) {
       rmSync(outputPath, { force: true });
       throw new Error(`the document does not match the report sample:\n  - ${problems.join('\n  - ')}`);
@@ -335,9 +354,48 @@ function buildReport(reportPath) {
     for (const warning of reportWarnings(body)) {
       console.warn(`[warn] ${relative(ROOT, reportPath)}: ${warning}`);
     }
-
     console.log(`[ok] ${relative(ROOT, outputPath)}`);
-    return outputPath;
+
+    // The PDF is made from the checked .docx and checked in turn. The two go
+    // together: a PDF that fails takes the .docx with it, so the repository
+    // never holds one without the other, or two that disagree.
+    const pdfPath = pdfOf(outputPath);
+    if (!soffice() && !REQUIRE_PDF) {
+      // The PDF of an unchanged document is still its PDF and stays; the PDF
+      // of a changed one no longer matches it and goes
+      const current = existsSync(pdfPath) && previous?.equals(readFileSync(outputPath));
+      if (!current) rmSync(pdfPath, { force: true });
+      console.warn(`[warn] LibreOffice is not installed — ${basename(pdfPath)} ${current ? 'kept as it is' : 'not made'}`);
+      return { docx: outputPath, pdf: current ? pdfPath : null };
+    }
+
+    try {
+      // LibreOffice does not export the same bytes twice — it embeds the fonts
+      // in a different order each run — so a PDF is made again only when its
+      // .docx changed. The .docx is reproducible: the same report gives the
+      // same bytes, and then the PDF next to it is still the PDF of it. It is
+      // checked all the same, and converted again if it fails.
+      const unchanged = !REBUILD_PDF && previous && existsSync(pdfPath) &&
+        previous.equals(readFileSync(outputPath)) && checkPdf(pdfPath, expected).length === 0;
+
+      if (unchanged) {
+        console.log(`[ok] ${relative(ROOT, pdfPath)} — the document did not change, the PDF is kept`);
+        return { docx: outputPath, pdf: pdfPath };
+      }
+
+      toPdf(outputPath, { epoch: sourceDateEpoch(reportPath) });
+      const pdfProblems = checkPdf(pdfPath, expected);
+      if (pdfProblems.length) {
+        throw new Error(`the PDF does not match the report sample:\n  - ${pdfProblems.join('\n  - ')}`);
+      }
+    } catch (error) {
+      rmSync(pdfPath, { force: true });
+      rmSync(outputPath, { force: true });
+      throw error;
+    }
+
+    console.log(`[ok] ${relative(ROOT, pdfPath)}`);
+    return { docx: outputPath, pdf: pdfPath };
   } finally {
     rmSync(work, { recursive: true, force: true });
   }
@@ -428,9 +486,12 @@ function main() {
     const name = relative(ROOT, target);
     try {
       const built = buildReport(target);
-      summary.push(built ? `| ✅ | \`${name}\` | ${basename(built)} |` : `| ➖ | \`${name}\` | заготовка, не збирається |`);
+      const files = built ? [built.docx, built.pdf].filter(Boolean) : [];
+      summary.push(built
+        ? `| ✅ | \`${name}\` | ${files.map(file => basename(file)).join(', ')} |`
+        : `| ➖ | \`${name}\` | заготовка, не збирається |`);
       // CI collects what was built — and only that — for the preview
-      if (built && list) writeFileSync(list, `${relative(ROOT, built)}\n`, { flag: 'a' });
+      for (const file of list ? files : []) writeFileSync(list, `${relative(ROOT, file)}\n`, { flag: 'a' });
     } catch (error) {
       fail(`${name}: ${error.message}`);
       summary.push(`| ❌ | \`${name}\` | ${error.message.split('\n').join('<br>')} |`);
@@ -438,10 +499,11 @@ function main() {
       // A document left over from an earlier build no longer matches the
       // report — better no document than a wrong one
       try {
-        const stale = outputOf(target);
-        if (existsSync(stale)) {
-          rmSync(stale);
-          console.error(`[error] removed ${relative(ROOT, stale)}: it no longer matches the report`);
+        for (const stale of [outputOf(target), pdfOf(outputOf(target))]) {
+          if (existsSync(stale)) {
+            rmSync(stale);
+            console.error(`[error] removed ${relative(ROOT, stale)}: it no longer matches the report`);
+          }
         }
       } catch { /* a malformed path has no document */ }
     }

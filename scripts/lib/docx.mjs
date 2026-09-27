@@ -23,6 +23,39 @@ export const PANDOC_ARGS = [
   '--no-highlight'
 ];
 
+/**
+ * Environment of touch and zip. A zip entry stores its time as local time,
+ * so the same document packed in Kyiv and on a CI runner (UTC) differed by the
+ * hours between them. Packing always in UTC gives the same bytes everywhere.
+ */
+export const ZIP_ENV = { ...process.env, TZ: 'UTC' };
+
+/**
+ * Packs an unpacked .docx directory into a zip that is the same bytes on every
+ * machine: entries in byte order of their names ([Content_Types].xml first, as
+ * Word expects), no directory entries, no extra attributes, times in UTC.
+ * zip -r lists a directory in the order the file system returns it, which is
+ * sorted on macOS and not on the ext4 of a CI runner.
+ */
+export function packDocx(directory, outputPath) {
+  const files = [];
+  const walk = (dir, prefix) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const name = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) walk(join(dir, entry.name), name);
+      else files.push(name);
+    }
+  };
+  walk(directory, '');
+  files.sort((a, b) => (Buffer.compare(Buffer.from(a), Buffer.from(b))));
+
+  rmSync(outputPath, { force: true });
+  const result = spawnSync('zip', ['-q', '-X', '-D', outputPath, '-@'], {
+    cwd: directory, input: files.join('\n') + '\n', encoding: 'utf8', env: ZIP_ENV
+  });
+  if (result.status !== 0) throw new Error(`zip failed: ${result.stderr || result.stdout}`);
+}
+
 /** Runs a command, throwing on a non-zero exit status */
 export function run(command, args, options = {}) {
   const result = spawnSync(command, args, { encoding: 'utf8', ...options });
@@ -239,10 +272,10 @@ export function freezeTimestamps(directory, epoch) {
   const pad = value => String(value).padStart(2, '0');
 
   // touch -t expects CCYYMMDDhhmm.ss
-  const formatted = `${stamp.getFullYear()}${pad(stamp.getMonth() + 1)}${pad(stamp.getDate())}` +
-                    `${pad(stamp.getHours())}${pad(stamp.getMinutes())}.${pad(stamp.getSeconds())}`;
+  const formatted = `${stamp.getUTCFullYear()}${pad(stamp.getUTCMonth() + 1)}${pad(stamp.getUTCDate())}` +
+                    `${pad(stamp.getUTCHours())}${pad(stamp.getUTCMinutes())}.${pad(stamp.getUTCSeconds())}`;
 
-  run('find', [directory, '-exec', 'touch', '-t', formatted, '{}', '+']);
+  run('find', [directory, '-exec', 'touch', '-t', formatted, '{}', '+'], { env: ZIP_ENV });
 }
 
 /**
@@ -391,8 +424,10 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list, table, pr
 
     if (epoch) freezeTimestamps(work, epoch);
 
-    run('zip', ['-r', '-q', '-X', 'patched.docx', '.', '-x', 'patched.docx'], { cwd: work });
-    copyFileSync(join(work, 'patched.docx'), docxPath);
+    const packed = `${work}.docx`;
+    packDocx(work, packed);
+    copyFileSync(packed, docxPath);
+    rmSync(packed, { force: true });
   } finally {
     rmSync(work, { recursive: true, force: true });
   }
