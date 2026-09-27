@@ -19,6 +19,12 @@ name: Student reports
 # the pull request came from a fork, and it only ever checks out the base branch
 # after the merge — code the teacher has already accepted.
 #
+# GitHub takes a pull_request_target workflow from the default branch, not from
+# the base of the pull request (since December 2025), so this file has to be on
+# main for the publish job to run at all. The job itself checks out the branch
+# the pull request was merged into and runs that branch's scripts. The preview
+# job, on pull_request, runs the copy in the merge tree.
+#
 # workflow_dispatch rebuilds the documents of a branch by hand: every report in
 # it, or the ones listed.
 
