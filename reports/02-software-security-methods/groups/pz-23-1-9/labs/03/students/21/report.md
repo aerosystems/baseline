@@ -2,7 +2,7 @@
 course: 02-software-security-methods
 group: pz-23-1-9
 lab: 3
-student: "Костенко Артем"
+student: "Костенко Артем Олександрович"
 number: 21
 variant: 1
 ---
