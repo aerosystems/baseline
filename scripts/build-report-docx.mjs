@@ -36,7 +36,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { convert, run, sourceDateEpoch } from './lib/docx.mjs';
 import { pdfOf, soffice, toPdf } from './lib/pdf.mjs';
 import { parseFrontmatter } from './lib/frontmatter.mjs';
-import { checkPdf, checkReport, reportWarnings } from './lib/report-checks.mjs';
+import { answerLevels, checkPdf, checkReport, reportWarnings } from './lib/report-checks.mjs';
 
 // CI sets it: there a report without its PDF is a failed report. Locally the
 // PDF is made when LibreOffice is installed and skipped with a warning if not.
@@ -296,6 +296,14 @@ function buildReport(reportPath) {
 
   const programs = JSON.parse(readFileSync(join(CONTENT, data.course, '_programs.json'), 'utf8'));
   const groupEntry = programs.groups?.find(entry => entry.id === data.group);
+
+  const levels = answerLevels(body);
+  if (levels.length > 1) {
+    throw new Error(
+      `the answers cover ${levels.length} levels (${levels.join(', ')}) — ` +
+      'answer the questions of one level only, the one you defend the work for'
+    );
+  }
 
   const missing = missingImages(body.replace(/<!--[\s\S]*?-->/g, ''), dirname(reportPath));
   if (missing.length) {
