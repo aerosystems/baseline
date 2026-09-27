@@ -241,6 +241,22 @@ function isStub(body) {
     );
 }
 
+/**
+ * The student's full name from the group list. The list is the teacher's and
+ * is kept up to date; the name in a report's frontmatter is a copy made when
+ * the assignment was opened, and it stays as it was when the list is corrected
+ * later — a patronymic added, a typo fixed. So the title page and the document
+ * properties take the name from the list, by the student's number, and the
+ * frontmatter only stands in for a group that has no list.
+ */
+function listedName({ course, group, student }) {
+  const path = join(REPORTS, course, 'groups', group, 'students.json');
+  if (!existsSync(path)) return null;
+
+  const list = JSON.parse(readFileSync(path, 'utf8'));
+  return list.students?.find(entry => Number(entry.number) === Number(student))?.name?.trim() || null;
+}
+
 function buildReport(reportPath) {
   const location = parsePath(reportPath);
   const { data, body } = parseFrontmatter(readFileSync(reportPath, 'utf8'));
@@ -250,7 +266,7 @@ function buildReport(reportPath) {
     return null;
   }
 
-  for (const field of ['course', 'group', 'lab', 'student']) {
+  for (const field of ['course', 'group', 'lab']) {
     if (!data[field]) throw new Error(`frontmatter has no "${field}" field`);
   }
   // A report filed in the wrong folder would be built under somebody else's
@@ -268,6 +284,16 @@ function buildReport(reportPath) {
     throw new Error(`frontmatter says ${field} ${stated}, the path says ${inPath}`);
   }
 
+  const listed = listedName(location);
+  const student = listed ?? (data.student ? String(data.student).trim() : null);
+  if (!student) {
+    throw new Error(`student ${location.student} is not in the group list, and the frontmatter has no "student" field`);
+  }
+  if (listed && data.student && String(data.student).trim() !== listed) {
+    console.warn(`[warn] ${relative(ROOT, reportPath)}: the frontmatter names "${data.student}", ` +
+      `the group list "${listed}" — the list is used`);
+  }
+
   const programs = JSON.parse(readFileSync(join(CONTENT, data.course, '_programs.json'), 'utf8'));
   const groupEntry = programs.groups?.find(entry => entry.id === data.group);
 
@@ -282,6 +308,7 @@ function buildReport(reportPath) {
   const lab = findLab(data);
   const report = {
     ...data,
+    student,
     // the folder is the position in the group, so the path is the source of it
     number: Number(location.student),
     groupTitle: groupEntry?.title ?? data.group,
@@ -330,7 +357,7 @@ function buildReport(reportPath) {
       referenceDoc: TEMPLATE,
       filter: FILTER,
       layout: LAYOUT,
-      properties: { title: `${lab.topic}. Звіт з лабораторної роботи №${data.lab}`, author: data.student },
+      properties: { title: `${lab.topic}. Звіт з лабораторної роботи №${data.lab}`, author: student },
       cwd: ROOT,
       // report images are relative to the student's directory
       resourcePath: dirname(reportPath)
@@ -340,8 +367,8 @@ function buildReport(reportPath) {
     // leaves nothing behind for the pipeline to commit
     const expected = {
       body,
-      student: data.student,
-      signature: signature(data.student),
+      student,
+      signature: signature(student),
       lab: data.lab,
       code: workCode(report)
     };
