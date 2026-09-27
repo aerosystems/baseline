@@ -22,33 +22,36 @@ Windows має два основних інтерпретатори команд
 ## CMD vs PowerShell
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    CMD vs POWERSHELL                            │
-│                                                                 │
-│   CMD (cmd.exe)                    PowerShell (pwsh.exe)        │
-│   ═══════════════                  ══════════════════           │
-│                                                                 │
-│   • З 1987 року (MS-DOS)           • З 2006 року                │
-│   • Текстові команди               • Об'єктно-орієнтований      │
-│   • Обмежені можливості            • Повний доступ до .NET      │
-│   • Batch-файли (.bat, .cmd)       • Скрипти (.ps1)             │
-│   • Сумісність зі старими          • Сучасна автоматизація      │
-│     скриптами                      • Кросплатформний (7+)       │
-│                                                                 │
-│   ┌─────────────────────┐          ┌──────────────────────┐     │
-│   │ C:\> dir            │          │ PS C:\> Get-ChildItem│     │
-│   │ C:\> copy file.txt  │          │ PS C:\> Copy-Item    │     │
-│   │ C:\> del *.tmp      │          │ PS C:\> Remove-Item  │     │
-│   └─────────────────────┘          └──────────────────────┘     │
-│                                                                 │
-│   Pipeline:                        Pipeline:                    │
-│   • Передає ТЕКСТ                  • Передає ОБ'ЄКТИ            │
-│   • Парсити вручну                 • Властивості/методи         │
-│                                                                 │
-│   Висновок:                                                     │
-│   CMD — для простих задач та legacy скриптів                    │
-│   PowerShell — для всього іншого (основний інструмент)          │
-└─────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────┐
+│                         CMD vs POWERSHELL                         │
+├───────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│   CMD (cmd.exe)                    PowerShell                     │
+│   ═══════════════                  ══════════════════             │
+│                                                                   │
+│   • Предок — COMMAND.COM з         • З 2006 року                  │
+│     MS-DOS (1981); cmd.exe —       • powershell.exe — Windows     │
+│     з OS/2 (1987) і NT (1993)        PowerShell 5.1 (входить в ОС)│
+│   • Текстові команди               • pwsh.exe — PowerShell 7,     │
+│   • Обмежені можливості              кросплатформний (з версії 6) │
+│   • Batch-файли (.bat, .cmd)       • Повний доступ до .NET        │
+│   • Сумісність зі старими          • Скрипти (.ps1)               │
+│     скриптами                                                     │
+│                                                                   │
+│   ┌─────────────────────┐          ┌──────────────────────┐       │
+│   │ C:\> dir            │          │ PS C:\> Get-ChildItem│       │
+│   │ C:\> copy file.txt  │          │ PS C:\> Copy-Item    │       │
+│   │ C:\> del *.tmp      │          │ PS C:\> Remove-Item  │       │
+│   └─────────────────────┘          └──────────────────────┘       │
+│                                                                   │
+│   Pipeline:                        Pipeline:                      │
+│   • Передає ТЕКСТ                  • Передає ОБ'ЄКТИ              │
+│   • Парсити вручну                 • Властивості/методи           │
+│                                                                   │
+│   Висновок:                                                       │
+│   CMD — для простих задач та legacy скриптів                      │
+│   PowerShell — для всього іншого (основний інструмент)            │
+└───────────────────────────────────────────────────────────────────┘
 ```
 
 ## Запуск командного рядка
@@ -102,9 +105,10 @@ Windows має два основних інтерпретатори команд
 │   Гарячі клавіші:                                              │
 │   • Ctrl+Shift+T — нова вкладка (default profile)              │
 │   • Ctrl+Shift+1/2/3 — вкладка з профілем 1/2/3                │
-│   • Ctrl+Shift+D — дублювати панель                            │
-│   • Alt+Shift+D — split вертикально                            │
-│   • Alt+Shift+- — split горизонтально                          │
+│   • Ctrl+Shift+D — дублювати вкладку                           │
+│   • Alt+Shift+D — дублювати панель поруч                       │
+│   • Alt+Shift++ — поділити вертикально                         │
+│   • Alt+Shift+- — поділити горизонтально                       │
 │   • Ctrl+Shift+W — закрити панель                              │
 │   • Ctrl+Tab — наступна вкладка                                │
 │   • Ctrl+Shift+P — command palette                             │
@@ -141,6 +145,8 @@ Windows має два основних інтерпретатори команд
 | `tree` | Показати дерево каталогів | `tree /f` |
 | `pushd` | Зберегти поточний каталог | `pushd D:\temp` |
 | `popd` | Повернутися до збереженого | `popd` |
+
+У списках нижче пояснення стоять після `::` — лише для вас, вводити їх не треба. Коментарем `::` є тільки на початку рядка; посеред рядка це звичайні символи, і `dir /a :: приховані` передасть команді dir зайві аргументи. Щоб додати коментар після команди, пишуть `& rem`: `dir /a & rem приховані`.
 
 ```cmd
 :: Практичні приклади dir
@@ -206,6 +212,9 @@ del /q *.tmp                        :: Без підтвердження
 del /s *.tmp                        :: Рекурсивно
 del /f file.txt                     :: Force (read-only файли)
 del /a:h *.txt                      :: Приховані файли
+
+:: Увага: del і rd видаляють остаточно — повз Кошик. Відновити
+:: так видалені файли штатними засобами Windows неможливо.
 
 :: Каталоги
 md "New Folder"                     :: Створити каталог
@@ -462,10 +471,10 @@ Get-ChildItem -Recurse | Where-Object {$_.Length -gt 10MB} |
 # Кількість запущених служб
 Get-Service | Where-Object Status -eq "Running" | Measure-Object
 
-# Останні помилки з Event Log
-Get-EventLog System -Newest 100 |
-    Where-Object {$_.EntryType -eq "Error"} |
-    Group-Object Source |
+# Останні помилки з журналу System (Level 2 = Error).
+# Старий Get-EventLog є лише у Windows PowerShell 5.1, у PowerShell 7 його немає
+Get-WinEvent -FilterHashtable @{ LogName = 'System'; Level = 2 } -MaxEvents 100 |
+    Group-Object ProviderName |
     Sort-Object Count -Descending
 
 # Експорт у CSV
@@ -549,6 +558,7 @@ Get-Service | Get-Member -MemberType Property
 │                                                                │
 │   PATH — список каталогів для пошуку програм:                  │
 │   C:\Windows\System32;C:\Windows;C:\Python310;...              │
+│   Повний PATH = системний PATH + PATH користувача              │
 │                                                                │
 │   Коли ви вводите "python", Windows шукає python.exe           │
 │   в кожному каталозі з PATH по порядку                         │
@@ -577,6 +587,8 @@ setx MYVAR "Hello"                  :: Для користувача
 setx MYVAR "Hello" /m               :: Системна (потрібен адмін)
 ```
 
+Одна пастка, на яку натрапляють майже всі: **не додавайте до PATH командою `setx PATH "%PATH%;C:\MyProgram"`**. `%PATH%` у поточному вікні — це вже *злиті* системний і користувацький PATH, тож усе разом запишеться в користувацький, а `setx` ще й обріже значення до 1024 символів. Каталоги, що не влізли, мовчки зникнуть. Змінювати PATH назавжди безпечно через «Змінні середовища» у властивостях системи.
+
 ```powershell
 # PowerShell
 $env:PATH
@@ -604,6 +616,7 @@ $env:PATH += ";C:\MyProgram"
 :: CMD
 :: 1. Дізнатися версію Windows
 ver
+:: на українській Windows поля називаються «Назва ОС» і «Версія ОС»
 systeminfo | findstr /c:"OS Name" /c:"OS Version"
 
 :: 2. Показати мережеву конфігурацію
@@ -682,27 +695,27 @@ $PSVersionTable
 ├───────────────────────────────────────────────────────────────────────┤
 │                                                                       │
 │  POWERSHELL DEVELOPER / AUTOMATION ENGINEER                           │
-│  ├── Зарплата: $70K-$130K USD / €65K-€110K EUR                        │
+│  ├── Зарплата: $70K-$130K (USA) | €55K-€100K (EU)                     │
 │  ├── Навички: PowerShell advanced, DSC, Azure Automation              │
 │  └── Сертифікації: AZ-040, PowerShell certifications                  │
 │                                                                       │
 │  WINDOWS SYSTEM ADMINISTRATOR                                         │
-│  ├── Зарплата: $50K-$90K USD / €45K-€80K EUR                          │
+│  ├── Зарплата: $50K-$90K (USA) | €45K-€80K (EU)                       │
 │  ├── Навички: CMD, PowerShell, batch scripting, AD                    │
 │  └── Сертифікації: AZ-800, AZ-801                                     │
 │                                                                       │
 │  DEVOPS ENGINEER (Windows)                                            │
-│  ├── Зарплата: $80K-$150K USD / €70K-€130K EUR                        │
+│  ├── Зарплата: $80K-$150K (USA) | €60K-€110K (EU)                     │
 │  ├── Навички: PowerShell, Azure DevOps, CI/CD, IaC                    │
 │  └── Сертифікації: AZ-400, GitHub certifications                      │
 │                                                                       │
 │  SECURITY ANALYST / INCIDENT RESPONDER                                │
-│  ├── Зарплата: $75K-$140K USD / €65K-€120K EUR                        │
+│  ├── Зарплата: $75K-$140K (USA) | €55K-€100K (EU)                     │
 │  ├── Навички: PowerShell forensics, threat hunting, SIEM              │
 │  └── Сертифікації: SC-200, SANS GIAC                                  │
 │                                                                       │
 │  CLOUD ENGINEER (Azure)                                               │
-│  ├── Зарплата: $90K-$160K USD / €80K-€140K EUR                        │
+│  ├── Зарплата: $90K-$160K (USA) | €60K-€110K (EU)                     │
 │  ├── Навички: Azure PowerShell, Az CLI, ARM templates                 │
 │  └── Сертифікації: AZ-104, AZ-305                                     │
 │                                                                       │
@@ -808,7 +821,7 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # CPU Usage
-$CPU = (Get-WmiObject Win32_Processor).LoadPercentage
+$CPU = (Get-CimInstance Win32_Processor).LoadPercentage
 Write-Host "CPU Usage:    " -NoNewline
 if ($CPU -lt 50) { $color = "Green" }
 elseif ($CPU -lt 80) { $color = "Yellow" }
@@ -816,7 +829,7 @@ else { $color = "Red" }
 Write-Host (Show-ProgressBar $CPU) -ForegroundColor $color
 
 # RAM Usage
-$OS = Get-WmiObject Win32_OperatingSystem
+$OS = Get-CimInstance Win32_OperatingSystem
 $TotalRAM = $OS.TotalVisibleMemorySize
 $FreeRAM = $OS.FreePhysicalMemory
 $UsedRAM = [math]::Round((($TotalRAM - $FreeRAM) / $TotalRAM) * 100)
@@ -929,7 +942,7 @@ Write-Host "Log saved: $LogFile" -ForegroundColor Gray
 **5.** Як завершити процес за іменем у PowerShell?
 
 - Stop-Process -Name ім'я
-- taskkill /im ім'я
+- End-Process ім'я
 - Remove-Process ім'я
 - Exit-Process ім'я
 

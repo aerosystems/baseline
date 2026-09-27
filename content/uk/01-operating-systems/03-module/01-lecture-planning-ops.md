@@ -309,11 +309,13 @@ vmstat 1 5
 cat /proc/loadavg
 
 # Затримка планувальника для конкретного процесу:
-# sum_exec_runtime — виконувався, wait_sum — простояв у черзі готових
-grep -E "se.sum_exec_runtime|se.statistics.wait_sum" /proc/self/sched
+# sum_exec_runtime — виконувався, wait_sum — простояв у черзі готових.
+# wait_sum рахується, лише коли ввімкнено статистику планувальника
+sudo sysctl kernel.sched_schedstats=1
+grep -E "se.sum_exec_runtime|wait_sum" /proc/self/sched
 
-# Скільки часу процеси чекають у черзі готових по всій системі
-grep -E "cpu#|nr_running|nr_switches" /proc/sched_debug | head -12
+# Стан черг готових по ядрах (з Linux 5.13 — у debugfs, раніше /proc/sched_debug)
+sudo grep -E "^cpu#|\.nr_running|\.nr_switches" /sys/kernel/debug/sched/debug | head -12
 ```
 
 Порівняння `sum_exec_runtime` і `wait_sum` — найпряміший спосіб показати
@@ -369,22 +371,22 @@ grep -E "cpu#|nr_running|nr_switches" /proc/sched_debug | head -12
 │                                                                     │
 │     PERFORMANCE ENGINEER                                            │
 │     Вимірює час відгуку й пропускну здатність, шукає вузькі місця   │
-│     Зарплата: $130K-$200K (USA) | EUR 70K-110K (EU)                 │
+│     Зарплата: $130K-$200K (USA) | €70K-€110K (EU)                   │
 │     Компанії: Netflix, Uber, Datadog, Grafana                       │
 │                                                                     │
 │     SRE / PLATFORM ENGINEER                                         │
 │     Налаштовує ліміти ресурсів і планувальники в кластерах          │
-│     Зарплата: $140K-$220K (USA) | EUR 65K-100K (EU)                 │
+│     Зарплата: $140K-$220K (USA) | €65K-€100K (EU)                   │
 │     Компанії: Google, Stripe, Cloudflare, Shopify                   │
 │                                                                     │
 │     EMBEDDED / RTOS DEVELOPER                                       │
 │     Планування за термінами в системах реального часу               │
-│     Зарплата: $110K-$170K (USA) | EUR 55K-90K (EU)                  │
+│     Зарплата: $110K-$170K (USA) | €55K-€90K (EU)                    │
 │     Компанії: Bosch, Continental, QNX (BlackBerry), Wind River      │
 │                                                                     │
 │     KERNEL DEVELOPER                                                │
 │     Розробка та оптимізація планувальника ядра                      │
-│     Зарплата: $150K-$250K (USA) | EUR 80K-130K (EU)                 │
+│     Зарплата: $150K-$250K (USA) | €80K-€130K (EU)                   │
 │     Компанії: Google, Meta, Intel, AMD, Red Hat                     │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -441,7 +443,7 @@ grep -E "cpu#|nr_running|nr_switches" /proc/sched_debug | head -12
 │     cat /proc/loadavg     → середнє навантаження                    │
 │     grep ctxt /proc/stat  → перемикань від старту системи           │
 │     /proc/PID/sched       → скільки процес виконувався й чекав      │
-│     /proc/sched_debug     → стан черг по ядрах                      │
+│     debug/sched/debug     → стан черг по ядрах (debugfs)            │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -454,7 +456,7 @@ grep -E "cpu#|nr_running|nr_switches" /proc/sched_debug | head -12
 
 - планувальник вирішує, кого виконувати, диспетчер виконує саме перемикання
 - планувальник перемикає контекст, диспетчер обирає процес
-- це два назви одного компонента ядра
+- це дві назви одного компонента ядра
 - планувальник працює в режимі користувача, диспетчер — у режимі ядра
 
 **2.** Що вирішує довгострокове планування?
@@ -557,7 +559,9 @@ rm -f /tmp/ping /tmp/pong
 
 **Очікуваний результат:** число в межах одиниць-десятків мікросекунд. Воно буде
 більшим за «чисті» 3-10 мкс, бо до перемикання додається робота оболонки з
-каналом — це теж корисне спостереження.
+каналом: у кожній ітерації вона заново відкриває й закриває FIFO. Для порівняння
+запустіть готовий бенчмарк `perf bench sched pipe`, який робить те саме без
+накладних витрат оболонки (пакет `linux-tools-$(uname -r)`).
 
 **Бонус (для допитливих):**
 

@@ -137,8 +137,10 @@ ls /sys/module/ | head -10
 # Скільки переривань згенерував кожен пристрій
 head -5 /proc/interrupts
 
-# Чи використовує мережева карта NAPI (пакети, оброблені в режимі опитування)
-grep -E "^ *[0-9]+:" /proc/interrupts | head -5
+# Робота NAPI: скільки разів ядро обробляло вхідні пакети опитуванням
+grep NET_RX /proc/softirqs
+# Статистика по ядрах: оброблено, відкинуто, «не встигли за бюджет» (hex)
+cat /proc/net/softnet_stat
 ```
 
 ## Блокуючі, неблокуючі та асинхронні операції
@@ -173,8 +175,8 @@ grep -E "^ *[0-9]+:" /proc/interrupts | head -5
 з'єднань, бо не чекає на жодне.
 
 ```bash
-# Чи підтримує ядро io_uring
-grep -i io_uring /proc/kallsyms 2>/dev/null | head -3 ||   echo "перевірте версію ядра: uname -r"
+# io_uring з'явився в Linux 5.1 (2019); 0 — дозволений усім, 2 — вимкнений
+cat /proc/sys/kernel/io_uring_disabled 2>/dev/null || uname -r
 
 # Скільки дескрипторів може відкрити процес — межа для моделі «потік на з'єднання»
 ulimit -n
@@ -206,12 +208,9 @@ ulimit -n
 Пункт 2 пояснює, чому друге читання того самого файлу відбувається миттєво: до
 пристрою справа просто не доходить.
 
-```bash
-# Порівняйте час двох читань поспіль
-sync && sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches' 2>/dev/null
-time cat /usr/share/dict/words > /dev/null 2>/dev/null ||   time cat /etc/services > /dev/null
-time cat /etc/services > /dev/null
-```
+Переконатися в цьому на великому файлі можна в міні-проєкті наприкінці теми:
+холодне читання після скидання кеша (`echo 3 > /proc/sys/vm/drop_caches`) і
+тепле — одразу після нього — відрізняються в десятки разів.
 
 ## Планування запитів до диска
 
@@ -264,8 +263,15 @@ cat /sys/block/*/queue/nr_requests 2>/dev/null | head -3
 │   └── Модель «потік на з'єднання» не масштабується далі тисяч       │
 │                                                                     │
 │   БАЗИ ДАНИХ                                                        │
-│   ├── Переходять на io_uring заради асинхронного запису             │
-│   └── Обходять кеш сторінок (O_DIRECT), бо мають власний            │
+│   ├── PostgreSQL 18 (2025) отримав асинхронний ввід-вивід,          │
+│   │   зокрема через io_uring                                        │
+│   └── MySQL (InnoDB) читає в обхід кеша сторінок (O_DIRECT):        │
+│       у неї власний буферний кеш                                    │
+│                                                                     │
+│   GOOGLE І IO_URING                                                 │
+│   └── 2023: io_uring вимкнули в ChromeOS, Android і на серверах     │
+│       Google — через нього пройшла більшість знайдених експлойтів   │
+│       ядра. Швидкість нового інтерфейсу має ціну в безпеці          │
 │                                                                     │
 │   МЕРЕЖЕВЕ ОБЛАДНАННЯ ТА ТЕЛЕКОМ                                    │
 │   ├── DPDK повністю відмовляється від переривань:                   │
@@ -289,22 +295,22 @@ cat /sys/block/*/queue/nr_requests 2>/dev/null | head -3
 │                                                                     │
 │   BACKEND ENGINEER (HIGH LOAD)                                      │
 │   Асинхронні сервери, epoll, io_uring, тюнінг черг                  │
-│   Зарплата: $120K-$190K (USA) | EUR 60K-100K (EU)                   │
+│   Зарплата: $120K-$190K (USA) | €60K-€100K (EU)                     │
 │   Компанії: Cloudflare, Fastly, Stripe, Booking                     │
 │                                                                     │
 │   KERNEL / DRIVER DEVELOPER                                         │
 │   Блоковий рівень, планувальники вводу-виводу, NAPI                 │
-│   Зарплата: $150K-$240K (USA) | EUR 80K-125K (EU)                   │
+│   Зарплата: $150K-$240K (USA) | €80K-€125K (EU)                     │
 │   Компанії: Red Hat, Intel, NVIDIA, Western Digital                 │
 │                                                                     │
 │   PERFORMANCE / STORAGE ENGINEER                                    │
 │   Вимірювання затримок вводу-виводу, підбір планувальників          │
-│   Зарплата: $120K-$180K (USA) | EUR 60K-95K (EU)                    │
+│   Зарплата: $120K-$180K (USA) | €60K-€95K (EU)                      │
 │   Компанії: Pure Storage, NetApp, AWS, Datadog                      │
 │                                                                     │
 │   NETWORK SOFTWARE ENGINEER                                         │
 │   DPDK, XDP, обробка пакетів на швидкості лінії                     │
-│   Зарплата: $130K-$200K (USA) | EUR 65K-105K (EU)                   │
+│   Зарплата: $130K-$200K (USA) | €65K-€105K (EU)                     │
 │   Компанії: Cisco, Juniper, Nokia, Arista                           │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
