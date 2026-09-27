@@ -273,3 +273,27 @@ export function checkPdf(pdfPath, expected) {
 
   return problems;
 }
+
+const LEVELS = ['Середній', 'Достатній', 'Високий'];
+
+/**
+ * Levels of control questions the report answers. A student answers the
+ * questions of one level — the one they defend for — so a report with more
+ * than one is sent back. A level is marked by a line of its own, a heading or
+ * not: "### Достатній рівень", "Високий рівень (творчий)".
+ */
+export function answerLevels(body) {
+  const lines = body.replace(/<!--[\s\S]*?-->/g, '').split('\n');
+  const start = lines.findIndex(line => /^##\s+Відповіді на контрольні питання/.test(line.trim()));
+  if (start === -1) return [];
+
+  const end = lines.findIndex((line, index) => index > start && /^##\s/.test(line.trim()));
+  const found = new Set();
+
+  for (const line of lines.slice(start + 1, end === -1 ? undefined : end)) {
+    const level = line.trim().match(/^(?:#{1,6}\s*)?[*_]*\s*(Середній|Достатній|Високий)\s+рівень/i)?.[1];
+    if (level) found.add(LEVELS.find(name => name.toLowerCase() === level.toLowerCase()));
+  }
+
+  return LEVELS.filter(level => found.has(level));
+}
