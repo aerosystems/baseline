@@ -26,7 +26,7 @@ import { join, dirname } from 'path';
 import { tmpdir } from 'os';
 import { fileURLToPath } from 'url';
 
-import { freezeTimestamps } from '../lib/docx.mjs';
+import { freezeTimestamps, packDocx } from '../lib/docx.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -353,7 +353,7 @@ function buildTemplate(profile) {
 
     const output = join(__dirname, profile.output);
     const built = join(work, profile.output);
-    run('zip', ['-r', '-q', '-X', built, '.'], { cwd: join(work, 'docx') });
+    packDocx(join(work, 'docx'), built);
     copyFileSync(built, output);
 
     console.log(`[ok] ${output}`);
