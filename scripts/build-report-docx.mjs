@@ -12,27 +12,39 @@
  *   node scripts/build-report-docx.mjs reports/…/report.md    # given reports
  *   node scripts/build-report-docx.mjs --changed              # changed in HEAD
  *   node scripts/build-report-docx.mjs --changed --since=main
+ *   node scripts/build-report-docx.mjs --files-from=changed.txt   # reports these files touch
+ *   node scripts/build-report-docx.mjs --all                      # every report of the branch
+ *
+ *   --list=built.txt   append the path of every document built (CI preview)
+ *
+ * Every document is checked against the samples (scripts/lib/report-checks.mjs)
+ * before it is kept; a report that fails leaves no document behind, and the
+ * exit status is 1.
  */
 
 import { spawnSync } from 'child_process';
 import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync, mkdtempSync } from 'fs';
-import { join, dirname, basename, relative } from 'path';
+import { join, dirname, basename, relative, resolve, sep } from 'path';
 import { tmpdir } from 'os';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 import { convert, run } from './lib/docx.mjs';
 import { parseFrontmatter } from './lib/frontmatter.mjs';
+import { checkReport, reportWarnings } from './lib/report-checks.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT = join(ROOT, 'content', 'uk');
 const REPORTS = join(ROOT, 'reports');
 const TEMPLATE = join(ROOT, 'scripts', 'templates', 'report-template.docx');
 const TITLE_TEMPLATES = join(ROOT, 'scripts', 'templates');
+const FILTER = join(ROOT, 'scripts', 'templates', 'report-filter.lua');
 
-// Text width of a report: A4 minus the 25 and 10 mm margins
+// Text width of a report: A4 minus the 25 and 10 mm margins. Tables as in the
+// report sample: centred, header row centred, rows at least 0.8 cm high.
 const LAYOUT = {
   tableWidth: 11906 - 1418 - 567,
-  list: { left: 1134, hanging: 425, bullet: '–' }
+  list: { left: 1134, hanging: 425, bullet: '–' },
+  table: { align: 'center', headerAlign: 'center', rowHeight: 454 }
 };
 
 const TEACHER = 'Костенко А.О.';
@@ -65,6 +77,35 @@ function workCode({ specialty, abbr, number, lab }) {
 function academicYear(date = new Date()) {
   const start = date.getMonth() >= 8 ? date.getFullYear() : date.getFullYear() - 1;
   return `${start} - ${start + 1}`;
+}
+
+/**
+ * Name as the title page signs it: "Костенко Артем Олегович" → "Костенко А.О.",
+ * the way the teacher's name is written a line below. The frontmatter keeps
+ * the full name; a name of one word is left as it is.
+ */
+export function signature(fullName) {
+  const [surname, ...given] = String(fullName).trim().split(/\s+/);
+  if (!given.length) return surname;
+  return `${surname} ${given.map(name => `${name[0].toUpperCase()}.`).join('')}`;
+}
+
+/**
+ * Every picture the report embeds must exist next to it. Pandoc replaces a
+ * picture it cannot read with the alt text and goes on, so a report whose
+ * screenshots were never uploaded built into a document with captions and no
+ * pictures. The path also has to stay inside the student's directory.
+ */
+export function missingImages(body, reportDir) {
+  const images = [...body.matchAll(/!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g)].map(m => m[1]);
+
+  return images
+    .filter(src => !/^[a-z]+:/i.test(src))
+    .filter(src => {
+      let path;
+      try { path = resolve(reportDir, decodeURI(src)); } catch { return true; }
+      return !path.startsWith(reportDir + sep) || !existsSync(path) || !statSync(path).isFile();
+    });
 }
 
 function fail(message) {
@@ -125,7 +166,7 @@ function titlePage(report) {
   const values = {
     lab: report.lab,
     discipline: DISCIPLINE[report.course] ?? report.course,
-    student: report.student,
+    student: signature(report.student),
     group: report.groupTitle,
     teacher: report.teacher ?? TEACHER,
     year: report.year ?? new Date().getFullYear(),
@@ -216,6 +257,14 @@ function buildReport(reportPath) {
   const programs = JSON.parse(readFileSync(join(CONTENT, data.course, '_programs.json'), 'utf8'));
   const groupEntry = programs.groups?.find(entry => entry.id === data.group);
 
+  const missing = missingImages(body.replace(/<!--[\s\S]*?-->/g, ''), dirname(reportPath));
+  if (missing.length) {
+    throw new Error(
+      `the report shows ${missing.length === 1 ? 'a picture that is' : 'pictures that are'} not in the repository: ` +
+      `${missing.join(', ')} — upload ${missing.length === 1 ? 'it' : 'them'} next to report.md (assets/)`
+    );
+  }
+
   const lab = findLab(data);
   const report = {
     ...data,
@@ -261,17 +310,76 @@ function buildReport(reportPath) {
     convert(sourcePath, outputPath, {
       dateFrom: reportPath,
       referenceDoc: TEMPLATE,
+      filter: FILTER,
       layout: LAYOUT,
+      properties: { title: `${lab.topic}. Звіт з лабораторної роботи №${data.lab}`, author: data.student },
       cwd: ROOT,
       // report images are relative to the student's directory
       resourcePath: dirname(reportPath)
     });
+
+    // The document is kept only if it matches the samples; a failed check
+    // leaves nothing behind for the pipeline to commit
+    const problems = checkReport(outputPath, {
+      body,
+      student: data.student,
+      signature: signature(data.student),
+      lab: data.lab,
+      code: workCode(report)
+    });
+    if (problems.length) {
+      rmSync(outputPath, { force: true });
+      throw new Error(`the document does not match the report sample:\n  - ${problems.join('\n  - ')}`);
+    }
+
+    for (const warning of reportWarnings(body)) {
+      console.warn(`[warn] ${relative(ROOT, reportPath)}: ${warning}`);
+    }
 
     console.log(`[ok] ${relative(ROOT, outputPath)}`);
     return outputPath;
   } finally {
     rmSync(work, { recursive: true, force: true });
   }
+}
+
+/**
+ * Reports a list of changed files touches. A screenshot uploaded after the text
+ * changes the document as much as the text does, so any file inside a
+ * student's directory — report.md, assets/, src/ — or the generated .docx
+ * itself (it came over from a branch built by an older pipeline) stands for
+ * the report.md next to it. Deleted reports and internal directories
+ * (_template) are left out.
+ */
+export function reportsOf(paths) {
+  const reports = new Set();
+
+  for (const path of paths.map(line => line.trim()).filter(Boolean)) {
+    const parts = path.split('/');
+    const at = parts.indexOf('students');
+    if (parts[0] !== 'reports' || at === -1 || parts.length < at + 3) continue;
+    if (parts.some(part => part.startsWith('_'))) continue;
+
+    const report = join(ROOT, ...parts.slice(0, at + 2), 'report.md');
+    if (existsSync(report)) reports.add(report);
+  }
+
+  return [...reports].sort();
+}
+
+/** Every report in the working tree */
+function allReports() {
+  const found = [];
+  const walk = dir => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name.startsWith('_') || entry.name.startsWith('.')) continue;
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (entry.name === 'report.md') found.push(path);
+    }
+  };
+  if (existsSync(REPORTS)) walk(REPORTS);
+  return found.sort();
 }
 
 /** Reports changed in the last commit, or against the given ref */
@@ -286,36 +394,67 @@ function changedReports(since) {
   }
 
   const range = resolvable ? `${since}...HEAD` : 'HEAD~1..HEAD';
-  const output = run('git', ['diff', '--name-only', '--diff-filter=d', range], { cwd: ROOT });
+  return reportsOf(run('git', ['diff', '--name-only', range], { cwd: ROOT }).split('\n'));
+}
 
-  return output
-    .split('\n')
-    .filter(line => /^reports\/.*\/report\.md$/.test(line))
-    // underscore directories are internal (template, samples)
-    .filter(line => !line.split('/').some(part => part.startsWith('_')))
-    .map(line => join(ROOT, line));
+/** Where a report's document goes: ЛР<lab>_<student>.docx next to it */
+function outputOf(reportPath) {
+  const { lab, student } = parsePath(reportPath);
+  return join(dirname(reportPath), `ЛР${lab}_${student}.docx`);
 }
 
 function main() {
   const args = process.argv.slice(2);
-  const since = args.find(arg => arg.startsWith('--since='))?.slice('--since='.length);
+  const option = name => args.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
+  const since = option('since');
+  const filesFrom = option('files-from');
+  const list = option('list');
 
-  const targets = args.includes('--changed')
-    ? changedReports(since)
-    : args.filter(arg => !arg.startsWith('--')).map(arg => join(ROOT, arg));
+  const targets = args.includes('--all')
+    ? allReports()
+    : filesFrom
+      ? reportsOf(readFileSync(filesFrom, 'utf8').split('\n'))
+      : args.includes('--changed')
+        ? changedReports(since)
+        : args.filter(arg => !arg.startsWith('--')).map(arg => join(ROOT, arg));
 
   if (!targets.length) {
     console.log('No changed reports.');
     return;
   }
 
+  const summary = [];
   for (const target of targets) {
+    const name = relative(ROOT, target);
     try {
-      buildReport(target);
+      const built = buildReport(target);
+      summary.push(built ? `| ✅ | \`${name}\` | ${basename(built)} |` : `| ➖ | \`${name}\` | заготовка, не збирається |`);
+      // CI collects what was built — and only that — for the preview
+      if (built && list) writeFileSync(list, `${relative(ROOT, built)}\n`, { flag: 'a' });
     } catch (error) {
-      fail(`${relative(ROOT, target)}: ${error.message}`);
+      fail(`${name}: ${error.message}`);
+      summary.push(`| ❌ | \`${name}\` | ${error.message.split('\n').join('<br>')} |`);
+
+      // A document left over from an earlier build no longer matches the
+      // report — better no document than a wrong one
+      try {
+        const stale = outputOf(target);
+        if (existsSync(stale)) {
+          rmSync(stale);
+          console.error(`[error] removed ${relative(ROOT, stale)}: it no longer matches the report`);
+        }
+      } catch { /* a malformed path has no document */ }
     }
+  }
+
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    writeFileSync(process.env.GITHUB_STEP_SUMMARY,
+      ['### Звіти', '', '| | Звіт | Результат |', '|---|---|---|', ...summary, ''].join('\n'),
+      { flag: 'a' });
   }
 }
 
-main();
+// Run as a script; imported (by the checks) only the helpers are wanted
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

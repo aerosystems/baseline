@@ -25,9 +25,9 @@ Microsoft випускає різні редакції Windows для різни
 │                     │   Enterprise     │  Корпорації           │
 │                     │   Education      │  (Volume License)     │
 │                     └────────┬─────────┘                       │
-│                              │ + Long-Term Servicing           │
-│                              │ + DirectAccess                  │
-│                              │ + AppLocker повний              │
+│                              │ + LTSC                          │
+│                              │ + Credential Guard              │
+│                              │ + керування через Intune/GPO    │
 │                     ┌────────▼─────────┐                       │
 │                     │   Pro for        │  Малий/середній       │
 │                     │   Workstations   │  бізнес               │
@@ -70,43 +70,49 @@ Microsoft випускає різні редакції Windows для різни
 
 | Функція | Pro | Enterprise |
 |---------|-----|------------|
-| **DirectAccess** | ❌ | ✅ |
-| **AppLocker (повний)** | Обмежений | ✅ |
 | **Credential Guard** | ❌ | ✅ |
-| **Device Guard** | Обмежений | ✅ |
 | **LTSC (Long-Term)** | ❌ | ✅ |
-| **Windows To Go** | ❌ | ✅ |
+| **Керування оновленнями й політиками в масштабі** | Базове | Повне |
 | **Ліцензування** | Retail/OEM | Volume |
+
+Колись у цій таблиці стояли DirectAccess і Windows To Go (запуск Windows з флешки). Microsoft від обох відмовилася — Windows To Go прибрали 2020 року, DirectAccess замінили на Always On VPN. Редакції не лише додають функції, а й втрачають їх, тож будь-яке порівняння варто звіряти з актуальною документацією.
 
 ## Windows 10 vs Windows 11
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
 │                    WINDOWS 10 vs WINDOWS 11                    │
+├────────────────────────────────────────────────────────────────┤
 │                                                                │
 │   WINDOWS 10 (2015)                WINDOWS 11 (2021)           │
 │                                                                │
-│   ┌───────────────────────┐        ┌────────────────────────┐  │
-│   │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ │        │ ╭─────────────────────╮ │  │
-│   │ ┌───┐ Start          │        │ │                     │ │  │
-│   │ │ ≡ │ Menu           │        │ │    Centered         │ │  │
-│   │ └───┘ (кут)          │        │ │    Taskbar          │ │  │
-│   │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ │        │ │     ⊞ ○ ▢           │ │  │
-│   └───────────────────────┘        │ ╰─────────────────────╯│  │
-│                                    └───────────────────────┘   │
+│   ┌───────────────────────┐        ┌───────────────────────┐   │
+│   │                       │        │                       │   │
+│   │                       │        │                       │   │
+│   │                       │        │                       │   │
+│   │ [≡] Start   ▓▓▓▓▓▓▓▓▓ │        │      [⊞] ○ ▢ ▢        │   │
+│   └───────────────────────┘        └───────────────────────┘   │
+│     кнопка «Пуск» зліва              панель задач по центру    │
+│                                                                │
 │   • Live Tiles                     • Widgets                   │
 │   • Квадратні кути                 • Заокруглені кути          │
-│   • Підтримку завершено 2025       • Підтримка до 2031+        │
+│   • Підтримку завершено 2025       • Підтримка — щорічними     │
+│                                      версіями (24/36 міс.)     │
 │                                                                │
 │   Системні вимоги:                 Системні вимоги:            │
-│   • 1 ГГц CPU                      • 1 ГГц 64-bit (2 ядра)     │
-│   • 1 ГБ RAM (32-bit)              • 4 ГБ RAM                  │
-│   • 16 ГБ диска                    • 64 ГБ диска               │
-│   • DirectX 9                      • DirectX 12                │
+│   • 1 ГГц CPU (є 32-бітна)         • 1 ГГц, 64-bit, 2 ядра,    │
+│                                      зі списку підтримуваних   │
+│                                      (Intel 8-го покоління+,   │
+│                                      AMD Zen 2+)               │
+│   • 1–2 ГБ RAM                     • 4 ГБ RAM                  │
+│   • 32 ГБ диска (з версії 1903)    • 64 ГБ диска               │
+│   • DirectX 9                      • DirectX 12, WDDM 2.0      │
 │   • TPM не обов'язковий            • TPM 2.0 ОБОВ'ЯЗКОВИЙ      │
 │   • UEFI не обов'язковий           • UEFI + Secure Boot        │
 └────────────────────────────────────────────────────────────────┘
 ```
+
+Найчастіше старий комп'ютер «не проходить» у Windows 11 не через пам'ять чи диск, а через процесор: Microsoft підтримує лише процесори, у яких є потрібні засоби безпеки (зокрема для віртуалізаційного захисту ядра). Перевірити свій ПК найпростіше офіційною програмою PC Health Check.
 
 ### Нові функції Windows 11
 
@@ -126,8 +132,8 @@ Microsoft випускає різні редакції Windows для різни
 # Перевірити TPM
 Get-Tpm
 
-# Версія TPM
-(Get-WmiObject -Namespace "root\cimv2\security\microsofttpm" -Class Win32_Tpm).SpecVersion
+# Версія TPM (перше число має бути 2.0)
+(Get-CimInstance -Namespace "root\cimv2\security\microsofttpm" -ClassName Win32_Tpm).SpecVersion
 
 # Перевірити Secure Boot
 Confirm-SecureBootUEFI
@@ -217,13 +223,10 @@ Get-ComputerInfo | Select-Object BiosFirmwareType, CsProcessors, OsTotalVisibleM
 ```powershell
 # Перевірити, чи це Server Core
 (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").InstallationType
-
-# Встановити GUI на Server Core
-Install-WindowsFeature Server-Gui-Shell, Server-Gui-Mgmt-Infra
-
-# Видалити GUI
-Uninstall-WindowsFeature Server-Gui-Shell
+# Server Core   або   Server
 ```
+
+Вибір між Core і повною версією з графічною оболонкою (Desktop Experience) робиться **один раз — під час встановлення**. У Windows Server 2012 між ними ще можна було перемикатися командою `Install-WindowsFeature Server-Gui-Shell`, але починаючи з Server 2016 це неможливо: щоб змінити варіант, сервер доведеться перевстановити. На Core можна лише доставити окремі графічні інструменти пакетом Features on Demand — наприклад, консоль MMC і Провідник.
 
 ## Windows версії: хронологія підтримки
 
@@ -242,13 +245,17 @@ Uninstall-WindowsFeature Server-Gui-Shell
 │  Win 10  ████████████████████████░  Кінець: 2025                │
 │     │                                                           │
 │  Win 11  ░░░░░████████████████████████████████████████          │
-│     │         Мін. 10 років підтримки                           │
+│     │         Кожна щорічна версія: 24 міс. (Home/Pro),         │
+│     │         36 міс. (Enterprise/Education)                    │
 │     │                                                           │
 │  Server ████████████████████████████████████                    │
 │  2019        10 років (5 mainstream + 5 extended)               │
 │     │                                                           │
 │  Server ░░░░░░░░████████████████████████████████████████        │
 │  2022                                                           │
+│     │                                                           │
+│  Server       ░░░░░░████████████████████████████████████████    │
+│  2025         (листопад 2024)                                   │
 │                                                                 │
 │  ████ = Активна підтримка                                       │
 │  ░░░░ = Розширена підтримка (тільки безпека)                    │
@@ -259,26 +266,31 @@ Uninstall-WindowsFeature Server-Gui-Shell
 зокрема безпекових, система більше не отримує. Для організацій Microsoft
 продає програму ESU (Extended Security Updates) з продовженням до жовтня
 2028 року, і саме на неї лишилися ті, хто не може перейти на Windows 11
-через вимогу TPM 2.0. Тому станом на сьогодні Windows 10 у навчальному
-класі — припустима, але вже несупроводжувана система.
+через вимогу TPM 2.0 чи непідтримуваний процесор. Домашнім користувачам
+Microsoft запропонувала річне продовження — до жовтня 2026 року. Тому
+станом на сьогодні Windows 10 у навчальному класі — припустима, але вже
+несупроводжувана система.
 
 ### Канали оновлень Windows
 
 | Канал | Опис | Для кого |
 |-------|------|----------|
-| **General Availability** | Стабільні оновлення, 2 рази на рік | Більшість |
-| **Windows Insider (Dev)** | Найновіші функції, нестабільно | Розробники |
-| **Windows Insider (Beta)** | Майже стабільно | Ентузіасти |
-| **LTSC** | Оновлення безпеки 10 років, без feature updates | Критична інфраструктура |
+| **General Availability** | Нова версія Windows 11 раз на рік (восени); виправлення безпеки — щомісяця | Більшість |
+| **Windows Insider (Canary, Dev)** | Найновіші функції, нестабільно | Розробники |
+| **Windows Insider (Beta, Release Preview)** | Майже стабільно | Ентузіасти |
+| **LTSC** | Лише оновлення безпеки 5 років (IoT LTSC — 10), без нових функцій | Критична інфраструктура |
+
+Щомісячні оновлення безпеки Microsoft випускає за розкладом — у другий вівторок місяця, так званий **Patch Tuesday**. Передбачуваність тут важливіша за швидкість: адміністратори великих мереж заздалегідь планують тестування й перезавантаження.
 
 ## Встановлення Windows: режими
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│                    РЕЖИМИ ВСТАНОВЛЕННЯ                         │
+│                      РЕЖИМИ ВСТАНОВЛЕННЯ                       │
+├────────────────────────────────────────────────────────────────┤
 │                                                                │
 │   ┌───────────────┐  ┌───────────────┐  ┌───────────────┐      │
-│   │  Clean Install │  │   Upgrade     │  │   Reset      │      │
+│   │ Clean Install │  │   Upgrade     │  │   Reset       │      │
 │   │               │  │               │  │               │      │
 │   │  Новий диск   │  │  Win10→Win11  │  │  Скинути до   │      │
 │   │  або форматув.│  │  Зберігає     │  │  заводських   │      │
@@ -294,14 +306,13 @@ Uninstall-WindowsFeature Server-Gui-Shell
 │   │               │  │  Масове       │                         │
 │   │  DISM         │  │  розгортання  │                         │
 │   │  для техніків │  │  по мережі    │                         │
-│   │               │  │               │                         │
 │   └───────────────┘  └───────────────┘                         │
 │                                                                │
 │   Корпоративні інструменти:                                    │
 │   • Windows Deployment Services (WDS)                          │
 │   • Microsoft Deployment Toolkit (MDT)                         │
-│   • Microsoft Endpoint Configuration Manager (SCCM/MECM)       │
-│   • Windows Autopilot (cloud-based)                            │
+│   • Microsoft Configuration Manager (колишній SCCM)            │
+│   • Windows Autopilot (хмарне розгортання)                     │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -314,7 +325,7 @@ Uninstall-WindowsFeature Server-Gui-Shell
 Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsHardwareAbstractionLayer
 
 # Редакція Windows
-(Get-WmiObject Win32_OperatingSystem).Caption
+(Get-CimInstance Win32_OperatingSystem).Caption
 
 # Версія та білд
 [System.Environment]::OSVersion.Version
@@ -326,7 +337,7 @@ Get-CimInstance -ClassName SoftwareLicensingProduct | Where-Object {$_.PartialPr
 Get-WindowsOptionalFeature -Online | Where-Object {$_.State -eq "Enabled"} | Select-Object FeatureName
 
 # Чи це Server?
-(Get-WmiObject Win32_OperatingSystem).ProductType
+(Get-CimInstance Win32_OperatingSystem).ProductType
 # 1 = Workstation, 2 = Domain Controller, 3 = Server
 ```
 
@@ -372,13 +383,13 @@ Get-WindowsOptionalFeature -Online | Where-Object {$_.State -eq "Enabled"} | Sel
 
 ```powershell
 # 1. Яка редакція встановлена?
-Get-WmiObject Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber
+Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber
 
 # 2. Чи підтримується Windows 11?
 # (перевірка TPM, Secure Boot, CPU)
 Get-Tpm
 Confirm-SecureBootUEFI
-Get-WmiObject Win32_Processor | Select-Object Name, NumberOfCores
+Get-CimInstance Win32_Processor | Select-Object Name, NumberOfCores
 
 # 3. Перелік встановлених ролей/функцій (Server)
 Get-WindowsFeature | Where-Object {$_.Installed}
@@ -386,8 +397,8 @@ Get-WindowsFeature | Where-Object {$_.Installed}
 # 4. Історія оновлень
 Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 10
 
-# 5. Канал оновлень
-Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name CommercialId -ErrorAction SilentlyContinue
+# 5. Версія (щорічне оновлення: 23H2, 24H2...)
+(Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").DisplayVersion
 ```
 
 ## 🏢 Real World: Як це використовують у великих компаніях
@@ -398,10 +409,10 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataC
 ├───────────────────────────────────────────────────────────────────────┤
 │                                                                       │
 │  КОРПОРАЦІЇ (Enterprise Agreement)                                    │
-│  ├── Microsoft, Google, Amazon офіси:                                 │
-│  │   └── Windows 11 Enterprise + Microsoft 365 E5                     │
-│  ├── Фінансові установи (Goldman Sachs, JP Morgan):                   │
-│  │   └── Windows 10/11 Enterprise LTSC для торгових терміналів        │
+│  ├── Офісні робочі місця:                                             │
+│  │   └── Windows 11 Enterprise + Microsoft 365                        │
+│  ├── Спеціалізовані термінали (каси, торгові місця):                  │
+│  │   └── Windows 11 Enterprise LTSC — без нових функцій роками        │
 │  └── Переваги: Volume Licensing, централізоване керування             │
 │                                                                       │
 │  СТАРТАПИ ТА МАЛИЙ БІЗНЕС                                             │
@@ -438,27 +449,27 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataC
 ├───────────────────────────────────────────────────────────────────────┤
 │                                                                       │
 │  MICROSOFT 365 ADMINISTRATOR                                          │
-│  ├── Зарплата: $60K-$100K USD / €55K-€90K EUR                         │
+│  ├── Зарплата: $60K-$100K (USA) | €50K-€90K (EU)                      │
 │  ├── Навички: Windows deployment, Intune, Autopilot                   │
 │  └── Сертифікації: MS-102, MD-102                                     │
 │                                                                       │
 │  WINDOWS DEPLOYMENT SPECIALIST                                        │
-│  ├── Зарплата: $55K-$85K USD / €50K-€75K EUR                          │
+│  ├── Зарплата: $55K-$85K (USA) | €45K-€75K (EU)                       │
 │  ├── Навички: MDT, SCCM/MECM, WDS, Windows Imaging                    │
 │  └── Сертифікації: MD-102, AZ-140                                     │
 │                                                                       │
 │  ENDPOINT MANAGER / INTUNE SPECIALIST                                 │
-│  ├── Зарплата: $70K-$120K USD / €65K-€100K EUR                        │
+│  ├── Зарплата: $70K-$120K (USA) | €60K-€100K (EU)                     │
 │  ├── Навички: Intune, Autopilot, Windows Update for Business          │
 │  └── Сертифікації: MD-102, SC-300                                     │
 │                                                                       │
 │  WINDOWS SERVER ADMINISTRATOR                                         │
-│  ├── Зарплата: $60K-$110K USD / €55K-€95K EUR                         │
+│  ├── Зарплата: $60K-$110K (USA) | €50K-€95K (EU)                      │
 │  ├── Навички: Server Core, Hyper-V, Failover Clustering               │
 │  └── Сертифікації: AZ-800, AZ-801                                     │
 │                                                                       │
 │  LICENSING SPECIALIST                                                 │
-│  ├── Зарплата: $50K-$90K USD / €45K-€80K EUR                          │
+│  ├── Зарплата: $50K-$90K (USA) | €45K-€80K (EU)                       │
 │  ├── Навички: Microsoft licensing, SAM, compliance                    │
 │  └── Сертифікації: Microsoft Licensing Professional                   │
 │                                                                       │
@@ -475,7 +486,6 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataC
 | Microsoft Learn | Модулі з Windows 11 та Server | learn.microsoft.com |
 | Azure Free Account | Безкоштовні Windows VMs на 12 місяців | azure.microsoft.com/free |
 | Windows Insider Program | Тестування нових версій | insider.windows.com |
-| Hands-on Labs (Microsoft) | Віртуальні лабораторії | microsoft.com/handsonlabs |
 
 ## 📋 Cheat Sheet
 
@@ -489,7 +499,7 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataC
 │  │ Home            │ Базові функції, 128 GB RAM, без BitLocker   │    │
 │  │ Pro             │ + BitLocker, Hyper-V, RDP, Domain Join      │    │
 │  │ Pro Workstation │ + ReFS, Persistent Memory                   │    │
-│  │ Enterprise      │ + LTSC, DirectAccess, AppLocker             │    │
+│  │ Enterprise      │ + LTSC, Credential Guard, централізація     │    │
 │  │ Education       │ = Enterprise, академічна ліцензія           │    │
 │  └─────────────────┴─────────────────────────────────────────────┘    │
 │                                                                       │
@@ -510,7 +520,7 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataC
 │                                                                       │
 │  ПЕРЕВІРКА ВЕРСІЇ (PowerShell)                                        │
 │  ┌────────────────────────────────────────────────────────────────┐   │
-│  │ (Get-WmiObject Win32_OperatingSystem).Caption  # Назва         │   │
+│  │ (Get-CimInstance Win32_OperatingSystem).Caption # Назва        │   │
 │  │ [Environment]::OSVersion.Version               # Версія        │   │
 │  │ Get-ComputerInfo | Select Windows*             # Детально      │   │
 │  │ Get-Tpm                                        # Статус TPM    │   │
@@ -558,11 +568,13 @@ if ($RAM_GB -ge 4) {
 }
 ```
 
-3. Перевірте TPM та Secure Boot:
+3. Перевірте TPM та Secure Boot (Get-Tpm і Confirm-SecureBootUEFI потребують PowerShell від імені адміністратора):
 ```powershell
-# Перевірка TPM
+# Перевірка TPM: модуль має бути і готовим, і саме версії 2.0
 $tpm = Get-Tpm -ErrorAction SilentlyContinue
-if ($tpm.TpmPresent -and $tpm.TpmReady) {
+$tpmVersion = (Get-CimInstance -Namespace "root\cimv2\security\microsofttpm" `
+    -ClassName Win32_Tpm -ErrorAction SilentlyContinue).SpecVersion
+if ($tpm.TpmPresent -and $tpm.TpmReady -and $tpmVersion -like "2.0*") {
     Write-Host "[PASS] TPM 2.0: Присутній та готовий" -ForegroundColor Green
     $Results.PassedChecks++
 } else {
@@ -589,7 +601,7 @@ try {
 4. Перевірте CPU та диск:
 ```powershell
 # Перевірка CPU (мінімум 2 ядра, 1 GHz)
-$CPU = Get-WmiObject Win32_Processor
+$CPU = Get-CimInstance Win32_Processor
 $Cores = $CPU.NumberOfCores
 if ($Cores -ge 2) {
     Write-Host "[PASS] CPU: $($CPU.Name) ($Cores cores)" -ForegroundColor Green
@@ -659,7 +671,7 @@ Write-Host "Звіт збережено: $ReportFile" -ForegroundColor Cyan
 Скрипт, який перевіряє сумісність з Windows 11 та генерує файл звіту з рекомендаціями.
 
 **Бонус (для допитливих):**
-- Додайте перевірку сумісності CPU за списком підтримуваних процесорів
+- Додайте перевірку сумісності CPU за списком підтримуваних процесорів — саме на цьому пункті «падає» більшість старих ПК; порівняйте свій результат із PC Health Check
 - Створіть GUI-версію з Windows Forms
 - Додайте порівняння редакцій (Home vs Pro vs Enterprise)
 
@@ -698,9 +710,9 @@ Write-Host "Звіт збережено: $ReportFile" -ForegroundColor Cyan
 **5.** Яка вимога Windows 11 стала новою порівняно з Windows 10?
 
 - обов'язковий модуль TPM 2.0
-- 4 ГБ оперативної пам'яті
-- 64-розрядний процесор
-- підключення до інтернету під час роботи
+- наявність дисковода DVD
+- постійне підключення до інтернету під час роботи
+- підтримка DirectX 9
 
 **6.** Навіщо Microsoft вимагає TPM 2.0?
 
@@ -743,7 +755,7 @@ Write-Host "Звіт збережено: $ReportFile" -ForegroundColor Cyan
 |----------|----------|-----------------|
 | **Home** | Домашні користувачі | Базові функції |
 | **Pro** | Малий бізнес, розробники | BitLocker, Hyper-V, RDP |
-| **Enterprise** | Корпорації | LTSC, DirectAccess, AppLocker |
+| **Enterprise** | Корпорації | LTSC, Credential Guard, керування в масштабі |
 | **Education** | Навчальні заклади | = Enterprise, інша ліцензія |
 | **Server Essentials** | Малий бізнес | До 25 користувачів |
 | **Server Standard** | Середній бізнес | 2 VM на ліцензію |

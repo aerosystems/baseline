@@ -72,7 +72,7 @@ ls -l /dev/sda /dev/sda1 /dev/null /dev/tty0
 
 ### 3 Підсистема udev
 
-Каталог `/dev` не зберігається на диску: його наповнює служба `udev` у момент завантаження й під час кожного підключення пристрою. Ядро надсилає подію (uevent), `udev` знаходить відповідне правило й створює файл пристрою з потрібними іменем, власником і правами.
+Каталог `/dev` не зберігається на диску: це файлова система `devtmpfs` у пам'яті. Щойно драйвер реєструє пристрій, ядро саме створює в ній файл пристрою й надсилає подію (uevent). Служба `udev` у просторі користувача отримує подію, знаходить відповідні правила й доводить файл до ладу: призначає власника й права, створює сталі імена-посилання, запускає потрібні програми.
 
 ```bash
 udevadm monitor --udev            # спостерігати за подіями в реальному часі
@@ -92,7 +92,7 @@ lsmod | head                      # завантажені модулі
 modinfo usb_storage               # відомості про модуль
 sudo modprobe vfat                # завантажити модуль
 sudo modprobe -r vfat             # вивантажити
-dmesg | tail -20                  # повідомлення ядра, зокрема про пристрої
+sudo dmesg | tail -20             # повідомлення ядра (в Ubuntu — лише для root)
 ```
 
 Стовпець `Used by` у виводі `lsmod` показує залежності: модуль, від якого залежать інші, вивантажити неможливо, доки не звільнено залежні.
@@ -163,13 +163,9 @@ student@lab-vm:~$ grep -E "^ *8 |^ *1 " /proc/devices
 student@lab-vm:~$ stat -c "%n: %F, major=%t minor=%T" /dev/sda1 /dev/null
 /dev/sda1: block special file, major=8 minor=1
 /dev/null: character special file, major=1 minor=3
-
-student@lab-vm:~$ ls -l /dev/sda1 /dev/null
-brw-rw---- 1 root disk    8, 1 Sep 17 08:42 /dev/sda1
-crw-rw-rw- 1 root root    1, 3 Sep 17 08:42 /dev/null
 ```
 
-Обидва диски `/dev/sda` і `/dev/sda1` мають major 8 — їх обслуговує той самий драйвер `sd`; розрізняє їх minor.
+Диск `/dev/sda` і його розділ `/dev/sda1` мають major 8 — їх обслуговує той самий драйвер `sd`; розрізняє їх minor.
 
 Зверніть увагу: `%t` і `%T` виводять номери **шістнадцятково**. Тут це непомітно,
 бо числа малі, але для `/dev/sda16` (minor 16) `stat` покаже `10`. Десяткові
@@ -235,7 +231,7 @@ description:    VFAT filesystem support
 license:        GPL
 depends:        fat
 
-student@lab-vm:~$ dmesg | tail -5
+student@lab-vm:~$ sudo dmesg | tail -5
 [  412.338] usb 1-1: new high-speed USB device number 3 using xhci_hcd
 [  412.489] usb-storage 1-1:1.0: USB Mass Storage device detected
 [  412.712] sd 2:0:0:0: [sdb] 15646720 512-byte logical blocks: (8.01 GB)
@@ -318,7 +314,7 @@ student@lab-vm:~$ sync && rm ~/test.img ~/test2.img
 |---|-----------------|----------------|-------------|--------------------|
 | 1 | `/dev/sda`, `/dev/null`, `/dev/tty0` | `/dev/null` | `vfat` | Пояснити, чому `/dev` не зберігається на диску |
 | 2 | `/dev/sda1`, `/dev/zero`, `/dev/console` | `/dev/zero` | `usb_storage` | Порівняти вміст `/dev/zero` і порожнього файлу |
-| 3 | `/dev/sr0`, `/dev/urandom`, `/dev/tty1` | `/dev/urandom` | `ext4` | Пояснити різницю між `/dev/random` і `/dev/urandom` |
+| 3 | `/dev/sr0`, `/dev/urandom`, `/dev/tty1` | `/dev/urandom` | `ext4` | Пояснити, чим `/dev/random` відрізнявся від `/dev/urandom` до Linux 5.6 і чим відрізняється тепер |
 | 4 | `/dev/sda2`, `/dev/full`, `/dev/ptmx` | `/dev/full` | `loop` | Показати, як підключити файл як блоковий пристрій |
 | 5 | `/dev/loop0`, `/dev/null`, `/dev/tty` | `/dev/null` | `fat` | Пояснити, навіщо потрібні loop-пристрої |
 | 6 | `/dev/sda`, `/dev/zero`, `/dev/random` | `/dev/zero` | `isofs` | Виміряти швидкість читання з `/dev/zero` |
@@ -335,7 +331,7 @@ student@lab-vm:~$ sync && rm ~/test.img ~/test2.img
 | 17 | `/dev/sdb`, `/dev/urandom`, `/dev/console` | `/dev/urandom` | `scsi_mod` | Пояснити, чому імена `/dev/sdX` можуть змінюватися |
 | 18 | `/dev/sda2`, `/dev/zero`, `/dev/tty2` | `/dev/full` | `overlay` | Пояснити, як контейнери використовують overlay-ФС |
 | 19 | `/dev/loop0`, `/dev/null`, `/dev/urandom` | `/dev/null` | `crc32c_intel` | Виміряти час запису з `sync` і без нього |
-| 20 | `/dev/sda`, `/dev/random`, `/dev/tty0` | `/dev/urandom` | `hid_generic` | Пояснити, чому читання з `/dev/random` може «зависати» |
+| 20 | `/dev/sda`, `/dev/random`, `/dev/tty0` | `/dev/urandom` | `hid_generic` | Пояснити, чому до Linux 5.6 читання з `/dev/random` могло «зависати» і коли воно блокується тепер |
 
 ## Контрольні запитання
 

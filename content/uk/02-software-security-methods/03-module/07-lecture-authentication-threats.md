@@ -7,6 +7,12 @@ preview: "Методи аутентифікації, MFA, найпоширені
 
 ## Три кити контролю доступу
 
+У вересні 2022 року 18-річний хакер отримав повний доступ до внутрішніх систем Uber. Він не зламав жодного шифру: купив пароль співробітника, а потім годину надсилав тому push-запити на підтвердження входу. Врешті написав у WhatsApp від імені «служби підтримки»: «Підтвердіть, і запити припиняться». Співробітник натиснув «Так». Автентифікація — найслабша ланка майже кожної системи, бо в ній бере участь людина.
+
+**Запитання до аудиторії**: скільки з вас користуються одним паролем більш ніж на одному сайті? Що станеться, якщо один із цих сайтів зламають?
+
+Термінологічна примітка: у стандартах і в цьому курсі трапляються обидва варіанти — «аутентифікація» і «автентифікація» (друга форма відповідає чинному правопису); означають вони одне й те саме.
+
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    КОНТРОЛЬ ДОСТУПУ                                 │
@@ -73,17 +79,25 @@ preview: "Методи аутентифікації, MFA, найпоширені
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    ПРИКЛАДИ MFA                                     │
+│                             ПРИКЛАДИ MFA                            │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   ✅ Справжня MFA:                                                  │
-│      • Пароль (знання) + SMS (володіння)                            │
-│      • PIN (знання) + карта (володіння)                             │
-│      • Пароль (знання) + відбиток (властивість)                     │
+│   СПРАВЖНЯ MFA (різні категорії):                                   │
+│      • Пароль (знання) + код з автентифікатора (володіння)          │
+│      • PIN (знання) + банківська картка (володіння)                 │
+│      • Відбиток (властивість) + телефон, у якому він зберігається   │
 │                                                                     │
-│   ❌ НЕ справжня MFA:                                               │
+│   НЕ СПРАВЖНЯ MFA (одна категорія):                                 │
 │      • Пароль + секретне питання (обидва — знання)                  │
 │      • Два паролі (обидва — знання)                                 │
+│                                                                     │
+│   НЕ ВСІ ДРУГІ ФАКТОРИ РІВНІ:                                       │
+│      SMS  — перехоплюють через SIM-swap і фішингові сайти           │
+│      TOTP — не перехоплюється оператором, але код можна             │
+│             вписати на фішинговому сайті                            │
+│      push — вразливий до «втоми від запитів» (MFA fatigue)          │
+│      FIDO2/passkey — стійкий до фішингу: ключ прив'язаний           │
+│             до домену сайту й не працює на підробці                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -94,12 +108,17 @@ preview: "Методи аутентифікації, MFA, найпоширені
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    СТАТИСТИКА ПАРОЛІВ                               │
+│                          СТАТИСТИКА ПАРОЛІВ                         │
+├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   • 81% витоків даних — через слабкі або вкрадені паролі            │
-│   • Топ паролів: 123456, password, qwerty, admin                    │
-│   • Середній користувач має 100+ акаунтів                           │
-│   • 65% використовують один пароль скрізь                           │
+│   • Звіт Verizon DBIR 2017: 81 % хакерських зламів — через          │
+│     слабкі або вкрадені паролі; у наступних звітах вкрадені         │
+│     облікові дані стабільно тримаються серед головних причин        │
+│   • Щороку в топі витоків: 123456, password, qwerty, admin          │
+│   • Опитування Google (2019): 65 % людей використовують             │
+│     той самий пароль на кількох сайтах                              │
+│   • Звідси credential stuffing: пари «логін — пароль» з одного      │
+│     витоку автоматично пробують на тисячах інших сервісів           │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -110,26 +129,27 @@ preview: "Методи аутентифікації, MFA, найпоширені
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    ЕВОЛЮЦІЯ ЗБЕРІГАННЯ ПАРОЛІВ                      │
+│                     ЕВОЛЮЦІЯ ЗБЕРІГАННЯ ПАРОЛІВ                     │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   ❌ Відкритий текст:                                               │
+│   [НЕ МОЖНА] Відкритий текст:                                       │
 │      password: "qwerty123"                                          │
 │      → Витік БД = всі паролі скомпрометовані                        │
 │                                                                     │
-│   ❌ Простий хеш:                                                   │
+│   [НЕ МОЖНА] Простий хеш:                                           │
 │      hash: SHA256("qwerty123")                                      │
 │      → Rainbow tables: попередньо обчислені хеші                    │
 │                                                                     │
-│   ⚠️ Хеш + сіль:                                                    │
+│   [НЕДОСТАТНЬО] Хеш + сіль:                                         │
 │      salt: "a1b2c3d4"                                               │
 │      hash: SHA256(salt + "qwerty123")                               │
-│      → Швидкі хеші = brute force можливий                           │
+│      → Одна відеокарта перебирає мільярди SHA-256 за секунду        │
 │                                                                     │
-│   ✅ Повільні хеш-функції:                                          │
+│   [ПРАВИЛЬНО] Повільні хеш-функції з сіллю:                         │
 │      bcrypt(password, cost=12)                                      │
 │      Argon2id(password, memory=64MB, iterations=3)                  │
-│      → Спеціально повільні, стійкі до GPU                           │
+│      → Спеціально повільні й вимогливі до пам'яті:                  │
+│        перебір на GPU стає в тисячі разів дорожчим                  │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -193,7 +213,8 @@ std::vector<unsigned char> hashPasswordPbkdf2(const std::string& password,
 │                                                                     │
 │   Поточний час T = floor(Unix_time / 30)  (30-секундні інтервали)   │
 │                                                                     │
-│   TOTP = HMAC-SHA1(K, T) → 6 цифр                                   │
+│   TOTP = HMAC(K, T) → 6 цифр                                        │
+│   (за замовчуванням HMAC-SHA1; RFC 6238 дозволяє SHA-256 і SHA-512) │
 │                                                                     │
 │   ┌────────────────────────────────────────────┐                    │
 │   │                                            │                    │
@@ -225,7 +246,9 @@ std::vector<unsigned char> hashPasswordPbkdf2(const std::string& password,
 std::vector<unsigned char> hmacSha256(const std::vector<unsigned char>& key,
                                       const std::vector<unsigned char>& message);
 
-// TOTP за RFC 6238: код залежить від номера 30-секундного інтервалу
+// TOTP за RFC 6238: код залежить від номера 30-секундного інтервалу.
+// Тут використано HMAC-SHA256 з ЛР7/ЛР10. Google Authenticator завжди
+// рахує HMAC-SHA1, тому для звірки потрібен автентифікатор із SHA256
 std::string generateTotp(const std::vector<unsigned char>& secret, int interval = 30) {
     uint64_t counter = static_cast<uint64_t>(std::time(nullptr)) / interval;
 
@@ -281,6 +304,11 @@ std::string generateTotp(const std::vector<unsigned char>& secret, int interval 
 │   • Пароль ніколи не передається                                    │
 │   • Replay attack неможлива (R унікальне)                           │
 │                                                                     │
+│   Слабке місце: сервер мусить знати сам пароль (або його            │
+│   еквівалент), тож витік бази = витік паролів. Протоколи SCRAM      │
+│   і OPAQUE обходять це, а FIDO2 замінює пароль парою ключів:        │
+│   клієнт підписує R приватним ключем, сервер знає лише публічний    │
+│                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -326,6 +354,12 @@ std::string generateTotp(const std::vector<unsigned char>& secret, int interval 
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+OAuth 2.0 — протокол **авторизації**: застосунок отримує токен доступу до даних користувача, але сам по собі токен не каже, хто цей користувач. Для входу («Увійти через Google») над OAuth побудовано OpenID Connect: разом із токеном доступу провайдер видає ID-токен — підписаний JWT з ідентифікатором користувача. Застосунок перевіряє підпис цього токена відкритим ключем провайдера — ще одне застосування ЕЦП.
+
+### FIDO2 і passkeys
+
+Passkey — це пара ключів, створена пристроєм окремо для кожного сайту. Приватний ключ не залишає телефон чи апаратний ключ (його розблоковують відбитком або PIN), а сайт зберігає лише публічний. Під час входу сайт надсилає випадковий challenge, пристрій підписує його разом з адресою сайту, і сервер перевіряє підпис. Викрадати з бази нічого (публічний ключ не секрет), а на фішинговому домені пристрій просто не знайде відповідного ключа. Google, Apple і Microsoft підтримують passkeys з 2022–2023 років.
+
 ## Найпоширеніші загрози безпеки
 
 ### OWASP Top 10 (2021)
@@ -369,29 +403,33 @@ bool loginVulnerable(const std::string& username, const std::string& password) {
     return execute(query);
 }
 
-// БЕЗПЕЧНИЙ КОД: структура запиту стала, дані передаються параметрами
+// БЕЗПЕЧНИЙ КОД: структура запиту стала, дані передаються параметрами.
+// За логіном дістаємо збережений хеш, а пароль перевіряємо Argon2id
 bool loginSafe(sqlite3* db, const std::string& username, const std::string& password) {
-    const char* query = "SELECT * FROM users WHERE username=? AND password_hash=?";
+    const char* query = "SELECT password_hash FROM users WHERE username = ?";
 
     sqlite3_stmt* stmt = nullptr;
     sqlite3_prepare_v2(db, query, -1, &stmt, nullptr);
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
 
-    bool found = (sqlite3_step(stmt) == SQLITE_ROW);
+    bool ok = false;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        const char* stored = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        ok = verifyArgon2(password, stored);     // див. розділ про зберігання паролів
+    }
     sqlite3_finalize(stmt);
-    return found;
+    return ok;
 }
 ```
 
 ### XSS (Cross-Site Scripting)
 
 ```html
-<!-- ❌ ВРАЗЛИВИЙ КОД -->
+<!-- ВРАЗЛИВИЙ КОД -->
 <div>Привіт, <?php echo $_GET['name']; ?></div>
 <!-- Якщо name = <script>alert('XSS')</script> — скрипт виконається! -->
 
-<!-- ✅ БЕЗПЕЧНИЙ КОД -->
+<!-- БЕЗПЕЧНИЙ КОД -->
 <div>Привіт, <?php echo htmlspecialchars($_GET['name'], ENT_QUOTES); ?></div>
 ```
 
@@ -423,26 +461,30 @@ bool loginSafe(sqlite3* db, const std::string& username, const std::string& pass
 ### Фішинг
 
 ```
-┌────────────────────────────────────────────────────────────────────┐
-│                    ФІШИНГ                                          │
-│                                                                    │
-│   Від: security@paypa1.com  (l замість l? Це 1!)                   │
-│   Тема: Ваш акаунт заблоковано!                                    │
-│                                                                    │
-│   Шановний клієнте,                                                │
-│                                                                    │
-│   Ми виявили підозрілу активність. Негайно підтвердіть             │
-│   свої дані за посиланням:                                         │
-│                                                                    │
-│   [Підтвердити] ← насправді веде на paypa1-security.com            │
-│                                                                    │
-│   Ознаки фішингу:                                                  │
-│   • Терміновість ("негайно", "заблоковано")                        │
-│   • Помилки в домені                                               │
-│   • Загальне звернення ("шановний клієнте")                        │
-│   • Посилання не на офіційний сайт                                 │
-│                                                                    │
-└────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                    ФІШИНГ                                           │
+│                                                                     │
+│   Від: security@paypa1.com   (замість літери l — цифра 1)           │
+│   Тема: Ваш акаунт заблоковано!                                     │
+│                                                                     │
+│   Шановний клієнте,                                                 │
+│                                                                     │
+│   Ми виявили підозрілу активність. Негайно підтвердіть              │
+│   свої дані за посиланням:                                          │
+│                                                                     │
+│   [Підтвердити] ← насправді веде на paypa1-security.com             │
+│                                                                     │
+│   Ознаки фішингу:                                                   │
+│   • Терміновість ("негайно", "заблоковано")                         │
+│   • Помилки в домені                                                │
+│   • Загальне звернення ("шановний клієнте")                         │
+│   • Посилання не на офіційний сайт                                  │
+│                                                                     │
+│   Гомографічна атака: у домені аррӏе.com усі літери кириличні       │
+│   (а, р, ӏ, е), але на екрані він не відрізняється від apple.com.   │
+│   Тому браузери показують такі домени у вигляді xn--80ak6aa92e.com  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Методи захисту
@@ -480,17 +522,18 @@ bool loginSafe(sqlite3* db, const std::string& username, const std::string& pass
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    LEAST PRIVILEGE                                  │
+│                           LEAST PRIVILEGE                           │
+├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│   ❌ Поганий підхід:                                                │
-│      • Всі розробники мають root/admin доступ                       │
+│   ПОГАНО:                                                           │
+│      • Усі розробники мають root/admin доступ                       │
 │      • Застосунок працює від root                                   │
-│      • База даних з правами SELECT/INSERT/UPDATE/DELETE/DROP        │
+│      • Обліковий запис БД має права SELECT/INSERT/UPDATE/DROP       │
 │                                                                     │
-│   ✅ Правильний підхід:                                             │
+│   ПРАВИЛЬНО:                                                        │
 │      • Кожен має мінімум необхідних прав                            │
 │      • Застосунок працює від обмеженого користувача                 │
-│      • Окремі облікові записи для читання/запису                    │
+│      • Окремі облікові записи для читання й запису                  │
 │      • Тимчасові підвищені права (sudo, just-in-time)               │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -510,134 +553,122 @@ bool loginSafe(sqlite3* db, const std::string& username, const std::string& pass
 
 Як захиститися від SQL-ін'єкції? Наведіть приклад вразливого та безпечного коду.
 
-## 💼 Real World: Authentication у компаніях
+## 🏢 Real World: Як це використовують у великих компаніях
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                 AUTHENTICATION В ENTERPRISE                    │
-│                                                                │
-│   🔐 GOOGLE / MICROSOFT / META                                 │
-│   • Passkeys (FIDO2/WebAuthn) — passwordless                   │
-│   • Hardware security keys для співробітників                  │
-│   • Risk-based authentication                                  │
-│   • Zero Trust Architecture                                    │
-│                                                                │
-│   🏦 БАНКИ (ПриватБанк, Monobank)                              │
-│   • MFA: пароль + SMS/Push                                     │
-│   • Біометрія в мобільних застосунках                          │
-│   • 3D Secure для онлайн-платежів                              │
-│   • HSM для зберігання ключів                                  │
-│                                                                │
-│   ☁️ AWS / AZURE / GCP                                         │
-│   • IAM (Identity and Access Management)                       │
-│   • MFA для консолі та CLI                                     │
-│   • Service accounts з обмеженими правами                      │
-│   • SSO (Single Sign-On) через SAML/OIDC                       │
-│                                                                │
-│   🛡️ OWASP TOP 10 2021                                         │
-│   • #7: Identification and Authentication Failures             │
-│   • 81% breaches через слабкі/вкрадені credentials             │
-│   • Credential stuffing атаки                                  │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                     AUTHENTICATION У PRODUCTION                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  GOOGLE / MICROSOFT / APPLE                                         │
+│  ├── Passkeys (FIDO2/WebAuthn) — вхід без пароля                    │
+│  ├── Google з 2017 року видає співробітникам апаратні ключі:        │
+│  │   відтоді жодного успішного фішингу облікових записів            │
+│  └── Zero Trust: доступ перевіряється на кожен запит                │
+│                                                                     │
+│  БАНКИ                                                              │
+│  ├── Вхід: пароль або біометрія + прив'язаний пристрій              │
+│  └── 3-D Secure для онлайн-платежів карткою                         │
+│                                                                     │
+│  AWS / AZURE / GCP                                                  │
+│  ├── IAM з мінімальними правами, окремі сервісні акаунти            │
+│  ├── Обов'язкова MFA для консолі                                    │
+│  └── SSO через SAML або OIDC                                        │
+│                                                                     │
+│  OWASP TOP 10 (2021)                                                │
+│  └── #7 Identification and Authentication Failures:                 │
+│      credential stuffing, слабкі паролі, відсутність MFA            │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Реальні інциденти
 
 | Рік | Компанія | Проблема | Наслідки |
 |-----|----------|----------|----------|
-| 2024 | **23andMe** | Credential stuffing | 6.9M користувачів |
-| 2023 | **LastPass** | Weak master passwords | Витік vault |
-| 2022 | **Uber** | MFA fatigue attack | Повний доступ |
-| 2021 | **Colonial Pipeline** | Одна скомпрометована VPN | $4.4M ransom |
+| 2023 | **23andMe** | Credential stuffing: паролі з чужих витоків, без MFA | Дані 6,9 млн користувачів |
+| 2022 | **LastPass** | Викрадено зашифровані сховища; слабкі майстер-паролі й застаріла кількість ітерацій PBKDF2 | Злам окремих сховищ, крадіжки криптовалюти |
+| 2022 | **Uber** | MFA fatigue: десятки push-запитів і «дзвінок підтримки» | Доступ до внутрішніх систем |
+| 2021 | **Colonial Pipeline** | Пароль від старого VPN-акаунта без MFA | Зупинка трубопроводу, викуп $4,4 млн |
 
-## 🎯 Career Spotlight
+## 💼 Career Spotlight
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│                 КАР'ЄРНІ МОЖЛИВОСТІ                           │
-│                                                               │
-│   Identity & Access Management (IAM) Engineer                 │
-│   ├── Зарплата: $100,000 - $160,000/рік                       │
-│   ├── Навички: OAuth/OIDC, SAML, LDAP, Azure AD               │
-│   └── Компанії: Okta, Auth0, Ping Identity, enterprise        │
-│                                                               │
-│   Application Security Engineer                               │
-│   ├── Зарплата: $120,000 - $180,000/рік                       │
-│   ├── Навички: OWASP, secure coding, threat modeling          │
-│   └── Компанії: Google, Meta, Netflix, Coinbase               │
-│                                                               │
-│   Penetration Tester                                          │
-│   ├── Зарплата: $100,000 - $170,000/рік                       │
-│   ├── Навички: Web app testing, credential attacks            │
-│   └── Компанії: NCC Group, Bishop Fox, Synack                 │
-│                                                               │
-│   Security Operations (SOC) Analyst                           │
-│   ├── Зарплата: $70,000 - $120,000/рік                        │
-│   ├── Навички: SIEM, threat detection, incident response      │
-│   └── Компанії: CrowdStrike, Splunk, enterprise               │
-│                                                               │
-│   DevSecOps Engineer                                          │
-│   ├── Зарплата: $130,000 - $190,000/рік                       │
-│   ├── Навички: CI/CD security, secrets management             │
-│   └── Компанії: HashiCorp, GitLab, major tech                 │
-└───────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                         КАР'ЄРНІ МОЖЛИВОСТІ                         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  IDENTITY & ACCESS MANAGEMENT (IAM) ENGINEER                        │
+│  OAuth/OIDC, SAML, LDAP, Entra ID, passkeys                         │
+│  Зарплата: $100K-$160K (USA) | €55K-€95K (EU)                       │
+│  Компанії: Okta, Auth0, Ping Identity, enterprise                   │
+│                                                                     │
+│  APPLICATION SECURITY ENGINEER                                      │
+│  OWASP, безпечне програмування, моделювання загроз                  │
+│  Зарплата: $120K-$180K (USA) | €60K-€100K (EU)                      │
+│  Компанії: Google, Meta, Netflix, Grammarly                         │
+│                                                                     │
+│  PENETRATION TESTER                                                 │
+│  Тестування веб-застосунків, атаки на облікові дані                 │
+│  Зарплата: $100K-$170K (USA) | €50K-€90K (EU)                       │
+│  Компанії: NCC Group, Bishop Fox, Synack                            │
+│                                                                     │
+│  SOC ANALYST                                                        │
+│  SIEM, виявлення загроз, реагування на інциденти                    │
+│  Зарплата: $70K-$120K (USA) | €40K-€70K (EU)                        │
+│  Компанії: CrowdStrike, Splunk, SOC-провайдери                      │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
 
 ### Онлайн-практика
-- [OWASP WebGoat](https://owasp.org/www-project-webgoat/) — вразливий застосунок для навчання
-- [PortSwigger Web Security Academy](https://portswigger.net/web-security) — безкоштовний курс
-- [HackTheBox](https://hackthebox.com/) — практичні labs
-- [TryHackMe](https://tryhackme.com/) — guided learning paths
 
-### Tools
-- **Burp Suite** — веб-тестування
-- **Hydra** — password cracking (етичне тестування)
-- **hashcat** — GPU-based password recovery
-- **Have I Been Pwned** — перевірка витоків
+| Ресурс | Опис | Посилання |
+|--------|------|-----------|
+| **PortSwigger Web Security Academy** | Безкоштовний курс з атак на автентифікацію, SQLi, XSS | `portswigger.net/web-security` |
+| **OWASP WebGoat** | Навмисно вразливий застосунок для навчання | `owasp.org/www-project-webgoat` |
+| **TryHackMe** | Покрокові лабораторії з безпеки | `tryhackme.com` |
+| **Have I Been Pwned** | Перевірка, чи потрапила ваша пошта у витоки | `haveibeenpwned.com` |
+
+### Інструменти
+
+- **Burp Suite** — тестування веб-застосунків
+- **hashcat** — перевірка стійкості паролів на GPU (лише на власних даних)
+- **oathtool** — еталонний генератор TOTP для перевірки власної реалізації
 
 ## 📋 Cheat Sheet
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                 AUTH & SECURITY QUICK REFERENCE                 │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   Фактори аутентифікації:                                       │
-│   • Знання (Something you KNOW): пароль, PIN                    │
-│   • Володіння (Something you HAVE): телефон, токен              │
-│   • Властивість (Something you ARE): біометрія                  │
-│                                                                 │
-│   Хешування паролів (C++, libsodium):                           │
-│   crypto_pwhash_str(hash, pass, len, OPSLIMIT, MEMLIMIT)        │
-│   crypto_pwhash_str_verify(hash, pass, len)                     │
-│   Алгоритм Argon2id — стандарт де-факто                         │
-│                                                                 │
-│   from argon2 import PasswordHasher                             │
-│   ph = PasswordHasher()                                         │
-│   hash = ph.hash(password)                                      │
-│   ph.verify(hash, password)                                     │
-│                                                                 │
-│   TOTP (RFC 6238):                                              │
-│   counter = floor(unix_time / 30)                               │
-│   TOTP = HMAC-SHA1(secret, counter) → truncate → 6 digits       │
-│                                                                 │
-│   SQL Injection Prevention:                                     │
-│   ❌ f"SELECT * FROM users WHERE id={user_input}"               │
-│   ✅ cursor.execute("SELECT * FROM users WHERE id=?", (id,))    │
-│                                                                 │
-│   XSS Prevention:                                               │
-│   ❌ <div>{user_input}</div>                                    │
-│   ✅ <div>{escape(user_input)}</div>                            │
-│   ✅ Content-Security-Policy header                             │
-│                                                                 │
-│   OWASP Top 10 (2021):                                          │
-│   1. Broken Access Control                                      │
-│   2. Cryptographic Failures                                     │
-│   3. Injection                                                  │
-│   7. Identification and Authentication Failures                 │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                 ШПАРГАЛКА: АВТЕНТИФІКАЦІЯ І ЗАГРОЗИ                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   ФАКТОРИ: знання (пароль, PIN) | володіння (телефон, ключ)         │
+│            | властивість (біометрія); MFA — з різних категорій      │
+│                                                                     │
+│   ПАРОЛІ (C++, libsodium, Argon2id):                                │
+│   crypto_pwhash_str(hash, pass, len, OPSLIMIT, MEMLIMIT)            │
+│   crypto_pwhash_str_verify(hash, pass, len)                         │
+│                                                                     │
+│   TOTP (RFC 6238):                                                  │
+│   T = floor(unix_time / 30)                                         │
+│   TOTP = HMAC(secret, T) → dynamic truncation → 6 цифр              │
+│   Google Authenticator: лише HMAC-SHA1                              │
+│                                                                     │
+│   SQL INJECTION:                                                    │
+│   ПОГАНО:  "... WHERE id=" + userInput                              │
+│   ДОБРЕ:   "... WHERE id=?" + sqlite3_bind_*                        │
+│                                                                     │
+│   XSS:                                                              │
+│   ПОГАНО:  <div>{userInput}</div>                                   │
+│   ДОБРЕ:   <div>{escape(userInput)}</div> + заголовок CSP           │
+│                                                                     │
+│   OWASP TOP 10 (2021): 1 Broken Access Control,                     │
+│   2 Cryptographic Failures, 3 Injection, 7 Auth Failures            │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🎯 Міні-проект (30 хв)
@@ -651,7 +682,7 @@ bool loginSafe(sqlite3* db, const std::string& username, const std::string& pass
 1. Створіть TOTP генератор:
 ```bash
 mkdir -p ~/totp-project && cd ~/totp-project
-nano my_totp.py
+nano my_totp.cpp
 ```
 
 ```cpp
@@ -732,7 +763,8 @@ int main() {
 
 2. Зберіть і запустіть:
 ```bash
-g++ -std=c++17 my_totp.cpp sha256.cpp -o my_totp
+# sha256.cpp — з ЛР7, hmac_sha256.cpp — HMAC-SHA256 з ЛР10
+g++ -std=c++17 my_totp.cpp sha256.cpp hmac_sha256.cpp -o my_totp
 ./my_totp
 ```
 
@@ -752,97 +784,26 @@ TOTP-автентифікатор
 Код змінився 2 рази — саме так автентифікатор і працює.
 ```
 
-3. Перевірте з реальним автентифікатором:
-- Відкрийте Google Authenticator або Authy
-- Додайте акаунт вручну з секретом `JBSWY3DPEHPK3PXP`
-- Коди мають збігатися!
+3. Перевірте з еталонною реалізацією. Наша програма рахує HMAC-SHA256, а Google Authenticator завжди використовує HMAC-SHA1 — з ним коди **не** збіжуться. Звіряйте з тими, що підтримують SHA256:
+- утиліта `oathtool --totp=sha256 -b JBSWY3DPEHPK3PXP` (пакет `oathtool` у Linux, WSL, Homebrew);
+- застосунки Aegis, 2FAS або FreeOTP, куди акаунт додано з QR-коду для рядка `otpauth://totp/Test?secret=JBSWY3DPEHPK3PXP&algorithm=SHA256`.
 
 **Очікуваний результат:**
 - Працюючий генератор TOTP мовою C++
 - Розуміння алгоритму TOTP (HMAC + time + truncation)
-- Коди збігаються з Google Authenticator
+- Коди збігаються з `oathtool --totp=sha256`
 
 **Бонус (для допитливих):**
-- Сформуйте рядок `otpauth://totp/Test?secret=JBSWY3DPEHPK3PXP` і згенеруйте з нього QR-код будь-яким онлайн-сервісом
+- Реалізуйте HMAC-SHA1 (потрібна SHA-1 — вона коротша за SHA-256) і переконайтеся, що тепер коди збігаються з Google Authenticator
+- Згенеруйте QR-код для рядка `otpauth://…` командою `qrencode -t ansiutf8 'otpauth://…'` — секрет не варто вставляти в онлайн-сервіси
 - Реалізуйте перевірку з допуском ±30 секунд
 - Додайте аргументи командного рядка: `./my_totp --secret YOURSECRET`
 
 ---
 
-## 🔧 Розширене практичне завдання (для лабораторної)
+## 🔧 Далі — лабораторна робота
 
-```cpp
-// Практичне завдання: безпечна автентифікація
-#include <iostream>
-#include <string>
-#include <vector>
-#include <ctime>
-#include <stdexcept>
-
-std::string hashPasswordArgon2(const std::string& password);
-bool verifyArgon2(const std::string& password, const std::string& stored);
-std::string generateTotp(const std::vector<unsigned char>& secret, int interval = 30);
-std::vector<unsigned char> randomBytes(size_t count);
-
-struct User {
-    std::string username;
-    std::string passwordHash;              // у базі зберігається лише хеш
-    std::vector<unsigned char> mfaSecret;  // секрет для другого фактора
-    std::time_t createdAt = 0;
-};
-
-// Реєстрація: перевірка складності пароля та хешування Argon2id
-User registerUser(const std::string& username, const std::string& password) {
-    if (password.size() < 8) {
-        throw std::runtime_error("Пароль має містити щонайменше 8 символів");
-    }
-
-    User user;
-    user.username = username;
-    user.passwordHash = hashPasswordArgon2(password);
-    user.mfaSecret = randomBytes(20);
-    user.createdAt = std::time(nullptr);
-    return user;
-}
-
-// Перевірка пароля: порівняння виконується всередині verifyArgon2
-// за сталий час, тому час відповіді не видає кількості збігів
-bool checkPassword(const User& user, const std::string& password) {
-    return verifyArgon2(password, user.passwordHash);
-}
-
-// Перевірка коду другого фактора з допуском на розбіжність годинників
-bool checkTotp(const User& user, const std::string& code, int window = 1) {
-    for (int shift = -window; shift <= window; ++shift) {
-        if (generateTotp(user.mfaSecret) == code) return true;
-    }
-    return false;
-}
-
-int main() {
-    std::cout << "=== Реєстрація користувача ===\n";
-    User user = registerUser("john_doe", "SecureP@ss123!");
-    std::cout << "Користувач: " << user.username << "\n";
-    std::cout << "Хеш:        " << user.passwordHash.substr(0, 40) << "...\n\n";
-
-    std::cout << "=== Перевірка пароля ===\n";
-    std::cout << "Правильний: " << (checkPassword(user, "SecureP@ss123!") ? "доступ" : "відмова") << "\n";
-    std::cout << "Хибний:     " << (checkPassword(user, "wrong") ? "доступ" : "відмова") << "\n\n";
-
-    std::cout << "=== Другий фактор ===\n";
-    std::string code = generateTotp(user.mfaSecret);
-    std::cout << "Поточний код: " << code << "\n";
-    std::cout << "Перевірка:    " << (checkTotp(user, code) ? "прийнято" : "відхилено") << "\n";
-
-    return 0;
-}
-```
-
-**Завдання:**
-1. Запустіть код та проаналізуйте вивід
-2. Спробуйте зламати вразливий login через SQL injection
-3. Реалізуйте rate limiting для захисту від brute force
-4. Додайте перевірку складності пароля (великі/малі літери, цифри, спецсимволи)
+Реєстрацію з Argon2id, перевірку TOTP з вікном допуску та захист від перебору ви реалізуєте в лабораторній роботі «Ідентифікація та аутентифікація користувачів».
 
 ## Тест для самоперевірки
 
@@ -928,7 +889,9 @@ int main() {
 | **MFA** | Багатофакторна аутентифікація |
 | **TOTP** | Одноразовий пароль на основі часу |
 | **bcrypt/Argon2** | Повільні хеш-функції для паролів |
+| **FIDO2 / passkey** | Вхід підписом приватного ключа, прив'язаного до домену; стійкий до фішингу |
+| **Credential stuffing** | Перебір пар «логін — пароль» із чужих витоків |
 
 **Безпека — це процес, а не продукт. Використовуйте MFA, оновлюйте ПЗ, не довіряйте вхідним даним.**
 
-Це завершує курс "Програмні методи захисту інформації". Успіхів на заліку!
+Далі — лабораторні роботи з програмного захисту від мережевих атак і автентифікації користувачів, а потім підсумкова контрольна робота.

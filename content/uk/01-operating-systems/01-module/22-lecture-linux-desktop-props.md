@@ -2,510 +2,396 @@
 title: "Основні властивості робочих столів Linux"
 type: lecture
 order: 22
-preview: "Віртуальні робочі столи, гарячі клавіші, налаштування."
+preview: "Віртуальні робочі столи, гарячі клавіші, гарячі кути, нічне світло, масштабування HiDPI, доступність і сповіщення."
 ---
 
-## Віртуальні робочі столи (Workspaces)
+## Hook / Захоплюючий вступ
 
-Віртуальні робочі столи (workspaces) — одна з найпотужніших функцій Linux desktop. Вони дозволяють організувати вікна по групах: робота, браузер, комунікація, розваги.
+Заплющте очі й спробуйте відкрити браузер, знайти в ньому сторінку й надіслати посилання другові. Для незрячих програмістів і адміністраторів це щоденна робота: програма екранного читання **Orca** озвучує кожну кнопку, пункт меню й рядок коду, а весь інтерфейс керується з клавіатури.
+
+Тут є загадка. На минулих лекціях ми з'ясували, що у Wayland програма не бачить чужих вікон — це основа безпеки. Як тоді Orca дізнається, що написано на кнопці в Firefox? Відповідь — окрема «шина доступності» **AT-SPI**, через яку кожна програма сама розповідає про свій інтерфейс. Сьогодні розберемо властивості робочого столу, які здаються дрібницями, — гарячі клавіші, масштаб, нічне світло, доступність, — і побачимо, що за кожною стоїть конкретний механізм системи.
+
+**Запитання до аудиторії**: скільки разів на годину ви тягнетеся до миші, щоб перемкнутися між вікнами? Спробуйте порахувати сьогодні ввечері.
+
+## Віртуальні робочі столи
+
+**Віртуальні робочі столи** (workspaces) — кілька незалежних «екранів» на одному моніторі. Вікна розкладаються за завданнями, а перемикання між ними займає одне натискання.
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                    ВІРТУАЛЬНІ РОБОЧІ СТОЛИ                     │
-│                                                                │
-│   ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
-│   │ Workspace 1 │  │ Workspace 2 │  │ Workspace 3 │            │
-│   │   "Робота"  │  │  "Браузер"  │  │   "Музика"  │            │
-│   │             │  │             │  │             │            │
-│   │  VS Code    │  │  Firefox    │  │  Spotify    │            │
-│   │  Terminal   │  │  Slack      │  │  Files      │            │
-│   │  DBeaver    │  │  Telegram   │  │             │            │
-│   │             │  │             │  │             │            │
-│   └─────────────┘  └─────────────┘  └─────────────┘            │
-│        ▲                                                       │
-│        └── Поточний робочий стіл                               │
-│                                                                │
-│   Переваги:                                                    │
-│   ✅ Організація роботи за контекстом                          │
-│   ✅ Менше відволікання                                        │
-│   ✅ Швидке перемикання (клавіатура)                           │
-│   ✅ Більше простору (не потрібен великий монітор)             │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                       ВІРТУАЛЬНІ РОБОЧІ СТОЛИ                       │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐            │
+│  │ 1 «Код»       │  │ 2 «Довідка»   │  │ 3 «Зв'язок»   │            │
+│  │               │  │               │  │               │            │
+│  │ VS Code       │  │ Firefox       │  │ Telegram      │            │
+│  │ Термінал      │  │ man-сторінки  │  │ Пошта         │            │
+│  │               │  │               │  │               │            │
+│  └───────────────┘  └───────────────┘  └───────────────┘            │
+│         ▲                                                           │
+│         └── ви зараз тут; Super+PageDown — праворуч                 │
+│                                                                     │
+│  Один монітор поводиться як кілька: кожне завдання має свій         │
+│  простір, і перемикання — одна клавіша, а не пошук вікна.           │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Реалізація в різних DE
+| Середовище | Тип | Особливості |
+|------------|-----|-------------|
+| **GNOME** | Динамічні | Порожній стіл завжди є праворуч; коли його займають, з'являється новий |
+| **KDE Plasma** | Фіксовані | Кількість і розкладку (рядки, стовпці) задає користувач |
+| **Xfce** | Фіксовані | Класична реалізація з перемикачем на панелі |
+| **i3, sway** | Динамічні | Стіл створюється, щойно на нього перейти, і зникає порожнім |
 
-| DE | Тип | Особливості |
-|----|-----|-------------|
-| **GNOME** | Динамічні | Автоматично створюються/видаляються |
-| **KDE Plasma** | Фіксовані | Задаєте кількість вручну |
-| **XFCE** | Фіксовані | Класична реалізація |
-| **i3/Sway** | Динамічні | 10 workspace за замовчуванням |
-
-### Гарячі клавіші для workspaces
-
-**GNOME:**
-
-| Комбінація | Дія |
-|------------|-----|
-| `Super` | Activities overview (показує всі workspaces) |
-| `Super + PageDown` | Наступний workspace |
-| `Super + PageUp` | Попередній workspace |
-| `Super + Shift + PageDown` | Перемістити вікно на наступний |
-| `Super + Shift + PageUp` | Перемістити вікно на попередній |
-
-**KDE Plasma:**
-
-| Комбінація | Дія |
-|------------|-----|
-| `Ctrl + F1...F4` | Перейти до workspace 1-4 |
-| `Meta + Tab` | Показати всі workspaces |
-| `Ctrl + Shift + F1...F4` | Перемістити вікно |
-| `Ctrl + Right/Left` | Наступний/попередній workspace |
+Гарячі клавіші для робочих столів у GNOME: `Super+PageDown` / `Super+PageUp` — сусідній стіл, `Super+Shift+PageDown` / `PageUp` — перенести туди поточне вікно, `Super` — огляд усіх столів.
 
 ```bash
-# GNOME: налаштування workspaces
-gsettings get org.gnome.mutter dynamic-workspaces
-# true = динамічні, false = фіксовані
-
-# Вимкнути динамічні workspaces
-gsettings set org.gnome.mutter dynamic-workspaces false
-
-# Встановити кількість (якщо фіксовані)
+gsettings get org.gnome.mutter dynamic-workspaces         # true — динамічні
+gsettings set org.gnome.mutter dynamic-workspaces false   # перейти на фіксовані
 gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
+gsettings set org.gnome.mutter workspaces-only-on-primary true   # другий монітор — спільний
 
-# Workspaces тільки на основному моніторі
-gsettings set org.gnome.mutter workspaces-only-on-primary true
-
-# KDE: System Settings → Workspace Behavior → Virtual Desktops
-# Або: kcmshell5 kcm_kwin_virtualdesktops
+kcmshell6 kcm_kwin_virtualdesktops   # KDE: налаштування робочих столів
 ```
 
-## Гарячі клавіші (Keyboard Shortcuts)
-
-Ефективна робота з Linux desktop неможлива без знання гарячих клавіш. Вони значно прискорюють роботу.
-
-### Загальні гарячі клавіші GNOME
+## Гарячі клавіші
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                    GNOME KEYBOARD SHORTCUTS                    │
-│                                                                │
-│   Навігація:                                                   │
-│   Super           Activities overview                          │
-│   Super + A       Показати всі програми                        │
-│   Alt + Tab       Перемикання вікон                            │
-│   Super + Tab     Перемикання програм (групує вікна)           │
-│   Alt + ` (тільда) Перемикання вікон однієї програми           │
-│   Alt + F2        Командний рядок                              │
-│                                                                │
-│   Вікна:                                                       │
-│   Super + ↑       Максимізувати                                │
-│   Super + ↓       Відновити/мінімізувати                       │
-│   Super + ←       Snap ліворуч (50%)                           │
-│   Super + →       Snap праворуч (50%)                          │
-│   Super + H       Приховати (minimize)                         │
-│   Alt + F4        Закрити вікно                                │
-│   Alt + F7        Перемістити вікно (клавіатурою)              │
-│   Alt + F8        Змінити розмір (клавіатурою)                 │
-│   Super + Shift + ←/→  Перемістити на інший монітор            │
-│                                                                │
-│   Система:                                                     │
-│   Super + L       Заблокувати екран                            │
-│   Super + M       Notification tray                            │
-│   Ctrl + Alt + T  Термінал (якщо налаштовано)                  │
-│   Print Screen    Скріншот (весь екран)                        │
-│   Alt + Print     Скріншот (поточне вікно)                     │
-│   Shift + Print   Скріншот (область)                           │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                         ГАРЯЧІ КЛАВІШІ GNOME                        │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  НАВІГАЦІЯ                                                          │
+│  Super                 огляд: вікна, робочі столи, пошук            │
+│  Super + A             усі програми                                 │
+│  Alt + Tab             перемикання програм                          │
+│  Alt + `               вікна однієї програми (клавіша над Tab)      │
+│  Alt + F2              виконати команду                             │
+│  Super + V             сповіщення й календар                        │
+│                                                                     │
+│  ВІКНА                                                              │
+│  Super + ↑ / ↓         розгорнути / відновити                       │
+│  Super + ← / →         на половину екрана ліворуч / праворуч        │
+│  Super + H             згорнути                                     │
+│  Super + Shift + ← / → перенести на інший монітор                   │
+│  Alt + F4              закрити                                      │
+│  Alt + F7 / Alt + F8   перемістити / змінити розмір клавіатурою     │
+│                                                                     │
+│  СИСТЕМА                                                            │
+│  Super + L             заблокувати екран                            │
+│  Print                 інструмент знімка: область, вікно, екран     │
+│  Shift + Print         одразу знімок усього екрана                  │
+│  Alt + Print           одразу знімок поточного вікна                │
+│  Ctrl+Alt+Shift+R      почати й зупинити запис екрана               │
+│  Ctrl + Alt + T        термінал (в Ubuntu за замовчуванням)         │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Загальні гарячі клавіші KDE
-
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                    KDE PLASMA SHORTCUTS                        │
-│                                                                │
-│   Навігація:                                                   │
-│   Meta            Application Menu                             │
-│   Meta + Tab      Показати всі вікна                           │
-│   Alt + Tab       Перемикання вікон                            │
-│   Meta + D        Показати робочий стіл                        │
-│   Meta + T        Термінал                                     │
-│                                                                │
-│   Вікна:                                                       │
-│   Meta + Page Up  Максимізувати                                │
-│   Meta + Page Down Мінімізувати                                │
-│   Meta + ←/→      Tile ліворуч/праворуч                        │
-│   Meta + ↑        Максимізувати вертикально                    │
-│   Meta + ↓        Відновити                                    │
-│   Alt + F3        Меню вікна                                   │
-│   Alt + F4        Закрити вікно                                │
-│                                                                │
-│   KWin Effects:                                                │
-│   Meta + W        Overview (як macOS Exposé)                   │
-│   Ctrl + F8       Desktop Grid (всі workspaces)                │
-│   Meta + =/-      Zoom                                         │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                     ГАРЯЧІ КЛАВІШІ KDE PLASMA 6                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  НАВІГАЦІЯ                                                          │
+│  Meta                  меню програм                                 │
+│  Meta + W              огляд вікон і робочих столів                 │
+│  Meta + G              сітка всіх робочих столів                    │
+│  Alt + Tab             перемикання вікон                            │
+│  Meta + D              показати робочий стіл                        │
+│  Ctrl + Alt + T        Konsole                                      │
+│                                                                     │
+│  ВІКНА                                                              │
+│  Meta + PageUp         розгорнути                                   │
+│  Meta + PageDown       згорнути                                     │
+│  Meta + ← → ↑ ↓        прикріпити до краю чи кута екрана            │
+│  Alt + F3              меню вікна                                   │
+│  Alt + F4              закрити                                      │
+│                                                                     │
+│  РОБОЧІ СТОЛИ                                                       │
+│  Ctrl + F1 … F4        перейти на робочий стіл 1–4                  │
+│  Meta + Ctrl + ← / →   сусідній робочий стіл                        │
+│                                                                     │
+│  Meta — те саме, що Super: клавіша з логотипом Windows.             │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Налаштування гарячих клавіш
+### Як влаштовані й налаштовуються гарячі клавіші
+
+Натиснення клавіші спершу бачить композитор (лекція 19), і лише якщо сполучення не зайняте ним, передає його активній програмі. Тому глобальні клавіші задаються в налаштуваннях середовища, а не в програмі. У GNOME вони розкладені по трьох схемах: `org.gnome.desktop.wm.keybindings` (вікна), `org.gnome.shell.keybindings` (оболонка) і `org.gnome.settings-daemon.plugins.media-keys` (звук, яскравість, власні команди).
 
 ```bash
-# GNOME: переглянути всі keybindings
-gsettings list-recursively | grep keybinding
-gsettings list-recursively | grep "org.gnome.desktop.wm.keybindings"
-
-# Встановити кастомну комбінацію
-gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
+dconf dump /org/gnome/desktop/wm/keybindings/     # клавіші, які ви змінювали
+gsettings get org.gnome.desktop.wm.keybindings close
 gsettings set org.gnome.desktop.wm.keybindings close "['<Alt>F4', '<Super>q']"
 
-# Термінал на Ctrl+Alt+T (GNOME)
-gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name 'Terminal'
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ command 'gnome-terminal'
-gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ binding '<Ctrl><Alt>t'
-
-# GUI: Settings → Keyboard → Keyboard Shortcuts
-gnome-control-center keyboard
-
-# KDE: System Settings → Shortcuts
-kcmshell5 keys
+# Власне сполучення: Super+E відкриває файловий менеджер
+KEY=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$KEY']"
+S=org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$KEY
+gsettings set "$S" name 'Файли'
+gsettings set "$S" command 'nautilus'
+gsettings set "$S" binding '<Super>e'
 ```
 
-## Hot Corners / Screen Edges
+Зверніть увагу на синтаксис схеми з двокрапкою: `схема:шлях`. Власних сполучень може бути скільки завгодно, і кожне — окремий підрозділ бази (`custom0`, `custom1`…), перелік яких зберігає ключ `custom-keybindings`. Якщо нове сполучення не спрацьовує, найчастіша причина — конфлікт: воно вже зайняте іншою дією. У KDE клавіші налаштовують у System Settings → Shortcuts (`kcmshell6 kcm_keys`), а зберігаються вони у файлі `~/.config/kglobalshortcutsrc`.
 
-**Hot Corners** — дії при наведенні курсора на кут екрану. Дозволяють швидко виконувати часті операції.
+## Гарячі кути та краї екрана
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    HOT CORNERS / SCREEN EDGES                   │
-│                                                                 │
-│   ┌──────────────────────────────────────────────────────────┐  │
-│   │🔲                                                      🔲│  │
-│   │ Top-left           Top              Top-right            │  │
-│   │ (Activities)                                             │  │
-│   │                                                          │  │
-│   │Left                                               Right  │  │
-│   │                                                          │  │
-│   │                                                          │  │
-│   │🔲                                                      🔲│  │
-│   │ Bottom-left       Bottom         Bottom-right            │  │
-│   └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│   GNOME: тільки top-left (Activities) за замовчуванням          │
-│   KDE: повна кастомізація всіх кутів та сторін                  │
-│                                                                 │
-│   Можливі дії (KDE):                                            │
-│   • Show Desktop                                                │
-│   • Present All Windows                                         │
-│   • Desktop Grid                                                │
-│   • Application Launcher                                        │
-│   • Lock Screen                                                 │
-│   • Custom script                                               │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                      ГАРЯЧІ КУТИ ТА КРАЇ ЕКРАНА                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌──────────────────────────────────────────────────────────┐       │
+│  │▣ верхній лівий                          верхній правий  ▣│       │
+│  │  (огляд у GNOME)                                         │       │
+│  │                                                          │       │
+│  │лівий край                                    правий край │       │
+│  │                                                          │       │
+│  │▣ нижній лівий                            нижній правий  ▣│       │
+│  └──────────────────────────────────────────────────────────┘       │
+│                                                                     │
+│  GNOME: один гарячий кут — огляд; вимикається в Multitasking        │
+│  KDE: будь-яка дія на кожен кут і край — показати стіл, огляд,      │
+│  заблокувати екран, запустити меню                                  │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ```bash
-# GNOME: увімкнути/вимкнути hot corners
 gsettings get org.gnome.desktop.interface enable-hot-corners
-gsettings set org.gnome.desktop.interface enable-hot-corners true
-
-# GUI: Settings → Multitasking → Hot Corner
-
-# KDE: System Settings → Workspace Behavior → Screen Edges
-kcmshell5 kwinscreenedges
+gsettings set org.gnome.desktop.interface enable-hot-corners false
+kcmshell6 kwinscreenedges        # KDE: дії для кутів і країв
 ```
 
-## Night Light / Blue Light Filter
+## Нічне світло
 
-**Night Light** — функція зменшення синього світла ввечері. Допомагає зберегти здоров'я очей та покращити сон.
+**Нічне світло** (Night Light у GNOME, Night Color у KDE) ввечері зсуває кольори екрана в теплий бік. Колірну температуру вимірюють у кельвінах: 6500 K — нейтральне денне світло, 3000 K — жовтувате світло лампи розжарювання.
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                    NIGHT LIGHT                                 │
-│                                                                │
-│   Колірна температура:                                         │
-│                                                                │
-│   6500K ──────────────────────────────── Cold (денне світло)   │
-│         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░                        │
-│   5000K ────────────────────────── Neutral                     │
-│         ░░░░░░░░░░░░░░░░░░░░░                                  │
-│   4000K ────────────────── Warm (вечірнє)                      │
-│         ░░░░░░░░░░░░░░░                                        │
-│   3000K ────────── Very warm (перед сном)                      │
-│         ░░░░░░░                                                │
-│                                                                │
-│   Чому це важливо:                                             │
-│   • Синє світло пригнічує мелатонін (гормон сну)               │
-│   • Вечірній екран може порушити сон                           │
-│   • Тепле світло менш напружує очі                             │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                             НІЧНЕ СВІТЛО                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  6500 K  ████████████████████████████  денне світло, холодний білий │
+│  5000 K  ████████████████████          нейтральний                  │
+│  4000 K  ██████████████                теплий вечірній              │
+│  3000 K  ████████                      дуже теплий, як лампа        │
+│           менше синього ──────►                                     │
+│                                                                     │
+│  Як це працює: у відеокарти є таблиця корекції кольору (gamma       │
+│  LUT). Композитор зменшує в ній синій і частково зелений канал —    │
+│  змінюється кожен піксель, не перемальовуючи жодного вікна.         │
+└─────────────────────────────────────────────────────────────────────┘
 ```
+
+Саме тому в сеансі Wayland старі утиліти на кшталт Redshift не працюють: змінювати таблицю кольорів екрана може лише композитор, а не довільна програма — той самий принцип ізоляції. Щодо здоров'я варто бути обережними: синє світло справді впливає на вироблення мелатоніну, але дослідження не показують, що саме лише нічний режим екрана помітно покращує сон. Значно більше важать яскравість екрана й те, коли ви його вимикаєте.
 
 ```bash
-# GNOME: вбудована функція
-# Settings → Displays → Night Light
-
-# Увімкнути через CLI
-gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
-
-# Температура (в Kelvin, нижче = тепліше)
-gsettings set org.gnome.settings-daemon.plugins.color night-light-temperature 4000
-
-# Автоматичний розклад (Sunset to Sunrise)
-gsettings set org.gnome.settings-daemon.plugins.color night-light-schedule-automatic true
-
-# Ручний розклад
-gsettings set org.gnome.settings-daemon.plugins.color night-light-schedule-automatic false
-gsettings set org.gnome.settings-daemon.plugins.color night-light-schedule-from 20.0  # 20:00
-gsettings set org.gnome.settings-daemon.plugins.color night-light-schedule-to 6.0     # 06:00
-
-# Альтернатива: Redshift (для X11)
-sudo apt install redshift redshift-gtk
-redshift -O 4000K    # Встановити температуру
-redshift -x          # Скинути
-redshift-gtk         # GUI з tray icon
-
-# KDE: System Settings → Display and Monitor → Night Color
-# або вбудований Night Color з Plasma 5.17+
+S=org.gnome.settings-daemon.plugins.color
+gsettings set $S night-light-enabled true
+gsettings set $S night-light-temperature 4000            # кельвіни: менше — тепліше
+gsettings set $S night-light-schedule-automatic true     # від заходу до світанку
+gsettings set $S night-light-schedule-automatic false    # або вручну:
+gsettings set $S night-light-schedule-from 20.0          # з 20:00
+gsettings set $S night-light-schedule-to 6.0             # до 06:00
 ```
 
-## Scaling та HiDPI
+## Масштабування та HiDPI
 
-Сучасні монітори мають високу щільність пікселів (HiDPI, Retina). Без правильного масштабування інтерфейс буде занадто дрібним.
+Інтерфейс програм намальовано в пікселях, тож на екрані з вищою щільністю пікселів він стає фізично меншим. Щільність вимірюють у **PPI** (pixels per inch).
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    HiDPI SCALING                                │
-│                                                                 │
-│   Масштаб     Приклад монітора              Результат           │
-│   ──────     ──────────────────              ─────────          │
-│   100%       1920×1080 на 24"               Нормальний          │
-│   100%       3840×2160 на 24"               Занадто дрібно      │
-│   200%       3840×2160 на 24"               Чітко, як 1080p     │
-│   150%       2560×1440 на 27"               Компроміс           │
-│                                                                 │
-│   GNOME:                                                        │
-│   • Integer scaling: 100%, 200%, 300%                           │
-│   • Fractional scaling: 125%, 150%, 175% (experimental)         │
-│                                                                 │
-│   KDE:                                                          │
-│   • Повна підтримка fractional scaling                          │
-│   • Per-monitor scaling                                         │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                     ЩІЛЬНІСТЬ ПІКСЕЛІВ І МАСШТАБ                    │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  PPI = √(ширина² + висота²) / діагональ у дюймах                    │
+│                                                                     │
+│  Монітор                     PPI     Зручний масштаб                │
+│  ─────────────────────────   ─────   ───────────────                │
+│  24″  1920×1080              ~92     100 %                          │
+│  27″  2560×1440              ~109    100–125 %                      │
+│  14″  1920×1200 (ноутбук)    ~162    150 %                          │
+│  24″  3840×2160 (4K)         ~184    200 %                          │
+│  13″  2880×1800 (ноутбук)    ~261    200–250 %                      │
+│                                                                     │
+│  Точкою відліку в Linux вважають ~96 PPI: інтерфейс, розрахований   │
+│  на цю щільність, на 184 PPI виглядає вдвічі дрібнішим.             │
+└─────────────────────────────────────────────────────────────────────┘
 ```
+
+**Цілий масштаб** (200 %) простий: кожен логічний піксель стає квадратом 2×2 фізичних, зображення лишається чітким. **Дробовий** (125 %, 150 %) складніший. У Wayland програма, яка підтримує протокол дробового масштабування, одразу малює кадр потрібного розміру. Програми через XWayland малюють кадр у 100 % або 200 %, а композитор його розтягує чи стискає — звідси «розмиті» старі програми на ноутбуці з масштабом 125 %.
 
 ```bash
-# GNOME: основний масштаб
-# Settings → Displays → Scale
+# GNOME: Settings → Displays → Scale; налаштування зберігаються у файлі
+cat ~/.config/monitors.xml
 
-# Через CLI (integer scaling)
-gsettings set org.gnome.desktop.interface scaling-factor 2
-
-# Увімкнути fractional scaling (GNOME Wayland)
+# Дробовий масштаб у GNOME (в Ubuntu він доступний у Settings одразу)
 gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
-# Після цього в Settings → Displays з'являться 125%, 150% тощо
 
-# Перевірити поточний масштаб
-gsettings get org.gnome.desktop.interface scaling-factor
+# Збільшити лише текст, не чіпаючи решти інтерфейсу
+gsettings set org.gnome.desktop.interface text-scaling-factor 1.25
 
-# KDE: System Settings → Display and Monitor → Display Configuration
-# Обрати монітор → Scale → будь-яке значення
-
-# Для окремих програм (X11)
-GDK_SCALE=2 firefox                    # GTK apps
-QT_SCALE_FACTOR=2 dolphin              # Qt apps
-
-# Xorg ~/.Xresources
-echo "Xft.dpi: 192" >> ~/.Xresources   # 192 = 2× масштаб
-xrdb -merge ~/.Xresources
+# Для окремої програми в X11
+GDK_SCALE=2 gimp                  # GTK
+QT_SCALE_FACTOR=1.5 okular        # Qt
 ```
 
-## Accessibility (Доступність)
+У KDE Plasma будь-який масштаб, зокрема дробовий і різний для кожного монітора, задається в System Settings → Display Configuration.
 
-Linux має багато функцій доступності для людей з обмеженими можливостями.
+## Доступність
+
+Доступність (accessibility, скорочено a11y — «a», ще 11 літер і «y») — функції для людей з порушеннями зору, слуху чи моторики. Вони корисні не лише їм: Sticky Keys рятують при травмі руки, великий курсор — на проєкторі в аудиторії.
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                    ACCESSIBILITY FEATURES                      │
-│                                                                │
-│   Візуальні:                                                   │
-│   ├── High Contrast themes                                     │
-│   ├── Large Text                                               │
-│   ├── Screen Reader (Orca)                                     │
-│   ├── Screen Magnifier                                         │
-│   └── Cursor size & color                                      │
-│                                                                │
-│   Клавіатура:                                                  │
-│   ├── Sticky Keys (натискати по одній)                         │
-│   ├── Slow Keys (ігнорувати короткі натискання)                │
-│   ├── Bounce Keys (ігнорувати повторні)                        │
-│   └── On-Screen Keyboard                                       │
-│                                                                │
-│   Миша:                                                        │
-│   ├── Mouse Keys (керування мишею з клавіатури)                │
-│   ├── Click Assist (автоматичний клік)                         │
-│   └── Hover Click                                              │
-│                                                                │
-│   Звук:                                                        │
-│   ├── Visual Alerts (flash screen)                             │
-│   └── Audio descriptions                                       │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                         ФУНКЦІЇ ДОСТУПНОСТІ                         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ЗІР                                                                │
+│  ├── Висока контрастність, великий текст, великий курсор            │
+│  ├── Orca — програма екранного читання (озвучує інтерфейс)          │
+│  └── Екранна лупа                                                   │
+│                                                                     │
+│  КЛАВІАТУРА                                                         │
+│  ├── Sticky Keys — комбінації натискати по одній клавіші            │
+│  ├── Slow Keys — ігнорувати випадкові короткі натискання            │
+│  ├── Bounce Keys — ігнорувати швидкі повторні натискання            │
+│  └── Екранна клавіатура                                             │
+│                                                                     │
+│  МИША                                                               │
+│  ├── Mouse Keys — рух курсора цифровою клавіатурою                  │
+│  └── Клік утриманням курсора без натискання кнопки                  │
+│                                                                     │
+│  СЛУХ                                                               │
+│  └── Візуальні сигнали: блимання екрана замість звуку               │
+└─────────────────────────────────────────────────────────────────────┘
 ```
+
+Як Orca дізнається, що є на екрані? Кожна програма на GTK чи Qt публікує дерево свого інтерфейсу — кнопки, поля, їхні підписи й стан — на окремій шині D-Bus для доступності (**AT-SPI**). Екранний читач не «дивиться» на пікселі, а читає це дерево. Звідси практичний висновок для розробника: кнопка з самим лише значком без текстового підпису для незрячого користувача — порожнє місце.
 
 ```bash
-# GNOME: Settings → Accessibility
-gnome-control-center universal-access
+gnome-control-center universal-access     # налаштування доступності GNOME
+orca                                      # запустити екранний читач
+                                          # Super+Alt+S — увімкнути або вимкнути Orca
 
-# Screen Reader (Orca)
-orca                              # Запустити
-# Super + Alt + S — увімкнути/вимкнути Orca
-
-# High Contrast
-gsettings set org.gnome.desktop.interface gtk-theme 'HighContrast'
-
-# Large Text
+gsettings set org.gnome.desktop.a11y.interface high-contrast true
 gsettings set org.gnome.desktop.interface text-scaling-factor 1.5
-
-# Sticky Keys
+gsettings set org.gnome.desktop.interface cursor-size 48       # 24, 32, 48, 64, 96
 gsettings set org.gnome.desktop.a11y.keyboard stickykeys-enable true
-
-# On-Screen Keyboard
 gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled true
 
-# Cursor size (24, 32, 48, 64, 96)
-gsettings set org.gnome.desktop.interface cursor-size 48
-
-# KDE: System Settings → Accessibility
-# Більше налаштувань: System Settings → Input Devices → Keyboard/Mouse
+busctl --user list | grep -i a11y         # шина доступності поруч із сесійною
 ```
 
-## Notifications (Сповіщення)
+## Сповіщення
 
-Система сповіщень дозволяє програмам інформувати користувача про події.
+Сповіщення — повідомлення, які програма надсилає через D-Bus службі `org.freedesktop.Notifications`, а середовище вирішує, як їх показати. Тому `notify-send` однаково працює в GNOME, KDE і Xfce.
 
 ```bash
-# GNOME: Settings → Notifications
-gnome-control-center notifications
+notify-send "Резервну копію створено" "Скопійовано 1 204 файли"
+notify-send -u critical "Диск майже повний" "Вільно 2 %"
+notify-send -i dialog-information -t 5000 "Нагадування" "Перерва на 5 хвилин"
 
-# Тестове сповіщення
-notify-send "Заголовок" "Текст повідомлення"
-notify-send -u critical "Помилка!" "Щось пішло не так"
-notify-send -i firefox "Firefox" "Завантаження завершено"
-
-# Режим Do Not Disturb
-# GNOME: клік на годинник → Do Not Disturb
-# Або через CLI:
-gsettings set org.gnome.desktop.notifications show-banners false
-
-# KDE: System Settings → Notifications
-# Кожна програма окремо налаштовується
+gsettings set org.gnome.desktop.notifications show-banners false   # не турбувати
+gnome-control-center notifications       # які програми можуть надсилати сповіщення
 ```
+
+Сповіщення зручні у власних скриптах: `make && notify-send "Збірку завершено"` дасть знати, що довга команда в іншому вікні нарешті виконалася.
 
 ## Практичне завдання
 
 ```bash
-# 1. Перевірити кількість workspaces
+# 1. Робочі столи: тип і кількість
+gsettings get org.gnome.mutter dynamic-workspaces
 gsettings get org.gnome.desktop.wm.preferences num-workspaces
 
-# 2. Перевірити чи динамічні workspaces
-gsettings get org.gnome.mutter dynamic-workspaces
+# 2. Які гарячі клавіші ви вже змінювали
+dconf dump /org/gnome/desktop/wm/keybindings/
 
-# 3. Поточні гарячі клавіші для вікон
+# 3. Поточне сполучення для перемикання вікон
 gsettings get org.gnome.desktop.wm.keybindings switch-windows
 
-# 4. Статус Night Light
+# 4. Нічне світло й гарячий кут
 gsettings get org.gnome.settings-daemon.plugins.color night-light-enabled
-
-# 5. Статус hot corners
 gsettings get org.gnome.desktop.interface enable-hot-corners
 
-# 6. Поточний масштаб
-gsettings get org.gnome.desktop.interface scaling-factor
+# 5. Роздільність під'єднаних моніторів (діагональ візьміть з документації)
+for c in /sys/class/drm/card*-*; do
+    [ "$(cat $c/status)" = connected ] && echo "${c##*/}: $(head -1 $c/modes)"
+done
 
-# 7. Увімкнути Night Light
-gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
-
-# 8. Надіслати тестове сповіщення
-notify-send "Тест" "Ваша система працює!"
-
-# 9. Розмір курсора
-gsettings get org.gnome.desktop.interface cursor-size
-
-# 10. Список всіх accessibility налаштувань
+# 6. Налаштування клавіатурної доступності
 gsettings list-keys org.gnome.desktop.a11y.keyboard
+
+# 7. Сповіщення зі скрипта
+sleep 5 && notify-send "Минуло 5 секунд"
 ```
 
-## 🏢 Real World: Як це використовують у великих компаніях
+## 🏢 Real World: Як це використовують в організаціях
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│           DESKTOP CONFIGURATION В ENTERPRISE                    │
-│                                                                 │
-│   IT-компанії (Google, Microsoft, Meta):                        │
-│   ├── Стандартизовані робочі станції Linux                      │
-│   ├── Централізоване управління shortcuts через dconf/GPO       │
-│   ├── Обов'язковий Night Light для здоров'я працівників         │
-│   └── HiDPI scaling для 4K моніторів розробників                │
-│                                                                 │
-│   Enterprise Desktop Management:                                │
-│   ┌─────────────────────────────────────────────────────────┐   │
-│   │ • dconf + Ansible для масового розгортання налаштувань  │   │
-│   │ • GNOME Initial Setup для onboarding нових працівників  │   │
-│   │ • Kiosk mode для публічних терміналів                   │   │
-│   │ • Accessibility compliance (ADA, Section 508)           │   │
-│   │ • Corporate branding через theming                      │   │
-│   └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-│   Фінансові установи:                                           │
-│   • Multi-monitor trading desks з workspaces per market         │
-│   • Hot corners заборонені (випадкові кліки = втрати)           │
-│   • Великий cursor size для швидкої навігації                   │
-│                                                                 │
-│   Call-центри та служби підтримки:                              │
-│   • Accessibility features для інклюзивності                    │
-│   • On-screen keyboard для планшетних терміналів                │
-│   • Screen reader інтеграція (Orca) для незрячих операторів     │
-│                                                                 │
-│   Remote Development (GitLab, Automattic):                      │
-│   • Налаштування workspaces для context switching               │
-│   • Keyboard-centric workflow (мінімум миші)                    │
-│   • Night Light + f.lux для роботи в різних часових зонах       │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│              ВЛАСТИВОСТІ РОБОЧОГО СТОЛУ В ОРГАНІЗАЦІЯХ              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ДОСТУПНІСТЬ ЯК ВИМОГА ЗАКОНУ                                       │
+│  ├── США: Section 508 — держзакупівлі ПЗ лише з доступністю         │
+│  ├── ЄС: European Accessibility Act діє з 28 червня 2025 року       │
+│  └── Організації, що переходять на Linux, перевіряють роботу        │
+│      Orca з усіма робочими програмами ще до впровадження            │
+│                                                                     │
+│  ДЕРЖАВНЕ ФІНАНСУВАННЯ GNOME                                        │
+│  └── Німецький Sovereign Tech Fund у 2023–2024 роках профінансував  │
+│      роботу GNOME, зокрема нову архітектуру доступності для Wayland │
+│                                                                     │
+│  КІОСКИ ТА ТЕРМІНАЛИ                                                │
+│  ├── GNOME Kiosk — сеанс з однією програмою на весь екран:          │
+│  │   інформаційні табло, каси, реєстрація відвідувачів              │
+│  └── Гарячі кути, Alt+F2 і перемикання вікон вимкнено ключами       │
+│      dconf із блокуванням — користувач не вийде з програми          │
+│                                                                     │
+│  КОМП'ЮТЕРНІ КЛАСИ                                                  │
+│  ├── Однакові гарячі клавіші й робочі столи на всіх ПК              │
+│  └── Налаштування роздаються через /etc/dconf/db і Ansible          │
+│                                                                     │
+│  РОЗРОБНИКИ                                                         │
+│  └── Робота без миші: робочі столи під завдання, прикріплення       │
+│      вікон клавішами, а далі — тайлінгові менеджери (лекція 25)     │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 💼 Career Spotlight
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                 КАР'ЄРНІ МОЖЛИВОСТІ                              │
-│                                                                  │
-│   Desktop Support Specialist                                     │
-│   ├── Зарплата: $45,000 - $70,000 (EUR 40,000 - 60,000)          │
-│   ├── Навички: GNOME/KDE config, accessibility, troubleshooting  │
-│   └── Задачі: підтримка Linux workstations, user training        │
-│                                                                  │
-│   Linux Desktop Administrator                                    │
-│   ├── Зарплата: $55,000 - $85,000 (EUR 50,000 - 75,000)          │
-│   ├── Навички: dconf, gsettings, policy management               │
-│   └── Задачі: масове розгортання, стандартизація desktops        │
-│                                                                  │
-│   UX Engineer (Linux)                                            │
-│   ├── Зарплата: $70,000 - $120,000 (EUR 65,000 - 105,000)        │
-│   ├── Навички: GTK/Qt, accessibility, HiDPI, theming             │
-│   └── Задачі: покращення user experience в Linux apps            │
-│                                                                  │
-│   Systems Integration Engineer                                   │
-│   ├── Зарплата: $75,000 - $130,000 (EUR 68,000 - 115,000)        │
-│   ├── Навички: multi-monitor, kiosk mode, enterprise config      │
-│   └── Задачі: інтеграція Linux desktops в корпоративне середовище│
-│                                                                  │
-│   Accessibility Specialist                                       │
-│   ├── Зарплата: $60,000 - $100,000 (EUR 55,000 - 90,000)         │
-│   ├── Навички: Orca, screen readers, accessibility standards     │
-│   └── Задачі: забезпечення доступності для людей з інвалідністю  │
-└──────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                         КАР'ЄРНІ МОЖЛИВОСТІ                         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  DESKTOP SUPPORT SPECIALIST                                         │
+│  Підтримка користувачів Linux: від масштабу до доступності          │
+│  Зарплата: $45K-$70K (USA) | €30K-€48K (EU)                         │
+│  Компанії: університети, держсектор, служби підтримки               │
+│                                                                     │
+│  LINUX DESKTOP ADMINISTRATOR                                        │
+│  Політики dconf, кіоски, однакові робочі місця на сотні ПК          │
+│  Зарплата: $55K-$90K (USA) | €38K-€65K (EU)                         │
+│  Компанії: держсектор, освіта, банки                                │
+│                                                                     │
+│  ACCESSIBILITY ENGINEER                                             │
+│  Доступність програм: AT-SPI, екранні читачі, відповідність         │
+│  стандартам WCAG, Section 508, EAA                                  │
+│  Зарплата: $80K-$140K (USA) | €45K-€80K (EU)                        │
+│  Компанії: Microsoft, Google, Red Hat, GNOME Foundation, банки      │
+│                                                                     │
+│  UX ENGINEER (GTK, Qt)                                              │
+│  Інтерфейси програм з урахуванням HiDPI, клавіатури, доступності    │
+│  Зарплата: $80K-$140K (USA) | €45K-€85K (EU)                        │
+│  Компанії: Canonical, Red Hat, KDAB, System76                       │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🔗 Корисні ресурси
@@ -514,181 +400,134 @@ gsettings list-keys org.gnome.desktop.a11y.keyboard
 
 | Ресурс | Опис | Посилання |
 |--------|------|-----------|
-| **GNOME Help** | Офіційна документація GNOME | help.gnome.org |
-| **KDE UserBase** | Wiki для користувачів KDE | userbase.kde.org |
-| **Arch Wiki - GNOME** | Детальні налаштування | wiki.archlinux.org/title/GNOME |
-| **Linux Accessibility HOWTO** | Доступність в Linux | tldp.org/HOWTO/Accessibility-HOWTO |
+| **GNOME Help: клавіатура** | Офіційний перелік гарячих клавіш GNOME | help.gnome.org |
+| **KDE UserBase** | Посібники для користувачів KDE Plasma | userbase.kde.org |
+| **Orca** | Документація екранного читача | help.gnome.org/users/orca |
+| **ArchWiki: HiDPI** | Масштабування для різних середовищ і програм | wiki.archlinux.org/title/HiDPI |
+| **WCAG 2.2** | Міжнародні правила доступності інтерфейсів | w3.org/TR/WCAG22 |
+| **dconf-editor** | Графічний редактор усіх ключів dconf з описами | `sudo apt install dconf-editor` |
 
 ## 📋 Cheat Sheet
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│              LINUX DESKTOP PROPERTIES CHEAT SHEET              │
-├────────────────────────────────────────────────────────────────┤
-│                                                                │
-│   GNOME WORKSPACES:                                            │
-│   Super              Activities overview                       │
-│   Super+PageDown/Up  Наступний/попередній workspace            │
-│   Super+Shift+PageDown  Перемістити вікно на workspace         │
-│                                                                │
-│   GNOME WINDOWS:                                               │
-│   Super+←/→         Snap ліворуч/праворуч                      │
-│   Super+↑           Максимізувати                              │
-│   Alt+Tab           Перемикання вікон                          │
-│   Super+L           Заблокувати екран                          │
-│   Alt+F4            Закрити вікно                              │
-│                                                                │
-│   GSETTINGS КОМАНДИ:                                           │
-│   gsettings list-schemas             Всі схеми                 │
-│   gsettings list-keys SCHEMA         Ключі схеми               │
-│   gsettings get SCHEMA KEY           Отримати значення         │
-│   gsettings set SCHEMA KEY VALUE     Встановити значення       │
-│                                                                │
-│   ПОПУЛЯРНІ НАЛАШТУВАННЯ:                                      │
-│   org.gnome.desktop.interface        Інтерфейс (теми, шрифти)  │
-│   org.gnome.desktop.wm.keybindings   Гарячі клавіші            │
-│   org.gnome.mutter                   Workspaces                │
-│   org.gnome.settings-daemon.plugins.color  Night Light         │
-│                                                                │
-│   ACCESSIBILITY:                                               │
-│   Super+Alt+S       Toggle Orca (screen reader)                │
-│   org.gnome.desktop.a11y.*  Accessibility налаштування         │
-│                                                                │
-│   TOOLS:                                                       │
-│   gnome-tweaks      GUI для розширених налаштувань             │
-│   gnome-control-center  Системні налаштування                  │
-│   dconf-editor      Редактор всіх dconf keys                   │
-└────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                ШПАРГАЛКА: ВЛАСТИВОСТІ РОБОЧОГО СТОЛУ                │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  КЛАВІШІ GNOME:                                                     │
+│  ┌────────────────────────────────────────────────────────────────┐ │
+│  │ Super              огляд        Super+PageDown/Up  робочі столи│ │
+│  │ Super+←/→          половина     Super+Shift+PgDn   вікно далі  │ │
+│  │ Super+L            блокування   Print              знімок      │ │
+│  └────────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│  КЛЮЧІ GSETTINGS:                                                   │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │ org.gnome.mutter dynamic-workspaces      динамічні столи      │  │
+│  │ org.gnome.desktop.wm.preferences         кількість столів     │  │
+│  │     num-workspaces                                            │  │
+│  │ org.gnome.desktop.wm.keybindings         клавіші вікон        │  │
+│  │ org.gnome.shell.keybindings              клавіші оболонки     │  │
+│  │ org.gnome.desktop.interface              гарячий кут, текст   │  │
+│  │ org.gnome.settings-daemon.plugins.color  нічне світло         │  │
+│  │ org.gnome.desktop.a11y.*                 доступність          │  │
+│  └───────────────────────────────────────────────────────────────┘  │
+│                                                                     │
+│  КОРИСНІ КОМАНДИ:                                                   │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ dconf dump /org/gnome/desktop/wm/keybindings/  → мої клавіші │   │
+│  │ notify-send "Заголовок" "Текст"               → сповіщення   │   │
+│  │ gnome-control-center universal-access         → доступність  │   │
+│  │ kcmshell6 kwinscreenedges                     → краї в KDE   │   │
+│  │ cat ~/.config/monitors.xml                    → масштаб GNOME│   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🎯 Міні-проект (30 хв)
 
-### Завдання: Створіть власну систему productivity shortcuts
+### Завдання: Робочий стіл без миші
 
-Налаштуйте гарячі клавіші та workspaces для максимальної продуктивності. Це те, що відрізняє досвідченого користувача Linux!
+Налаштуйте робоче середовище так, щоб найчастіші дії виконувалися з клавіатури, і збережіть налаштування так, щоб їх можна було відновити.
 
 **Кроки:**
 
-1. Створіть скрипт налаштування productivity:
+1. Збережіть поточні клавіші — на випадок, якщо захочете повернути все як було:
 ```bash
-mkdir -p ~/scripts
-nano ~/scripts/productivity-setup.sh
+mkdir -p ~/dotfiles/gnome
+dconf dump /org/gnome/desktop/wm/keybindings/ > ~/dotfiles/gnome/wm-keys.ini
+dconf dump /org/gnome/shell/keybindings/ > ~/dotfiles/gnome/shell-keys.ini
 ```
 
-2. Напишіть код:
+2. Створіть скрипт:
 ```bash
-#!/bin/bash
-# Productivity Setup Script
-# Налаштування для ефективної роботи
+nano ~/dotfiles/gnome/keyboard-setup.sh
+```
 
-echo "⚡ Setting up productivity features..."
+3. Напишіть код:
+```bash
+#!/usr/bin/env bash
+# keyboard-setup.sh — чотири робочі столи й керування з клавіатури
+set -e
+WM=org.gnome.desktop.wm.keybindings
+SHELL_KEYS=org.gnome.shell.keybindings
 
-# === WORKSPACES ===
-echo "📱 Configuring workspaces..."
+# Чотири фіксовані робочі столи
 gsettings set org.gnome.mutter dynamic-workspaces false
 gsettings set org.gnome.desktop.wm.preferences num-workspaces 4
-gsettings set org.gnome.mutter workspaces-only-on-primary true
 
-# === WINDOW MANAGEMENT ===
-echo "🪟 Configuring windows..."
-gsettings set org.gnome.mutter center-new-windows true
-gsettings set org.gnome.desktop.wm.preferences focus-mode 'click'
+for i in 1 2 3 4; do
+    # Super+N за замовчуванням запускає N-ту програму з доку — звільняємо
+    gsettings set $SHELL_KEYS switch-to-application-$i "[]"
+    gsettings set $WM switch-to-workspace-$i "['<Super>$i']"
+    gsettings set $WM move-to-workspace-$i "['<Super><Shift>$i']"
+done
 
-# === CUSTOM SHORTCUTS ===
-echo "⌨️ Setting up custom shortcuts..."
+# Закрити вікно ще й сполученням Super+Q
+gsettings set $WM close "['<Alt>F4', '<Super>q']"
 
-# Термінал на Super+Return
-gsettings set org.gnome.settings-daemon.plugins.media-keys terminal "['<Super>Return']"
+# Власна команда: Super+Enter відкриває термінал
+KEY=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+S=org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$KEY
+gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$KEY']"
+gsettings set "$S" name 'Термінал'
+gsettings set "$S" command 'gnome-terminal'
+gsettings set "$S" binding '<Super>Return'
 
-# Закрити вікно на Super+Q (додатково до Alt+F4)
-gsettings set org.gnome.desktop.wm.keybindings close "['<Alt>F4', '<Super>q']"
-
-# Максимізувати вікно на Super+M
-gsettings set org.gnome.desktop.wm.keybindings toggle-maximized "['<Super>m']"
-
-# Швидке переключення workspaces
-gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Super>1']"
-gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-2 "['<Super>2']"
-gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-3 "['<Super>3']"
-gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-4 "['<Super>4']"
-
-# Перемістити вікно на workspace
-gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-1 "['<Super><Shift>1']"
-gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-2 "['<Super><Shift>2']"
-gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-3 "['<Super><Shift>3']"
-gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-4 "['<Super><Shift>4']"
-
-# === NIGHT LIGHT ===
-echo "🌙 Configuring night light..."
-gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true
-gsettings set org.gnome.settings-daemon.plugins.color night-light-temperature 4500
-gsettings set org.gnome.settings-daemon.plugins.color night-light-schedule-automatic true
-
-# === HOT CORNERS ===
-echo "📐 Configuring hot corners..."
-gsettings set org.gnome.desktop.interface enable-hot-corners true
-
-# === ACCESSIBILITY (корисні для всіх) ===
-echo "♿ Setting up useful accessibility features..."
-gsettings set org.gnome.desktop.interface cursor-size 32
-
-echo ""
-echo "✅ Productivity setup complete!"
-echo ""
-echo "📋 YOUR NEW SHORTCUTS:"
-echo "   Super+Return      - Open terminal"
-echo "   Super+Q           - Close window"
-echo "   Super+M           - Maximize/restore window"
-echo "   Super+1/2/3/4     - Switch to workspace"
-echo "   Super+Shift+1/2/3/4 - Move window to workspace"
-echo ""
-echo "🌙 Night Light: enabled (auto sunset-sunrise)"
-echo "🪟 Workspaces: 4 fixed"
+notify-send "Клавіатуру налаштовано" "Super+1…4 — робочі столи, Super+Enter — термінал"
 ```
 
-3. Створіть шпаргалку:
+4. Запустіть і перевірте кожне сполучення:
 ```bash
-nano ~/Desktop/shortcuts.txt
+chmod +x ~/dotfiles/gnome/keyboard-setup.sh
+~/dotfiles/gnome/keyboard-setup.sh
 ```
 
-```
-MY PRODUCTIVITY SHORTCUTS
-=========================
-
-WINDOWS:
-  Super+Return     Open terminal
-  Super+Q          Close window
-  Super+M          Maximize/restore
-  Alt+Tab          Switch windows
-  Super+Left/Right Tile left/right
-
-WORKSPACES:
-  Super+1/2/3/4    Go to workspace
-  Super+Shift+1-4  Move window to workspace
-
-SYSTEM:
-  Super            Activities
-  Super+L          Lock screen
-  Print            Screenshot
-```
-
-4. Застосуйте:
+5. Покладіть собі шпаргалку на робочий стіл. Каталог робочого столу беремо у системи — в українській локалі він називається не `Desktop`:
 ```bash
-chmod +x ~/scripts/productivity-setup.sh
-~/scripts/productivity-setup.sh
+cat > "$(xdg-user-dir DESKTOP)/клавіші.txt" << 'TXT'
+Super+1…4        перейти на робочий стіл
+Super+Shift+1…4  перенести вікно
+Super+Enter      термінал
+Super+Q          закрити вікно
+Super+←/→        вікно на половину екрана
+TXT
 ```
+
+6. Попрацюйте 15 хвилин, не торкаючись миші: відкрийте браузер і термінал на різних робочих столах, перенесіть вікно, прикріпіть два вікна поруч. Запишіть, які дії змусили вас узяти мишу, і знайдіть для них сполучення (`gsettings list-keys org.gnome.desktop.wm.keybindings`).
 
 **Очікуваний результат:**
-- Скрипт `~/scripts/productivity-setup.sh`
-- 4 фіксовані workspaces з швидким доступом
-- Кастомні shortcuts для вікон та терміналу
-- Шпаргалка на робочому столі
+
+- Скрипт `keyboard-setup.sh` і резервні копії клавіш `wm-keys.ini`, `shell-keys.ini`.
+- Чотири робочі столи, перемикання й перенесення вікон з клавіатури, власне сполучення для терміналу.
+- Перелік дій, для яких вам досі потрібна миша, і знайдені для них клавіші.
 
 **Бонус (для допитливих):**
-- Створіть окремі "профілі" workspaces: Workspace 1 = Code, Workspace 2 = Browser, etc.
-- Налаштуйте правила для автоматичного розміщення вікон (потрібен devilspie2 або extension)
-- Додайте custom shortcuts для улюблених програм
-- Створіть скрипт для перемикання між "work mode" та "relax mode" (різні налаштування)
+
+- Напишіть скрипт відновлення: `dconf load /org/gnome/desktop/wm/keybindings/ < wm-keys.ini`.
+- Увімкніть Orca (`Super+Alt+S`) і спробуйте з заплющеними очима відкрити налаштування й змінити в них одну опцію.
+- Обчисліть PPI свого монітора за формулою з лекції і порівняйте з масштабом, який обрала система.
 
 ## Тест для самоперевірки
 
@@ -766,30 +605,26 @@ chmod +x ~/scripts/productivity-setup.sh
 
 ## Підсумок
 
-| Функція | GNOME | KDE |
-|---------|-------|-----|
-| Workspaces | Динамічні (за замовч.) | Фіксовані |
-| Hot Corners | Тільки Activities | Повна кастомізація |
-| Night Light | Вбудовано | Night Color |
-| Scaling | 100%, 200% + fractional | Будь-яке значення |
-| Accessibility | Settings → Accessibility | System Settings → Accessibility |
-| Shortcuts | Settings → Keyboard | System Settings → Shortcuts |
+| Термін | Визначення |
+|--------|------------|
+| **Віртуальні робочі столи** | Кілька незалежних просторів для вікон на одному моніторі |
+| **Динамічні робочі столи** | Створюються й зникають автоматично (GNOME, i3); фіксовані — кількість задає користувач (KDE, Xfce) |
+| **Гарячий кут** | Кут екрана, наведення на який запускає дію |
+| **Нічне світло** | Зсув кольорів екрана в теплий бік через таблицю корекції кольору відеокарти |
+| **PPI** | Кількість пікселів на дюйм — від неї залежить потрібний масштаб |
+| **Дробовий масштаб** | Масштаб 125 %, 150 %; нативно — у Wayland-програмах, розтягуванням — у програмах XWayland |
+| **Доступність (a11y)** | Функції для людей з порушеннями зору, слуху чи моторики |
+| **Orca** | Екранний читач, що озвучує інтерфейс |
+| **AT-SPI** | Шина доступності, через яку програми описують свій інтерфейс допоміжним технологіям |
+| **Сповіщення** | Повідомлення через D-Bus-службу `org.freedesktop.Notifications`; з командного рядка — `notify-send` |
 
-| Налаштування | Як змінити |
-|--------------|------------|
-| Workspaces | Settings → Multitasking |
-| Shortcuts | Settings → Keyboard |
-| Hot Corners | Settings → Multitasking |
-| Night Light | Settings → Displays |
-| Scaling | Settings → Displays |
-| Accessibility | Settings → Accessibility |
-| Notifications | Settings → Notifications |
+| Налаштування | GNOME | KDE Plasma |
+|--------------|-------|------------|
+| Робочі столи | Settings → Multitasking | System Settings → Virtual Desktops |
+| Гарячі клавіші | Settings → Keyboard | System Settings → Shortcuts |
+| Гарячі кути | Settings → Multitasking | System Settings → Screen Edges |
+| Нічне світло | Settings → Displays | System Settings → Night Light |
+| Масштаб | Settings → Displays | System Settings → Display Configuration |
+| Доступність | Settings → Accessibility | System Settings → Accessibility |
 
-| Корисні команди |
-|-----------------|
-| `gsettings list-recursively \| grep workspaces` |
-| `gsettings list-recursively \| grep keybindings` |
-| `notify-send "Title" "Message"` |
-| `xrandr --query` |
-
-На наступній лекції — диспетчер вікон.
+На наступній лекції — використання диспетчера вікон: стекові й тайлінгові менеджери, композитори.
