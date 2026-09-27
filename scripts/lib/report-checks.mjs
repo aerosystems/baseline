@@ -10,6 +10,7 @@
  * the markdown, so what is checked is what gets printed.
  */
 
+import { spawnSync } from 'child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -191,4 +192,84 @@ export function reportWarnings(body) {
   });
 
   return warnings;
+}
+
+/** Runs a poppler tool, returning its output */
+function poppler(tool, args) {
+  const result = spawnSync(tool, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  if (result.error) throw new Error(`${tool} is not installed (poppler-utils) — cannot check the PDF`);
+  if (result.status !== 0) throw new Error(`${tool} failed: ${result.stderr.trim()}`);
+  return result.stdout;
+}
+
+// Fonts the report is set in. Anything else in the PDF means LibreOffice did
+// not find a font, or a glyph in it, and substituted — the lines and pages then
+// break differently from what Word prints.
+const REPORT_FONTS = /^(?:[A-Z]{6}\+)?(?:TimesNewRoman|Times New Roman|CourierNew|Courier New)/i;
+
+/**
+ * Checks the PDF made from a report the way the .docx is checked, but on what
+ * a renderer actually laid out: fonts, page numbers, pages, pictures.
+ *
+ * @param expected  the same object checkReport takes
+ */
+export function checkPdf(pdfPath, expected) {
+  const problems = [];
+  const expect = (condition, message) => { if (!condition) problems.push(message); };
+
+  const info = poppler('pdfinfo', [pdfPath]);
+  const pages = Number(info.match(/^Pages:\s+(\d+)/m)?.[1] ?? 0);
+  const size = info.match(/^Page size:\s+([\d.]+) x ([\d.]+) pts/m);
+  expect(pages >= 2, `the PDF has ${pages} page(s) — a title page and the text at least`);
+  expect(size && Math.abs(size[1] - 595.3) < 2 && Math.abs(size[2] - 841.9) < 2, 'the PDF pages are not A4');
+
+  // pdffonts: name type encoding emb sub uni object ID — two header lines
+  const fonts = poppler('pdffonts', [pdfPath]).split('\n').slice(2).filter(Boolean).map(line => {
+    const columns = line.trim().split(/\s+/);
+    return { name: columns[0], embedded: columns[columns.length - 5] === 'yes' };
+  });
+  for (const font of fonts) {
+    expect(REPORT_FONTS.test(font.name), `font ${font.name} is in the PDF: a font or a glyph was substituted`);
+    expect(font.embedded, `font ${font.name} is not embedded`);
+  }
+
+  const page = number => poppler('pdftotext', ['-layout', '-enc', 'UTF-8', '-f', String(number), '-l', String(number), pdfPath, '-']);
+  const lines = text => text.split('\n').map(line => line.trimEnd()).filter(line => line.trim());
+
+  // Title page: the values the title must carry, and no page number
+  const title = page(1);
+  expect(title.includes(expected.signature), `the title page of the PDF does not name ${expected.signature}`);
+  expect(!expected.code || title.includes(expected.code), `the title page of the PDF has no work code ${expected.code}`);
+  expect(title.includes(`№${expected.lab}`), `the title page of the PDF does not say №${expected.lab}`);
+  expect(!/^\s*1\s*$/m.test(title), 'the title page of the PDF carries a page number');
+
+  // Page 2: the number alone on the first line, flush right, then the text
+  if (pages >= 2) {
+    const [first, second] = lines(page(2));
+    expect(first && /^\s{20,}2$/.test(first), 'page 2 of the PDF has no page number in the top right corner');
+    expect(second && second.trim().startsWith('Тема:'), `page 2 of the PDF does not start with "Тема:" (it starts "${second?.trim().slice(0, 40)}")`);
+  }
+
+  // Every page from the second on carries its number
+  for (let number = 3; number <= pages; number++) {
+    const [first] = lines(page(number));
+    expect(first && new RegExp(`^\\s{20,}${number}$`).test(first), `page ${number} of the PDF has no page number`);
+  }
+
+  // Pictures: all of them, once
+  const images = imagesOf(expected.body);
+  // columns: page num type ...; a picture with transparency is listed twice,
+  // as the image and as its soft mask (smask)
+  const embedded = poppler('pdfimages', ['-list', pdfPath]).split('\n').slice(2)
+    .filter(line => line.trim().split(/\s+/)[2] === 'image').length;
+  expect(embedded === images.length, `the report shows ${images.length} picture(s), the PDF has ${embedded}`);
+
+  const text = poppler('pdftotext', ['-enc', 'UTF-8', pdfPath, '-']);
+  for (const { alt } of images.filter(image => /^Рисунок\s+\d+/.test(image.alt))) {
+    const number = alt.match(/^Рисунок\s+(\d+)/)[1];
+    const count = (text.match(new RegExp(`^\\s*Рисунок\\s+${number}\\b`, 'gm')) ?? []).length;
+    expect(count === 1, `caption "Рисунок ${number}" appears ${count} times in the PDF`);
+  }
+
+  return problems;
 }

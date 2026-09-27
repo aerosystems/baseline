@@ -5,8 +5,8 @@ name: Student reports
 # 1. Preview — on every pull request into a lab or report branch: when it is
 #    opened, when the student pushes to it, and when it is reopened. The
 #    reports the pull request touches are built from the merge ref, the very
-#    tree a squash would produce, checked against the samples, and attached to
-#    the run as an artifact to download. Nothing is committed: pull requests
+#    tree a squash would produce — the .docx and its PDF — checked against the
+#    samples, and attached to the run as an artifact to download. Nothing is committed: pull requests
 #    come from forks too, and a fork cannot be written to. To render the
 #    documents again — after the pipeline itself changed, say — close the pull
 #    request and reopen it.
@@ -41,10 +41,9 @@ on:
         default: ''
 
 env:
-  # The version the documents are checked with locally. Ubuntu's own package is
-  # older and writes tables differently, so it is pinned rather than taken
-  # from apt.
-  PANDOC_VERSION: '3.11'
+  # Every report gets its PDF here; a report whose PDF cannot be made or fails
+  # the checks has neither document. Tools: .github/actions/report-tools.
+  REPORTS_REQUIRE_PDF: '1'
 
 jobs:
   preview:
@@ -59,17 +58,7 @@ jobs:
         with:
           fetch-depth: 0          # the base commit is needed for the diff
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Pandoc and xmllint
-        run: |
-          curl -fsSL -o "$RUNNER_TEMP/pandoc.deb" \
-            "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb"
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq "$RUNNER_TEMP/pandoc.deb" libxml2-utils
-          pandoc --version | head -1
+      - uses: ./.github/actions/report-tools
 
       - name: Build the reports of this pull request
         env:
@@ -92,7 +81,9 @@ jobs:
         if: always()
         with:
           name: reports-pr-${{ github.event.pull_request.number }}
-          path: ${{ runner.temp }}/docx/*.docx
+          path: |
+            ${{ runner.temp }}/docx/*.docx
+            ${{ runner.temp }}/docx/*.pdf
           if-no-files-found: ignore
           retention-days: 30
 
@@ -118,17 +109,7 @@ jobs:
           ref: ${{ env.BRANCH }}
           fetch-depth: 0          # the date of a document is the date of its last commit
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Pandoc and xmllint
-        run: |
-          curl -fsSL -o "$RUNNER_TEMP/pandoc.deb" \
-            "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb"
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq "$RUNNER_TEMP/pandoc.deb" libxml2-utils
-          pandoc --version | head -1
+      - uses: ./.github/actions/report-tools
 
       - name: Build the reports
         id: build
@@ -154,8 +135,9 @@ jobs:
         run: |
           # Built documents, and the ones removed because their report no
           # longer builds. A document is reproducible: rebuilding an unchanged
-          # report gives back the same bytes, and there is nothing to commit.
-          git add -A -- ':(glob)reports/**/*.docx'
+          # report gives back the same bytes — the PDF too, its time stamps
+          # are fixed — and there is nothing to commit.
+          git add -A -- ':(glob)reports/**/*.docx' ':(glob)reports/**/*.pdf'
           if git diff --cached --quiet; then
             echo "The documents are unchanged."
             exit 0
