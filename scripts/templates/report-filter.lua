@@ -10,7 +10,8 @@
       under it, not the one-cell table Pandoc 3 wraps a figure in;
     * "Таблиця N – Назва" above a table is a caption, flush left at the
       paragraph indent;
-    * "double quotes" become «ялинки», the quotes of Ukrainian text;
+    * "double quotes" become «ялинки», the quotes of Ukrainian text, and so do
+      the curly ones “…”, ”…”, „…“ that Word and messengers type for them;
     * a control question written "1 Текст питання?" is numbered "1. Текст
       питання?";
     * superscript and subscript characters typed as Unicode — "2⁸³", "H₂O" —
@@ -68,15 +69,36 @@ local function script_of(char)
   return nil
 end
 
+-- Curly double quotes typed as characters. Pandoc makes a Quoted only of the
+-- straight "…"; these reach the filter as plain text.
+local CURLY_QUOTE = { ['“'] = true, ['”'] = true, ['„'] = true }
+
+--- A curly quote → « or ». Which one is told by its place, not by the
+--- character: “…”, ”…” and „…“ are all in use. A quote that opens a word, or
+--- follows a bracket, opens; any other closes.
+local function guillemet(chars, i)
+  local before = chars[i - 1]
+  if before == nil or before == '(' or before == '[' then return '«' end
+  return '»'
+end
+
 --- "2⁸³" → Str "2", Superscript [Str "83"]; a word without such characters is
 --- left untouched. Code is not a Str and keeps whatever the student typed.
 function Str(str)
   local chars = {}
-  local has_script = false
+  local has_script, has_quote = false, false
   for _, code in utf8.codes(str.text) do
     local char = utf8.char(code)
     chars[#chars + 1] = char
     if script_of(char) then has_script = true end
+    if CURLY_QUOTE[char] then has_quote = true end
+  end
+
+  if has_quote then
+    for i, char in ipairs(chars) do
+      if CURLY_QUOTE[char] then chars[i] = guillemet(chars, i) end
+    end
+    if not has_script then return pandoc.Str(table.concat(chars)) end
   end
   if not has_script then return nil end
 
