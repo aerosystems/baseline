@@ -187,13 +187,12 @@ function titlePage(report) {
     student: signature(report.student),
     group: report.groupTitle,
     teacher: report.teacher ?? TEACHER,
-    year: report.year ?? new Date().getFullYear(),
     academicYear: report.academicYear ?? academicYear(),
     code: workCode(report)
   };
 
-  // Each course has its own title page: the discipline, the code and the year
-  // are spelled differently in the samples
+  // Each course has its own title page: the discipline and the code are
+  // spelled differently in the samples
   const template = join(TITLE_TEMPLATES, `report-title-${report.course}.xml`);
   if (!existsSync(template)) throw new Error(`no title page for course ${report.course}`);
 
