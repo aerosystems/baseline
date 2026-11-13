@@ -7,6 +7,9 @@
  * tracks is 01-lecture-intro.answers.age, the same file encrypted with age
  * (https://age-encryption.org) and ASCII-armored.
  *
+ * A module control test (01-module/_control-test.md) is sealed the same way,
+ * as _control-test.md.age, and whole: its questions are as secret as its key.
+ *
  * The files are encrypted to the public keys in .age-recipients, so the
  * ciphertext is written without a secret. Decrypting needs the secret key,
  * which is kept in a password manager and copied to one of:
@@ -40,8 +43,11 @@ const RECIPIENTS = join(ROOT, '.age-recipients');
 const KEY_FILE = join(homedir(), '.config', 'baseline', 'answers.key');
 const KEY_ENV = 'BASELINE_AGE_KEY';
 
-const PLAIN = '.answers';
-const SEALED = '.answers.age';
+// Plaintext suffix and the suffix of its ciphertext, for every kind of sealed file
+const PAIRS = [
+  { plain: '.answers', sealed: '.answers.age' },
+  { plain: '_control-test.md', sealed: '_control-test.md.age' },
+];
 
 // Matches a real secret key, not its mention in docs ("AGE-SECRET-KEY-1...")
 const SECRET_KEY = /AGE-SECRET-KEY-1[0-9A-Z]{50,}/;
@@ -147,25 +153,27 @@ async function importKey() {
 
 /* ── Files ─────────────────────────────────────────────────────────────────── */
 
-/** Every answer key under content/, as base paths without extension, with what exists of each */
+/** Every sealed file under content/, as base paths without suffix, with what exists of each */
 function listAnswerKeys() {
   const keys = new Map();
   for (const entry of readdirSync(CONTENT, { recursive: true })) {
     const path = join(CONTENT, entry);
-    for (const ext of [SEALED, PLAIN]) {
-      if (!path.endsWith(ext)) continue;
-      const base = path.slice(0, -ext.length);
-      const key = keys.get(base) ?? { base, plain: false, sealed: false };
-      key[ext === PLAIN ? 'plain' : 'sealed'] = true;
-      keys.set(base, key);
+    for (const pair of PAIRS) {
+      const kind = path.endsWith(pair.sealed) ? 'sealed' : path.endsWith(pair.plain) ? 'plain' : null;
+      if (!kind) continue;
+      const base = path.slice(0, -pair[kind].length);
+      const id = base + pair.plain;
+      const key = keys.get(id) ?? { base, pair, plain: false, sealed: false };
+      key[kind] = true;
+      keys.set(id, key);
       break;
     }
   }
   return [...keys.values()].sort((a, b) => a.base.localeCompare(b.base));
 }
 
-const plainPath = key => key.base + PLAIN;
-const sealedPath = key => key.base + SEALED;
+const plainPath = key => key.base + key.pair.plain;
+const sealedPath = key => key.base + key.pair.sealed;
 const show = path => relative(ROOT, path);
 
 async function makeDecrypter(identity) {
@@ -241,7 +249,7 @@ async function status() {
     if (!key.sealed) pending.push(`[new]       ${show(plainPath(key))} — not encrypted yet`);
     else if (!key.plain) pending.push(`[missing]   ${show(plainPath(key))} — run decrypt`);
     else if (await decrypt(sealedPath(key)) !== readFileSync(plainPath(key), 'utf8')) {
-      pending.push(`[modified]  ${show(plainPath(key))} — differs from ${SEALED}`);
+      pending.push(`[modified]  ${show(plainPath(key))} — differs from ${show(sealedPath(key))}`);
     }
   }
   console.log(pending.length ? pending.join('\n') : 'All answer keys are in sync.');
@@ -268,10 +276,10 @@ function check() {
   const tracked = git('ls-files', '-z').split('\0').filter(Boolean);
   const problems = [];
 
-  for (const path of tracked.filter(path => path.endsWith(PLAIN))) {
+  for (const path of tracked.filter(path => PAIRS.some(pair => path.endsWith(pair.plain)))) {
     problems.push(`${path} — plaintext answer key is tracked`);
   }
-  for (const path of tracked.filter(path => path.endsWith(SEALED))) {
+  for (const path of tracked.filter(path => PAIRS.some(pair => path.endsWith(pair.sealed)))) {
     if (!isSealed(readFileSync(join(ROOT, path), 'utf8'))) problems.push(`${path} — not an age-encrypted file`);
   }
   for (const path of git('grep', '-lIE', SECRET_KEY.source).split('\n').filter(Boolean)) {

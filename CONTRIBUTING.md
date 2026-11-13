@@ -117,8 +117,9 @@ teacher's section of [reports/README.md](reports/README.md).
 
 ## What must not be committed
 
-- A quiz answer key in plaintext (`*.answers`) — only the `.age` ciphertext.
-  `npm run answers:check` runs on every push and fails on a plaintext key.
+- A quiz answer key or a module control test in plaintext (`*.answers`,
+  `_control-test.md`) — only the `.age` ciphertext. `npm run answers:check`
+  runs on every push and fails on either.
 - The age secret key, anywhere.
 - `data/` — the curricula and the samples are not part of the public repository.
 - A student's screenshot with anything but the program window in it.

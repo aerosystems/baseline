@@ -6,7 +6,7 @@
   {=openxml} block, so no two .docx files have to be merged.
 
   Placeholders: {{lab}} {{discipline}} {{code}} {{student}} {{group}} {{teacher}}
-                {{year}} {{academicYear}}
+                {{academicYear}}
   Rebuild after a sample changes: node scripts/templates/build-report-title.mjs
 -->
 <w:p><w:pPr><w:tabs><w:tab w:val="left" w:leader="none" w:pos="184"/><w:tab w:val="center" w:leader="none" w:pos="4783"/></w:tabs><w:spacing w:after="0" w:line="360" w:lineRule="auto"/><w:jc w:val="center"/><w:rPr><w:rFonts w:ascii="Times New Roman" w:cs="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman"/><w:b w:val="1"/><w:bCs w:val="1"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:cs="Times New Roman" w:eastAsia="Times New Roman" w:hAnsi="Times New Roman"/><w:b w:val="1"/><w:bCs w:val="1"/><w:sz w:val="28"/><w:szCs w:val="28"/><w:rtl w:val="0"/></w:rPr><w:t xml:space="preserve">Міністерство освіти і науки України</w:t></w:r></w:p>

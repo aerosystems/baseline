@@ -75,6 +75,12 @@ npm run answers:status                 # what is not encrypted yet
 yet; `--force` does. CI runs `npm run answers:check` on every push: it fails on a
 tracked plaintext answer key or a secret key anywhere in the repository.
 
+A module control test is sealed the same way, but whole — its questions are as
+secret as its key. It lies in the module as `_control-test.md` (copy
+`scripts/templates/control-test.md`), git tracks `_control-test.md.age`, and the
+same `answers:*` commands handle both kinds. The site never loads the plaintext:
+`src/lib/content.ts` leaves it out of the markdown it bundles.
+
 The ciphertext stays in git history for good. If the secret key leaks, a new key
 protects only future edits — the leaked answers can be fixed only by changing the
 questions.

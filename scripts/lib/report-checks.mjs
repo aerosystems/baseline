@@ -236,6 +236,16 @@ export function checkPdf(pdfPath, expected) {
   const page = number => poppler('pdftotext', ['-layout', '-enc', 'UTF-8', '-f', String(number), '-l', String(number), pdfPath, '-']);
   const lines = text => text.split('\n').map(line => line.trimEnd()).filter(line => line.trim());
 
+  // The page number is found by where it stands, not by the layout text:
+  // pdftotext -layout indents a line relative to the other text of the page,
+  // and on a page that holds a picture alone the number is the only word, set
+  // flush left. A number sits in the right half, above the 20 mm top margin.
+  const words = number => [...poppler('pdftotext', ['-bbox', '-f', String(number), '-l', String(number), pdfPath, '-'])
+    .matchAll(/<word xMin="([\d.]+)" yMin="[\d.]+" xMax="[\d.]+" yMax="([\d.]+)">([^<]*)<\/word>/g)]
+    .map(([, xMin, yMax, text]) => ({ x: Number(xMin), bottom: Number(yMax), text }));
+  const numbered = number => words(number).some(word =>
+    word.text === String(number) && word.x > 595.3 / 2 && word.bottom < 56.7);
+
   // Title page: the values the title must carry, and no page number
   const title = page(1);
   expect(title.includes(expected.signature), `the title page of the PDF does not name ${expected.signature}`);
@@ -243,17 +253,16 @@ export function checkPdf(pdfPath, expected) {
   expect(title.includes(`№${expected.lab}`), `the title page of the PDF does not say №${expected.lab}`);
   expect(!/^\s*1\s*$/m.test(title), 'the title page of the PDF carries a page number');
 
-  // Page 2: the number alone on the first line, flush right, then the text
+  // Page 2: the number in the top right corner, then the text
   if (pages >= 2) {
-    const [first, second] = lines(page(2));
-    expect(first && /^\s{20,}2$/.test(first), 'page 2 of the PDF has no page number in the top right corner');
+    const second = lines(page(2)).find(line => line.trim() !== '2');
+    expect(numbered(2), 'page 2 of the PDF has no page number in the top right corner');
     expect(second && second.trim().startsWith('Тема:'), `page 2 of the PDF does not start with "Тема:" (it starts "${second?.trim().slice(0, 40)}")`);
   }
 
   // Every page from the second on carries its number
   for (let number = 3; number <= pages; number++) {
-    const [first] = lines(page(number));
-    expect(first && new RegExp(`^\\s{20,}${number}$`).test(first), `page ${number} of the PDF has no page number`);
+    expect(numbered(number), `page ${number} of the PDF has no page number`);
   }
 
   // Pictures: all of them, once

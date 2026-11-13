@@ -86,8 +86,9 @@ function parseFrontmatter(markdown: string): { data: Record<string, unknown>; co
   return { data, content };
 }
 
-// Import all markdown files as raw text
-const markdownFiles = import.meta.glob('/content/**/*.md', {
+// Import all markdown files as raw text. A decrypted control test is never one
+// of them: it is secret, and would otherwise be bundled into the public site.
+const markdownFiles = import.meta.glob(['/content/**/*.md', '!/content/**/_control-test.md'], {
   eager: true,
   query: '?raw',
   import: 'default',

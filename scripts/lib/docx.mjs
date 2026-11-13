@@ -279,6 +279,27 @@ export function freezeTimestamps(directory, epoch) {
 }
 
 /**
+ * Scales down every picture taller than maxHeight (twips), keeping its
+ * proportions. Pandoc fits a picture to the text width only, so a tall
+ * screenshot can take the whole page and leave its caption, which has to stay
+ * with it, for the next one. The size is written twice: wp:extent places the
+ * picture on the page, a:ext is the size it is drawn at.
+ */
+export function limitFigureHeight(document, maxHeight) {
+  const limit = maxHeight * 635;      // EMU in a twip
+  return document.replace(/<w:drawing>[\s\S]*?<\/w:drawing>/g, drawing => {
+    const extent = drawing.match(/<wp:extent cx="(\d+)" cy="(\d+)"/);
+    if (!extent || Number(extent[2]) <= limit) return drawing;
+
+    const scale = limit / Number(extent[2]);
+    return drawing.replace(
+      /<(wp:extent|a:ext) cx="(\d+)" cy="(\d+)"/g,
+      (_, tag, cx, cy) => `<${tag} cx="${Math.round(cx * scale)}" cy="${Math.round(cy * scale)}"`
+    );
+  });
+}
+
+/**
  * Rebuilds the listings Pandoc wrote into the shape the printed page needs.
  *
  * Pandoc marks every run of a code block with the VerbatimChar character style,
@@ -364,7 +385,7 @@ function listingStyle(stylesXml) {
   };
 }
 
-export function applyReferenceFormatting(docxPath, { tableWidth, list, table, properties, epoch }) {
+export function applyReferenceFormatting(docxPath, { tableWidth, figureHeight, list, table, properties, epoch }) {
   const work = mkdtempSync(join(tmpdir(), 'docx-format-'));
 
   try {
@@ -384,7 +405,8 @@ export function applyReferenceFormatting(docxPath, { tableWidth, list, table, pr
       .replace(/<w:tbl>[\s\S]*?<\/w:tblGrid>/g, grid => stretchTable(grid, tableWidth))
       .replace(/<w:tbl>[\s\S]*?<\/w:tbl>/g, whole => formatTable(whole, table));
 
-    writeFileSync(documentPath, formatListings(document, { ...listing, width: tableWidth }));
+    const formatted = formatListings(document, { ...listing, width: tableWidth });
+    writeFileSync(documentPath, figureHeight ? limitFigureHeight(formatted, figureHeight) : formatted);
 
     const numberingPath = join(work, 'word', 'numbering.xml');
     const { left, hanging, bullet } = list;

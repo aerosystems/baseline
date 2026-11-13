@@ -1,0 +1,127 @@
+{
+  "_comment": "Склад групи. Номер визначає шифр роботи на титулці (ФКЗЕ. 123ОС<номер>). Поле github студент вписує сам окремим пул-реквестом.",
+  "group": "kmp-23-1-9",
+  "title": "КМП-23-1/9",
+  "students": [
+    {
+      "number": 1,
+      "name": "Алексейчук Тимофій",
+      "github": null
+    },
+    {
+      "number": 2,
+      "name": "Басалико Артем",
+      "github": null
+    },
+    {
+      "number": 3,
+      "name": "Біжко Кирило",
+      "github": null
+    },
+    {
+      "number": 4,
+      "name": "Великодна Ілона",
+      "github": null
+    },
+    {
+      "number": 5,
+      "name": "Вікторов Дмитро",
+      "github": null
+    },
+    {
+      "number": 6,
+      "name": "Ганжа Михайло",
+      "github": null
+    },
+    {
+      "number": 7,
+      "name": "Горяной Данііл",
+      "github": null
+    },
+    {
+      "number": 8,
+      "name": "Діденко Артур",
+      "github": null
+    },
+    {
+      "number": 9,
+      "name": "Душейко Антон",
+      "github": null
+    },
+    {
+      "number": 10,
+      "name": "Залєський Владислав",
+      "github": null
+    },
+    {
+      "number": 11,
+      "name": "Коляда Юрій",
+      "github": null
+    },
+    {
+      "number": 12,
+      "name": "Кукоба Артем",
+      "github": null
+    },
+    {
+      "number": 13,
+      "name": "Литвиненко Микола",
+      "github": "niicolav"
+    },
+    {
+      "number": 14,
+      "name": "Літвінов Олег",
+      "github": null
+    },
+    {
+      "number": 15,
+      "name": "Мартиненко Олег",
+      "github": null
+    },
+    {
+      "number": 16,
+      "name": "Мітькова Тетяна",
+      "github": null
+    },
+    {
+      "number": 17,
+      "name": "Навитанюк Назар",
+      "github": null
+    },
+    {
+      "number": 18,
+      "name": "Озеров Богдан",
+      "github": null
+    },
+    {
+      "number": 19,
+      "name": "Петречко Аркадій",
+      "github": "SH1ROH1"
+    },
+    {
+      "number": 20,
+      "name": "Понімаєв Максим",
+      "github": null
+    },
+    {
+      "number": 21,
+      "name": "Сухий Артем",
+      "github": null
+    },
+    {
+      "number": 22,
+      "name": "Табачник Борис",
+      "github": null
+    },
+    {
+      "number": 23,
+      "name": "Трофімов Микита",
+      "github": null
+    },
+    {
+      "number": 24,
+      "name": "Чорний Нікіта",
+      "github": null
+    }
+  ]
+}

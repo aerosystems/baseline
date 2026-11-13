@@ -20,8 +20,9 @@ PLAN*.md
 
 /data/
 
-# Quiz answer keys: the repository is public, students read it
+# Quiz answer keys and module control tests: the repository is public, students read it
 *.answers
+_control-test.md
 
 CLAUDE.md
 .claude/

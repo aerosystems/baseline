@@ -55,8 +55,12 @@ const FILTER = join(ROOT, 'scripts', 'templates', 'report-filter.lua');
 
 // Text width of a report: A4 minus the 25 and 10 mm margins. Tables as in the
 // report sample: centred, header row centred, rows at least 0.8 cm high.
+// A picture takes at most two thirds of the text height (A4 minus the 20 mm
+// margins): a tall screenshot would otherwise fill the page, and its caption
+// would be pushed onto the next one.
 const LAYOUT = {
   tableWidth: 11906 - 1418 - 567,
+  figureHeight: Math.round((16838 - 1134 - 1134) * 2 / 3),
   list: { left: 1134, hanging: 425, bullet: '–' },
   table: { align: 'center', headerAlign: 'center', rowHeight: 454 }
 };
@@ -105,21 +109,44 @@ export function signature(fullName) {
 }
 
 /**
- * Every picture the report embeds must exist next to it. Pandoc replaces a
- * picture it cannot read with the alt text and goes on, so a report whose
- * screenshots were never uploaded built into a document with captions and no
- * pictures. The path also has to stay inside the student's directory.
+ * Every picture the report embeds must be a file in its assets/. Pandoc
+ * replaces a picture it cannot read with the alt text and goes on, so a report
+ * whose screenshots were never uploaded built into a document with captions
+ * and no pictures.
+ *
+ * A link is not a picture in the repository either. A screenshot pasted into
+ * the GitHub editor becomes <img src="https://github.com/user-attachments/…">;
+ * the document builds without it, and since the sample checks count markdown
+ * pictures only, a report of eight such tags passed with none embedded (#124).
+ * So an <img> tag, a URL, and a path outside assets/ are all refused.
+ *
+ * @returns the offending sources, each with the reason
  */
 export function missingImages(body, reportDir) {
-  const images = [...body.matchAll(/!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g)].map(m => m[1]);
+  const assetsDir = join(reportDir, 'assets');
+  const problems = [];
 
-  return images
-    .filter(src => !/^[a-z]+:/i.test(src))
-    .filter(src => {
-      let path;
-      try { path = resolve(reportDir, decodeURI(src)); } catch { return true; }
-      return !path.startsWith(reportDir + sep) || !existsSync(path) || !statSync(path).isFile();
-    });
+  for (const [tag] of body.matchAll(/<img\b[^>]*>/gi)) {
+    const src = tag.match(/\bsrc\s*=\s*["']?([^"'\s>]+)/i)?.[1] ?? tag;
+    problems.push(`${src} (an <img> tag — write ![Рисунок N – …](assets/…) instead)`);
+  }
+
+  const images = [...body.matchAll(/!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g)].map(m => m[1]);
+  for (const src of images) {
+    if (/^[a-z][a-z0-9+.-]*:|^\/\//i.test(src)) {
+      problems.push(`${src} (a link, not a file in assets/)`);
+      continue;
+    }
+    let path;
+    try { path = resolve(reportDir, decodeURI(src)); } catch { path = null; }
+    if (!path || !path.startsWith(assetsDir + sep)) {
+      problems.push(`${src} (not in assets/)`);
+    } else if (!existsSync(path) || !statSync(path).isFile()) {
+      problems.push(`${src} (no such file)`);
+    }
+  }
+
+  return problems;
 }
 
 function fail(message) {
@@ -183,13 +210,12 @@ function titlePage(report) {
     student: signature(report.student),
     group: report.groupTitle,
     teacher: report.teacher ?? TEACHER,
-    year: report.year ?? new Date().getFullYear(),
     academicYear: report.academicYear ?? academicYear(),
     code: workCode(report)
   };
 
-  // Each course has its own title page: the discipline, the code and the year
-  // are spelled differently in the samples
+  // Each course has its own title page: the discipline and the code are
+  // spelled differently in the samples
   const template = join(TITLE_TEMPLATES, `report-title-${report.course}.xml`);
   if (!existsSync(template)) throw new Error(`no title page for course ${report.course}`);
 
@@ -309,7 +335,8 @@ function buildReport(reportPath) {
   if (missing.length) {
     throw new Error(
       `the report shows ${missing.length === 1 ? 'a picture that is' : 'pictures that are'} not in the repository: ` +
-      `${missing.join(', ')} — upload ${missing.length === 1 ? 'it' : 'them'} next to report.md (assets/)`
+      `${missing.join(', ')} — upload ${missing.length === 1 ? 'it' : 'them'} into assets/ next to report.md ` +
+      'and embed as ![Рисунок N – …](assets/<file>)'
     );
   }
 
