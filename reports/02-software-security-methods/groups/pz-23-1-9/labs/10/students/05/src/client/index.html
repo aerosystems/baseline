@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>client</title>
+    <!-- Preact with dependencies can be bundled in one script with https://standalonepreact.satge.net -->
+    <script type="importmap">
+    {
+        "imports": {
+            "preact":       "https://esm.sh/preact",
+            "preact/hooks": "https://esm.sh/preact/hooks",
+            "preact-iso":   "https://esm.sh/preact-iso",
+            "bcrypt":       "https://cdn.jsdelivr.net/npm/bcryptjs@3.0.3/+esm",
+            "htm":          "https://esm.sh/htm"
+        }
+    }
+    </script>
+  </head>
+
+  <body>
+    <link rel="stylesheet" href="style.css"/>
+    <div id="root"></div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
