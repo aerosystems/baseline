@@ -1,0 +1,75 @@
+:root {
+    --white: #e8c8a8;
+    --black: #242220;
+    --black-slightly-bright: #342c26;
+    --black-bright: #483c3a;
+    --gray: #a6a488;
+    --yellow: #e89a48;
+    --blue: #6898e8;
+    --violet: #ba86b6;
+    --font: 16pt sans;
+}
+
+html {
+    box-sizing: border-box;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
+    background-color: var(--black);
+    color: var(--white);
+    font: var(--font);
+}
+
+*:focus-visible {
+    outline: 2px solid var(--yellow);
+}
+
+body {
+    margin: 0;
+}
+
+#root {
+    background-color: var(--black-bright);
+    font: var(--font);
+    width: 100vw;
+    height: 100vh;
+    #centered {
+        container: flex;
+        background-color: var(--black);
+        color: var(--white);
+        width: 80vw;
+        max-width: 1200px;
+        min-width: 800px;
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 20px 16px 0;
+    }
+}
+
+h1 {
+    font-weight: bold;
+}
+
+form > div {
+    margin: 2px 0;
+}
+
+input, select {
+    background-color: var(--black-slightly-bright);
+    border: var(--black-bright) 2px solid;
+}
+
+label {
+    margin-right: 10px;
+}
+
+button {
+    background-color: var(--black-slightly-bright);
+    border: var(--black-bright) 2px solid;
+    &:hover {
+        background-color: var(--black-bright);
+    }
+    &:disabled {
+        background-color: var(--black);
+    }
+}

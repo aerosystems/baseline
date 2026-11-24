@@ -1,0 +1,16 @@
+{
+	auto_https off
+}
+
+
+http://localhost:7070 {
+    log
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+    handle {
+        root ./
+        file_server
+        try_files {path} {path}/ /index.html
+    }
+}
