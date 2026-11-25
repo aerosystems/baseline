@@ -18,8 +18,9 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
 
-// Every course has its own title-page sample: the discipline, the work code and
-// even the year differ ("2026" for OS, "2026 - 2027" for the security course).
+// Every course has its own title-page sample: the discipline and the work code
+// differ. The OS sample prints a calendar year ("2026"); the title page spells
+// the academic year ("2026 - 2027") for both courses, as the security sample does.
 const COURSES = [
   {
     id: '01-operating-systems',
@@ -31,7 +32,7 @@ const COURSES = [
       ['Студент    ________________________', 'Студент    {{student}}'],
       ['ПЗ-25-1/9', '{{group}}'],
       ['Костенко А.О.', '{{teacher}}'],
-      ['2026', '{{year}}']
+      ['2026', '{{academicYear}}']
     ]
   },
   {
