@@ -1,0 +1,406 @@
+openapi: 3.2.0
+
+info:
+  version: 1.0.0
+  title: Restfull server GOing forward
+  description: CRUD REST api server written in go using mongodb
+
+servers:
+  - url: http://localhost:8080/api
+
+paths:
+  /users:
+    post:
+      description: sign-up a new user into the system
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/user'}}}
+      responses:
+        '200':
+          description: new user succesfully registered
+        '400':
+          description: wrong user format
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '409':
+          description: user with same name or email already exists
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+  /users/{name_or_email}:
+    delete:
+      description: delete specified user
+      parameters:
+        - $ref: '#/components/parameters/user_name_or_email'
+      security:
+        - basic: []
+        - jwt: []
+      responses:
+        '200':
+          description: User succesfully deleted
+        '400':
+          description: authorization header format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+  /login:
+    post:
+      description: login using html form or json
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/login'}}}
+      responses:
+        '200':
+          description: login succed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {token: {type: string}}
+        '400':
+          description: format error or Content-Type mismatch
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+  /dishes:
+    get:
+      description: get all the dishes
+      security:
+        - basic: []
+        - jwt: []
+      responses:
+        '200':
+          description: authorization succed and data returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/dish'}
+        '400':
+          description: authorization header format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+    post:
+      security:
+        - basic: []
+        - jwt: []
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/dish'}}}
+      responses:
+        '200':
+          description: succesfully added dish
+        '400':
+          description: authorization header format error or dish format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '409':
+          description: dish with same name already exists
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error or category not found
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+  /dishes/{name}:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/dish_name'
+      security:
+        - basic: []
+        - jwt: []
+      responses:
+        '200':
+          description: successfully returned dish
+        '400':
+          description: authorization header format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '404':
+          description: dish with such name not found
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+    delete:
+      description: delete specified dish
+      parameters:
+        - $ref: '#/components/parameters/dish_name'
+      security:
+        - basic: []
+        - jwt: []
+      responses:
+        '200':
+          description: Dish successfully deleted
+        '400':
+          description: authorization header format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '404':
+          description: dish with such name not found
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+    put:
+      description: update specified dish
+      parameters:
+        - $ref: '#/components/parameters/dish_name'
+      security:
+        - basic: []
+        - jwt: []
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/dish'}}}
+      responses:
+        '200':
+          description: dish successfully updated
+        '400':
+          description: authorization header format error or dish format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '404':
+          description: dish with such name not found
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '409':
+          description: dish conflict
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+  /categories:
+    get:
+      description: get all the categories
+      security:
+        - basic: []
+        - jwt: []
+      responses:
+        '200':
+          description: authorization succed and data returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/menu_category'}
+        '400':
+          description: authorization header format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+    post:
+      description: add a new category
+      security:
+        - basic: []
+        - jwt: []
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/menu_category'}}}
+      responses:
+        '200':
+          description: successfully added category
+        '400':
+          description: authorization header format error or category format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '409':
+          description: category with same name already exists
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+  /categories/{name}:
+    get:
+      description: get specified category
+      parameters:
+        - $ref: '#/components/parameters/category_name'
+      security:
+        - basic: []
+        - jwt: []
+      responses:
+        '200':
+          description: category successfully returned
+        '400':
+          description: authorization header format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '404':
+          description: category with such name not found
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+    delete:
+      description: delete specified category
+      parameters:
+        - $ref: '#/components/parameters/category_name'
+      security:
+        - basic: []
+        - jwt: []
+      responses:
+        '200':
+          description: category successfully deleted
+        '400':
+          description: authorization header format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '404':
+          description: category with such name not found
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+    put:
+      description: update specified category
+      parameters:
+        - $ref: '#/components/parameters/category_name'
+      security:
+        - basic: []
+        - jwt: []
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/menu_category'}}}
+      responses:
+        '200':
+          description: category successfully updated
+        '400':
+          description: authorization header format error or category format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '404':
+          description: category with such name not found
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '409':
+          description: category conflict
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+  /categories/{name}/dishes:
+    get:
+      description: get all dishes in specified category
+      parameters:
+        - $ref: '#/components/parameters/category_name'
+      security:
+        - basic: []
+        - jwt: []
+      responses:
+        '200':
+          description: authorization succed and dishes returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/dish'}
+        '400':
+          description: authorization header format error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '403':
+          description: authorization failed
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '404':
+          description: category with such name not found
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+        '500':
+          description: database error
+          content: {text/plain: {schema: {$ref: '#/components/schemas/error'}}}
+
+components:
+  schemas:
+    error:
+      type: string
+      example: address not found
+    user:
+      type: object
+      properties:
+        name: {type: string}
+        email: {type: string}
+        password: {type: string}
+        role: {type: string}
+    login:
+      type: object
+      properties:
+        login: {type: string}
+        password: {type: string}
+    dish:
+      type: object
+      properties:
+        category: {type: string}
+        dish: {type: string}
+        price: {type: number}   # number is floating, integer - not
+    menu_category:
+      type: object
+      properties:
+        category: {type: string}
+        nationality: {type: string}
+
+  parameters:
+    user_name_or_email:
+      name: name_or_email
+      in: path
+      required: true
+      schema: {type: string}
+      description: user name or email
+    dish_name:
+      name: name
+      in: path
+      required: true
+      schema: {type: string}
+      description: dish name
+    category_name:
+      name: name
+      in: path
+      required: true
+      schema: {type: string}
+      description: category name
+
+  securitySchemes:
+    basic:
+      type: http
+      scheme: basic
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
