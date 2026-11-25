@@ -109,21 +109,44 @@ export function signature(fullName) {
 }
 
 /**
- * Every picture the report embeds must exist next to it. Pandoc replaces a
- * picture it cannot read with the alt text and goes on, so a report whose
- * screenshots were never uploaded built into a document with captions and no
- * pictures. The path also has to stay inside the student's directory.
+ * Every picture the report embeds must be a file in its assets/. Pandoc
+ * replaces a picture it cannot read with the alt text and goes on, so a report
+ * whose screenshots were never uploaded built into a document with captions
+ * and no pictures.
+ *
+ * A link is not a picture in the repository either. A screenshot pasted into
+ * the GitHub editor becomes <img src="https://github.com/user-attachments/…">;
+ * the document builds without it, and since the sample checks count markdown
+ * pictures only, a report of eight such tags passed with none embedded (#124).
+ * So an <img> tag, a URL, and a path outside assets/ are all refused.
+ *
+ * @returns the offending sources, each with the reason
  */
 export function missingImages(body, reportDir) {
-  const images = [...body.matchAll(/!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g)].map(m => m[1]);
+  const assetsDir = join(reportDir, 'assets');
+  const problems = [];
 
-  return images
-    .filter(src => !/^[a-z]+:/i.test(src))
-    .filter(src => {
-      let path;
-      try { path = resolve(reportDir, decodeURI(src)); } catch { return true; }
-      return !path.startsWith(reportDir + sep) || !existsSync(path) || !statSync(path).isFile();
-    });
+  for (const [tag] of body.matchAll(/<img\b[^>]*>/gi)) {
+    const src = tag.match(/\bsrc\s*=\s*["']?([^"'\s>]+)/i)?.[1] ?? tag;
+    problems.push(`${src} (an <img> tag — write ![Рисунок N – …](assets/…) instead)`);
+  }
+
+  const images = [...body.matchAll(/!\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)/g)].map(m => m[1]);
+  for (const src of images) {
+    if (/^[a-z][a-z0-9+.-]*:|^\/\//i.test(src)) {
+      problems.push(`${src} (a link, not a file in assets/)`);
+      continue;
+    }
+    let path;
+    try { path = resolve(reportDir, decodeURI(src)); } catch { path = null; }
+    if (!path || !path.startsWith(assetsDir + sep)) {
+      problems.push(`${src} (not in assets/)`);
+    } else if (!existsSync(path) || !statSync(path).isFile()) {
+      problems.push(`${src} (no such file)`);
+    }
+  }
+
+  return problems;
 }
 
 function fail(message) {
@@ -312,7 +335,8 @@ function buildReport(reportPath) {
   if (missing.length) {
     throw new Error(
       `the report shows ${missing.length === 1 ? 'a picture that is' : 'pictures that are'} not in the repository: ` +
-      `${missing.join(', ')} — upload ${missing.length === 1 ? 'it' : 'them'} next to report.md (assets/)`
+      `${missing.join(', ')} — upload ${missing.length === 1 ? 'it' : 'them'} into assets/ next to report.md ` +
+      'and embed as ![Рисунок N – …](assets/<file>)'
     );
   }
 
